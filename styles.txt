@@ -1,0 +1,2 @@
+color palette -> https://huemint.com/brand-1/#palette=fffefc-323014
+Font -> https://fonts.google.com/specimen/Playfair+Display?sort=popularity
