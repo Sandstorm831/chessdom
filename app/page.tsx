@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { playfair_display } from "./ui/fonts";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { SignIn } from "@/components/auth_components";
 
 export default function Home() {
   return (
@@ -12,8 +11,8 @@ export default function Home() {
         <div className="w-full flex justify-between mt-3 px-3">
           <div className=" text-3xl">Chessdom</div>
           <div>
-            <Button variant="link"  className="text-3xl"><Link href="/signin">Sign in</Link></Button>
-            <Button variant="ghost" className="text-3xl border-[#323014] border px-2 py-5 bg-transparent"><Link href='/signup'>Sign up</Link></Button>
+            <SignIn variant="link" className="text-3xl" />
+            {/* <Button variant="link"  className="text-3xl">Sign in</Button> */}
           </div>
         </div>
         <div className="w-full flex justify-center h-max">
