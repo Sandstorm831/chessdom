@@ -6,6 +6,7 @@ import { ReactElement } from "react";
 import {
   draggable,
   dropTargetForElements,
+  monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import invariant from "tiny-invariant";
 import { useState } from "react";
@@ -38,11 +39,11 @@ function canMove(
 ) {
   const rowDist = Math.abs(start.xcord - destination.xcord);
   const colDist = Math.abs(start.ycord - destination.ycord);
-
-  if (squarePiece.find((spice) => isAtSamePlace(spice.cord, start))) {
+    console.log("I am 0")
+  if (squarePiece.find((spice) => isAtSamePlace(spice.cord, destination))) {
     return false;
   }
-
+  console.log("I am 1")
   if (rowDist === colDist || rowDist === 0 || colDist === 0) return true;
   else return false;
 }
@@ -127,14 +128,18 @@ function Square({
 
     return dropTargetForElements({
       element: el,
-      getData: () => ({cord}),
-      canDrop: ({source}) => {
+      getData: () => ({ cord }),
+      canDrop: ({ source }) => {
         let sourceCords: coordinates;
-        if(!isCoordinate(source.data.cord)){
-            return false;
+        if (!isCoordinate(source.data.cord)) {
+          return false;
         }
         sourceCords = isCoordinate(source.data.cord);
-        if(sourceCords.xcord === cord.xcord && sourceCords.ycord === cord.ycord) return false;
+        if (
+          sourceCords.xcord === cord.xcord &&
+          sourceCords.ycord === cord.ycord
+        )
+          return false;
         return true;
       },
       onDragEnter: ({ source }) => {
@@ -178,8 +183,11 @@ function Square({
   );
 }
 
-export default function Page() {
+export function RenderSquares(queenPos: PieceTypeRecord[]) {
+  const qCord: coordinates = queenPos[0].cord;
+
   const chessBoardArray: ReactElement[] = [];
+
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       if (i % 2 === j % 2) {
@@ -194,6 +202,14 @@ export default function Page() {
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else if (j === 0) {
@@ -207,6 +223,14 @@ export default function Page() {
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else if (i === 7) {
@@ -219,6 +243,14 @@ export default function Page() {
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else
@@ -227,7 +259,16 @@ export default function Page() {
               pieces={[]}
               cord={{ xcord: j, ycord: i }}
               key={i.toString() + j.toString()}
-            ></Square>
+            >
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
+            </Square>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -241,12 +282,14 @@ export default function Page() {
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              <Peice
-                cord={{ xcord: j, ycord: i }}
-                pieceType="queen"
-                image="/chesspeices/blackQueen.svg"
-                alt="BlackQueen"
-              />
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else if (j === 0) {
@@ -260,6 +303,14 @@ export default function Page() {
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else if (i === 7) {
@@ -272,6 +323,14 @@ export default function Page() {
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
             </Square>
           );
         } else
@@ -281,18 +340,71 @@ export default function Page() {
               cord={{ xcord: j, ycord: i }}
               className="bg-[#769656]"
               key={i.toString() + j.toString()}
-            ></Square>
+            >
+              {qCord.xcord === j && qCord.ycord === i ? (
+                <Peice
+                  cord={{ xcord: j, ycord: i }}
+                  pieceType="queen"
+                  image="/chesspeices/blackQueen.svg"
+                  alt="BlackQueen"
+                />
+              ) : null}
+            </Square>
           );
       }
     }
   }
+  return chessBoardArray;
+}
+
+export default function Page() {
+  const [queenPos, setQueenPos] = useState<PieceTypeRecord[]> ([
+    {
+      type: "queen",
+      cord: {
+        xcord: 5,
+        ycord: 2,
+      },
+    },
+  ]);
+  useEffect(() => {
+    console.log("queenPos is changing")
+    return monitorForElements({
+        onDrop({source, location}) {
+            const destination = location.current.dropTargets[0];
+            if(!destination){
+                return;
+            }
+            const destinationLocation = destination.data.cord;
+            const sourceLocation = source.data.cord;
+            const pieceType = source.data.pieceType;
+            if(!isCoordinate(destinationLocation) || !isCoordinate(sourceLocation) || !isPieceType(pieceType)){
+                return;
+            }
+            const destCoordinates = isCoordinate(destinationLocation);
+            const sourceCoordinates = isCoordinate(sourceLocation);
+            const pieceTypeD = isPieceType(pieceType);
+            const piece = queenPos.find((p) => isAtSamePlace(p.cord, sourceCoordinates));
+            const restPieces = queenPos.filter((p) => p !== piece);
+            console.log(destCoordinates);
+            console.log(canMove(sourceCoordinates, destCoordinates, pieceTypeD, queenPos))
+            console.log(piece !== undefined)
+            if(canMove(sourceCoordinates, destCoordinates, pieceTypeD, queenPos) && piece !== undefined){
+                setQueenPos([{type: 'queen', cord: destCoordinates}, ...restPieces]);
+            }
+        },
+    });
+  }, [queenPos])
+
+//   const chessBoardArray = RenderSquares(queenPos);
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5  grid grid-rows-8 grid-cols-8">
-          {chessBoardArray && chessBoardArray.length
+          {/* {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
-            : null}
+            : null} */}
+            {RenderSquares(queenPos)}
         </div>
       </div>
     </div>
