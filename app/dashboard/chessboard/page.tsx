@@ -11,7 +11,53 @@ import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
 
-function Peice({ image, alt }: { image: string; alt: string }) {
+type HoveredState = "idle" | "validMove" | "InvalidMove";
+
+type PieceType = "queen";
+
+type PieceTypeRecord = {
+  type: "queen";
+  cord: coordinates;
+};
+
+type coordinates = {
+  xcord: number;
+  ycord: number;
+};
+
+function isAtSamePlace(i: coordinates, j: coordinates) {
+  if (i.xcord === j.xcord && i.ycord === j.ycord) return true;
+  return false;
+}
+
+function canMove(
+  start: coordinates,
+  destination: coordinates,
+  piece: PieceType,
+  squarePiece: PieceTypeRecord[]
+) {
+  const rowDist = Math.abs(start.xcord - destination.xcord);
+  const colDist = Math.abs(start.ycord - destination.ycord);
+
+  if (squarePiece.find((spice) => isAtSamePlace(spice.cord, start))) {
+    return false;
+  }
+
+  if (rowDist === colDist || rowDist === 0 || colDist === 0) return true;
+  else return false;
+}
+
+function Peice({
+  cord,
+  pieceType,
+  image,
+  alt,
+}: {
+  cord: coordinates;
+  pieceType: PieceType;
+  image: string;
+  alt: string;
+}) {
   const ref = useRef(null);
   const [dragging, setDragging] = useState<Boolean>(false);
   useEffect(() => {
@@ -22,8 +68,9 @@ function Peice({ image, alt }: { image: string; alt: string }) {
       element: el,
       onDragStart: () => setDragging(true),
       onDrop: () => setDragging(false),
+      getInitialData: () => ({ cord, pieceType }),
     });
-  }, []);
+  }, [cord, pieceType]);
   return (
     <Image
       src={image}
@@ -38,14 +85,41 @@ function Peice({ image, alt }: { image: string; alt: string }) {
   );
 }
 
+function isCoordinate(token: unknown): coordinates {
+  if (
+    typeof token === "object" &&
+    token !== null &&
+    "xcord" in token &&
+    "ycord" in token
+  ) {
+    const { xcord, ycord } = token;
+    if (typeof xcord === "number" && typeof ycord === "number")
+      return { xcord, ycord };
+    else throw new Error("type check error in isCoordinate");
+  } else {
+    throw new Error("type check error in isCoordinate");
+  }
+}
+
+function isPieceType(token: unknown): PieceType {
+  if (typeof token === "string" && token === "queen") {
+    return "queen";
+  } else {
+    throw new Error("type check error in isPieceType");
+  }
+}
+
 function Square({
-  xcord,
-  ycord,
+  pieces,
+  cord,
   children,
   ...props
-}: { xcord: number; ycord: number } & ComponentPropsWithoutRef<"div">) {
+}: {
+  pieces: PieceTypeRecord[];
+  cord: coordinates;
+} & ComponentPropsWithoutRef<"div">) {
   const ref = useRef(null);
-  const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
+  const [isDraggedOver, setIsDraggedOver] = useState<HoveredState>("idle");
 
   useEffect(() => {
     const el = ref.current;
@@ -53,16 +127,45 @@ function Square({
 
     return dropTargetForElements({
       element: el,
-      onDragEnter: () => setIsDraggedOver(true),
-      onDragLeave: () => setIsDraggedOver(false),
-      onDrop: () => setIsDraggedOver(false),
+      getData: () => ({cord}),
+      canDrop: ({source}) => {
+        let sourceCords: coordinates;
+        if(!isCoordinate(source.data.cord)){
+            return false;
+        }
+        sourceCords = isCoordinate(source.data.cord);
+        if(sourceCords.xcord === cord.xcord && sourceCords.ycord === cord.ycord) return false;
+        return true;
+      },
+      onDragEnter: ({ source }) => {
+        // type checks for source
+        let sourceCords: coordinates;
+        let sourcePieceType: PieceType;
+        if (
+          !isCoordinate(source.data.cord) ||
+          !isPieceType(source.data.pieceType)
+        ) {
+          return;
+        }
+        sourceCords = isCoordinate(source.data.cord);
+        sourcePieceType = isPieceType(source.data.pieceType);
+        if (canMove(sourceCords, cord, sourcePieceType, pieces)) {
+          setIsDraggedOver("validMove");
+        } else {
+          setIsDraggedOver("InvalidMove");
+        }
+      },
+      onDragLeave: () => setIsDraggedOver("idle"),
+      onDrop: () => setIsDraggedOver("idle"),
     });
-  }, []);
+  }, [cord, pieces]);
 
-  const isDark = !(xcord % 2 === ycord % 2);
+  const isDark = !(cord.xcord % 2 === cord.ycord % 2);
   function getColor(): string {
-    if (isDraggedOver) {
-      return "bg-blue-200 text-black";
+    if (isDraggedOver === "validMove") {
+      return "bg-green-300 text-black";
+    } else if (isDraggedOver === "InvalidMove") {
+      return "bg-fuchsia-300 text-black";
     }
     return isDark
       ? "bg-[#769656] text-[#eeeed2]"
@@ -82,7 +185,11 @@ export default function Page() {
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
@@ -91,7 +198,11 @@ export default function Page() {
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
@@ -100,7 +211,11 @@ export default function Page() {
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
@@ -109,25 +224,38 @@ export default function Page() {
         } else
           chessBoardArray.push(
             <Square
-              xcord={j}
-              ycord={i}
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
               key={i.toString() + j.toString()}
             ></Square>
           );
       } else {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              <Peice image="/chesspeices/blackQueen.svg" alt="BlackQueen" />
+              <Peice
+                cord={{ xcord: j, ycord: i }}
+                pieceType="queen"
+                image="/chesspeices/blackQueen.svg"
+                alt="BlackQueen"
+              />
             </Square>
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
@@ -136,7 +264,11 @@ export default function Page() {
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <Square xcord={j} ycord={i} key={i.toString() + j.toString()}>
+            <Square
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
+              key={i.toString() + j.toString()}
+            >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
@@ -145,8 +277,8 @@ export default function Page() {
         } else
           chessBoardArray.push(
             <Square
-              xcord={j}
-              ycord={i}
+              pieces={[]}
+              cord={{ xcord: j, ycord: i }}
               className="bg-[#769656]"
               key={i.toString() + j.toString()}
             ></Square>
@@ -157,7 +289,7 @@ export default function Page() {
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
-        <div className="aspect-square w-2/5 bg-blue-500 grid grid-rows-8 grid-cols-8">
+        <div className="aspect-square w-2/5  grid grid-rows-8 grid-cols-8">
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
