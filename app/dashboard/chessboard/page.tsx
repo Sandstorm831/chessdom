@@ -11,37 +11,36 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess } from "chess.js";
-const chess = new Chess();
+import { Chess, Color, PieceSymbol, Square } from "chess.js";
 
 type positionObject = {
-  square: string;
-  type: "r" | "n" | "b" | "q" | "k" | "p";
-  color: "w" | "b";
+  square: Square;
+  type: PieceSymbol;
+  color: Color;
 };
 
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
 
-function squareToIJ(square: string) {
+function squareToIJ(square: Square) {
   const j = square[0].toLowerCase().charCodeAt(0) - 97;
   const i = Math.abs(Number(square[1]) - 8);
   return { i, j };
 }
 
-function IJToSquare(i: number, j: number): string {
+function IJToSquare(i: number, j: number): Square {
   let square: string = "";
   square += String.fromCharCode(j + 97);
   square += (8 - i).toString();
-  return square;
+  return square as Square;
 }
 
-function Square({
+function SquareBlock({
   cord,
   children,
   ...props
 }: {
-  cord: string;
+  cord: Square;
 } & ComponentPropsWithoutRef<"div">) {
   const ref = useRef(null);
   const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
@@ -60,7 +59,9 @@ function Square({
   const isDark = !(i%2 === j%2);
   function getColor(){
     if(isDraggedOver){
-      return 'bg-blue-200 text-black';
+      return isDark
+      ? "border-2 border-gray-500 bg-[#769656] text-[#eeeed2]"
+      : "border-2 border-gray-500 bg-[#eeeed2] text-[#769656]";
     }
     return isDark
       ? "bg-[#769656] text-[#eeeed2]"
@@ -73,7 +74,7 @@ function Square({
   );
 }
 
-function Peice({ chessBoardIJ }: { chessBoardIJ: positionObject }) {
+function Peice({ chessBoardIJ, blueDotFunc }: { chessBoardIJ: positionObject, blueDotFunc: (a : Square, b: boolean) => void }) {
   const ref = useRef(null);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
@@ -81,8 +82,16 @@ function Peice({ chessBoardIJ }: { chessBoardIJ: positionObject }) {
     invariant(elm);
     return draggable({
       element: elm,
-      onDragStart: () => setDragging(true),
-      onDrop: () => setDragging(false),
+      onDragStart: () => {
+        setDragging(true);
+        blueDotFunc(chessBoardIJ.square, false);
+      }
+        ,
+      onDrop: () => {
+        setDragging(false);
+        blueDotFunc('a1', true); // An arbitrary square is passed here
+      }
+      ,
 
     });
   }, [chessBoardIJ]);
@@ -105,6 +114,18 @@ function RenderSquare(fen: string) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
   const chessBoardArray: ReactElement[] = [];
+  const [blueDotArray, setBlueDotArray] =  useState<Square[]>([]);
+
+  function setBlueDotArrayFunc(square: Square, toBeCleared: boolean){
+    if(toBeCleared) setBlueDotArray([]);
+    else{
+      console.log("runing");
+      const possibleMoves = chess.moves({square: square, verbose: true});
+      const tempArray: Square[] = []
+      possibleMoves.filter((obj) => {tempArray.push(obj.to)});
+      setBlueDotArray(tempArray);
+    }
+  }
 
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
@@ -112,79 +133,87 @@ function RenderSquare(fen: string) {
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)} >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <Square cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
-            <Square
+            <SquareBlock
             
               cord={IJToSquare(i, j)}
               className="bg-[#769656]"
               key={IJToSquare(i, j)}
             >
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </Square>
+              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
+              {blueDotArray.includes(IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            </SquareBlock>
           );
       }
     }
