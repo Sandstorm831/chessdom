@@ -11,10 +11,17 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
 const chess = new Chess();
-
-
 
 type positionObject = {
   square: Square;
@@ -22,9 +29,9 @@ type positionObject = {
   color: Color;
 };
 type SquareAndMove = {
-  square: Square,
-  move: string,
-}
+  square: Square;
+  move: string;
+};
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
 
@@ -47,32 +54,35 @@ function SquareBlock({
   children,
   ...props
 }: {
-  validMovesArray: SquareAndMove[],
+  validMovesArray: SquareAndMove[];
   cord: Square;
 } & ComponentPropsWithoutRef<"div">) {
   const ref = useRef(null);
   const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
   useEffect(() => {
-    console.log("rendering")
+    console.log("rendering");
     const elm = ref.current;
     invariant(elm);
-     return dropTargetForElements({
+    return dropTargetForElements({
       element: elm,
-      getData: () => ({cord, validMovesArray}),
-      canDrop: () => validMovesArray.find(obj => obj.square === cord) !== undefined ? true : false,
+      getData: () => ({ cord, validMovesArray }),
+      canDrop: () =>
+        validMovesArray.find((obj) => obj.square === cord) !== undefined
+          ? true
+          : false,
       onDragEnter: () => setIsDraggedOver(true),
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: () => setIsDraggedOver(false),
-     })
-  }, [cord, validMovesArray])
+    });
+  }, [cord, validMovesArray]);
 
-  const {i, j} = squareToIJ(cord)
-  const isDark = !(i%2 === j%2);
-  function getColor(){
-    if(isDraggedOver){
+  const { i, j } = squareToIJ(cord);
+  const isDark = !(i % 2 === j % 2);
+  function getColor() {
+    if (isDraggedOver) {
       return isDark
-      ? "border-2 border-gray-500 bg-[#769656] text-[#eeeed2]"
-      : "border-2 border-gray-500 bg-[#eeeed2] text-[#769656]";
+        ? "border-2 border-gray-500 bg-[#769656] text-[#eeeed2]"
+        : "border-2 border-gray-500 bg-[#eeeed2] text-[#769656]";
     }
     return isDark
       ? "bg-[#769656] text-[#eeeed2]"
@@ -85,7 +95,13 @@ function SquareBlock({
   );
 }
 
-function Peice({ chessBoardIJ, blueDotFunc }: { chessBoardIJ: positionObject, blueDotFunc: (a : Square, b: boolean) => void }) {
+function Peice({
+  chessBoardIJ,
+  blueDotFunc,
+}: {
+  chessBoardIJ: positionObject;
+  blueDotFunc: (a: Square, b: boolean) => void;
+}) {
   const ref = useRef(null);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
@@ -93,18 +109,14 @@ function Peice({ chessBoardIJ, blueDotFunc }: { chessBoardIJ: positionObject, bl
     invariant(elm);
     return draggable({
       element: elm,
-      getInitialData: () => ({chessBoardIJ}),
       onDragStart: () => {
         setDragging(true);
         blueDotFunc(chessBoardIJ.square, false);
-      }
-        ,
+      },
       onDrop: () => {
         setDragging(false);
-        blueDotFunc('a1', true); // An arbitrary square is passed here
-      }
-      ,
-
+        blueDotFunc("a1", true); // An arbitrary square is passed here
+      },
     });
   }, [chessBoardIJ]);
   return (
@@ -125,13 +137,15 @@ function RenderSquare(fen: string) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
   const chessBoardArray: ReactElement[] = [];
-  const [blueDotArray, setBlueDotArray] =  useState<SquareAndMove[]>([]);
-  function setBlueDotArrayFunc(square: Square, toBeCleared: boolean){
-    if(toBeCleared) setBlueDotArray([]);
-    else{
-      const possibleMoves = chess.moves({square: square, verbose: true});
-      const tempArray: SquareAndMove[] = []
-      possibleMoves.filter((obj) => {tempArray.push({square: obj.to, move: obj.san})});
+  const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
+  function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {
+    if (toBeCleared) setBlueDotArray([]);
+    else {
+      const possibleMoves = chess.moves({ square: square, verbose: true });
+      const tempArray: SquareAndMove[] = [];
+      possibleMoves.filter((obj) => {
+        tempArray.push({ square: obj.to, move: obj.san });
+      });
       setBlueDotArray(tempArray);
     }
   }
@@ -142,85 +156,170 @@ function RenderSquare(fen: string) {
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)} >
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">1</div>
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 a
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
                 {8 - i}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray} cord={IJToSquare(i, j)} key={IJToSquare(i, j)}>
+            <SquareBlock
+              validMovesArray={blueDotArray}
+              cord={IJToSquare(i, j)}
+              key={IJToSquare(i, j)}
+            >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {String.fromCharCode(j + 97)}
               </div>
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
         } else
           chessBoardArray.push(
-            <SquareBlock validMovesArray={blueDotArray}
+            <SquareBlock
+              validMovesArray={blueDotArray}
               cord={IJToSquare(i, j)}
               className="bg-[#769656]"
               key={IJToSquare(i, j)}
             >
-              {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} blueDotFunc={setBlueDotArrayFunc} /> : null}
-              {blueDotArray.find(obj => obj.square === IJToSquare(i,j)) ? <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div> : null }
+              {chessBoardIJ ? (
+                <Peice
+                  chessBoardIJ={chessBoardIJ}
+                  blueDotFunc={setBlueDotArrayFunc}
+                />
+              ) : null}
+              {blueDotArray.find((obj) => obj.square === IJToSquare(i, j)) ? (
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+              ) : null}
             </SquareBlock>
           );
       }
@@ -233,32 +332,52 @@ export default function Page() {
   const [fen, setFen] = useState<string>(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
+  function handlePromotion(piece: string){
+    const move= promotionArray.find(obj => obj.move[5] === piece)
+    if(move === undefined) throw new Error('Failed promotion, some error occured');
+    chess.move(move.move);
+    setFen(chess.fen());
+    setOpenDrawer(false);
+    setPromotionArray([]);
+  }
   chess.load(fen);
-  useEffect( () => {
+  useEffect(() => {
     return monitorForElements({
-      onDrop({source, location}){
+      onDrop({ source, location }) {
         const destination = location.current.dropTargets[0];
-        if(!destination) return;
+        if (!destination) return;
         const dest = destination.data.cord; // Square object
-        const aary = destination.data.validMovesArray // SquareAndMoves[] Object
-        const sour = source.data.chessBoardIJ; // positionObject object
+        const aary = destination.data.validMovesArray; // SquareAndMoves[] Object
         // Should validate destSquareCoordinates for Square and sourcePieceData for positionObject
 
         ///////////////////////////////////////////////////////////////////////
         // Typecasting for a while
         const destSquareCoordinates = dest as Square;
-        const sourcePieceData = sour as positionObject;
         const validMovesArray = aary as SquareAndMove[];
         ///////////////////////////////////////////////////////////////////////
-        const tempObj = validMovesArray.find( obj => obj.square === destSquareCoordinates);
-        if(tempObj === undefined) throw new Error("Some Error occured, can not find the right move");
-        const move: string = tempObj.move;
-        chess.move(move);
-        setFen(chess.fen());
 
-      }
-    })
-  }, [fen])
+        const tempObj = validMovesArray.filter(
+          (obj) => obj.square === destSquareCoordinates
+        );
+        if (tempObj.length === 0){
+          throw new Error("Some Error occured, can not find the right move");
+        }
+        if (tempObj.length === 4) {
+          console.log("I am logging");
+          setPromotionArray(tempObj);
+          setOpenDrawer(true);
+        }
+        else{
+          console.log(tempObj);
+          const move: string = tempObj[0].move;
+          chess.move(move);
+          setFen(chess.fen());
+        }
+      },
+    });
+  }, [fen]);
   const chessBoardArray = RenderSquare(fen);
   return (
     <div className="w-full h-full flex flex-col justify-center">
@@ -267,9 +386,21 @@ export default function Page() {
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
+          {openDrawer ? 
+          <Drawer open={openDrawer} modal={true} dismissible={false}>
+              <DrawerContent>
+                <DrawerTitle className="flex justify-center text-3xl mb-5">Select your piece</DrawerTitle>
+                <DrawerDescription className="flex justify-center">
+                <Image src={`/chesspeices/${promotionArray[0].square[1] === '1' ? 'b': 'w'}n.svg`} alt={`${promotionArray[0].square[1] === '1' ? 'b': 'w'}n`} draggable='false' width={100} height={100} className="mx-5 hover:bg-gray-200 rounded-xl mb-3" onClick={() => handlePromotion('N')}/>
+                <Image src={`/chesspeices/${promotionArray[0].square[1] === '1' ? 'b': 'w'}r.svg`} alt={`${promotionArray[0].square[1] === '1' ? 'b': 'w'}r`} draggable='false' width={100} height={100} className="mx-5 hover:bg-gray-200 rounded-xl mb-3" onClick={() => handlePromotion('R')}/>
+                <Image src={`/chesspeices/${promotionArray[0].square[1] === '1' ? 'b': 'w'}b.svg`} alt={`${promotionArray[0].square[1] === '1' ? 'b': 'w'}b`} draggable='false' width={100} height={100} className="mx-5 hover:bg-gray-200 rounded-xl mb-3" onClick={() => handlePromotion('B')}/>
+                <Image src={`/chesspeices/${promotionArray[0].square[1] === '1' ? 'b': 'w'}q.svg`} alt={`${promotionArray[0].square[1] === '1' ? 'b': 'w'}q`} draggable='false' width={100} height={100} className="mx-5 hover:bg-gray-200 rounded-xl mb-3" onClick={() => handlePromotion('Q')}/>
+                </DrawerDescription>
+              </DrawerContent>
+          </Drawer>
+          : null}
         </div>
       </div>
     </div>
   );
-
 }
