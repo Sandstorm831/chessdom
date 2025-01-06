@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useRef } from "react";
 import { ReactElement } from "react";
 import {
@@ -57,18 +57,33 @@ function IJToSquare(i: number, j: number, color: Color): Square {
 }
 
 function SquareBlock({
+  setTrigger,
+  setBlueDotFunc,
   color,
   validMovesArray,
   cord,
   children,
   ...props
 }: {
+  setTrigger: Dispatch<SetStateAction<SquareAndMove[]>>;
+  setBlueDotFunc: (a: Square, b: boolean) => void;
   color: Color;
   validMovesArray: SquareAndMove[];
   cord: Square;
 } & ComponentPropsWithoutRef<"div">) {
   const ref = useRef(null);
   const [isDraggedOver, setIsDraggedOver] = useState<boolean>(false);
+  function handleClick() {
+    setBlueDotFunc("a1", true);
+    setBlueDotFunc(cord, false);
+    if (validMovesArray.length === 0) return;
+    const canMove = validMovesArray.filter((obj) => obj.square === cord);
+    if (canMove.length === 0) {
+      return;
+    } else {
+      setTrigger(canMove);
+    }
+  }
   useEffect(() => {
     console.log("rendering");
     const elm = ref.current;
@@ -99,7 +114,14 @@ function SquareBlock({
       : "bg-[#eeeed2] text-[#769656]";
   }
   return (
-    <div {...props} ref={ref} className={`${getColor()} relative`}>
+    <div
+      {...props}
+      ref={ref}
+      className={`${getColor()} relative`}
+      onClick={() => {
+        handleClick();
+      }}
+    >
       {children}
     </div>
   );
@@ -143,7 +165,11 @@ function Peice({
   );
 }
 
-function RenderSquare(fen: string, color: Color) {
+function RenderSquare(
+  fen: string,
+  color: Color,
+  setTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
+) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
   if (color === "b") {
@@ -173,6 +199,8 @@ function RenderSquare(fen: string, color: Color) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -200,6 +228,8 @@ function RenderSquare(fen: string, color: Color) {
         } else if (j === 0) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -225,6 +255,8 @@ function RenderSquare(fen: string, color: Color) {
         } else if (i === 7) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -251,6 +283,8 @@ function RenderSquare(fen: string, color: Color) {
         } else
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -273,6 +307,8 @@ function RenderSquare(fen: string, color: Color) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -300,6 +336,8 @@ function RenderSquare(fen: string, color: Color) {
         } else if (j === 0) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -325,6 +363,8 @@ function RenderSquare(fen: string, color: Color) {
         } else if (i === 7) {
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -351,6 +391,8 @@ function RenderSquare(fen: string, color: Color) {
         } else
           chessBoardArray.push(
             <SquareBlock
+              setBlueDotFunc={setBlueDotArrayFunc}
+              setTrigger={setTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -380,6 +422,7 @@ export default function Page() {
   const [fen, setFen] = useState<string>(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
+  const [trigger, setTrigger] = useState<SquareAndMove[]>([]);
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
@@ -394,6 +437,17 @@ export default function Page() {
     setPromotionArray([]);
   }
   chess.load(fen);
+  useEffect(() => {
+    if (trigger.length === 0) return;
+    if (trigger.length === 4) {
+      setPromotionArray(trigger);
+      setOpenDrawer(true);
+    } else {
+      const move: string = trigger[0].move;
+      chess.move(move);
+      setFen(chess.fen());
+    }
+  }, [trigger]);
   useEffect(() => {
     return monitorForElements({
       onDrop({ source, location }) {
@@ -426,7 +480,7 @@ export default function Page() {
       },
     });
   }, [fen]);
-  const chessBoardArray = RenderSquare(fen, playColor);
+  const chessBoardArray = RenderSquare(fen, playColor, setTrigger);
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
