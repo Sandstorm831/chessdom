@@ -20,7 +20,23 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { redirect } from 'next/navigation'
+import Link from "next/link";
 const chess = new Chess();
+
+type gameEndObject = {
+  gameEndTitle: String,
+  gameEndResult: String,
+  gameEnded: boolean
+}
 
 type positionObject = {
   square: Square;
@@ -420,23 +436,54 @@ function RenderSquare(
 }
 
 export default function Page() {
+  const originalFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<string>(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
+  let gameEndResult = "";
+  let gameEndTitle = "";
+  const [gameEnded, setGameEnded] = useState<gameEndObject>({gameEnded: false, gameEndResult: "", gameEndTitle: ""});
   const [trigger, setTrigger] = useState<SquareAndMove[]>([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
+  function setNewGame(){
+    setFen(originalFEN);
+    setOpenSettings(true);
+    setGameEnded({gameEnded: false, gameEndResult: "", gameEndTitle: ""})
+  }
+  function handleGameOver(){
+    const gameOver = chess.isGameOver();
+    if(!gameOver) return false;
+    setFen(chess.fen());
+    if(chess.isDraw()) {
+      gameEndResult = "1/2 - 1/2";
+      gameEndTitle = "Equally positioned";
+    }
+    else if(chess.turn() === 'w'){
+      gameEndResult = "0 - 1";
+      gameEndTitle = playColor === 'w' ? "Better luck next time" : "You Won";
+    }
+    else{
+      gameEndResult = "1 - 0";
+      gameEndTitle = playColor === 'w' ? "You Won" : "Better luck next time";
+    }
+    setGameEnded({gameEnded: true, gameEndResult: gameEndResult, gameEndTitle: gameEndTitle});
+    setSoundTrigger("/sounds/promote.mp3");
+    return true;
+  }
 
   function handlePromotion(piece: string) {
     const move = promotionArray.find((obj) => obj.move[5] === piece);
     if (move === undefined)
       throw new Error("Failed promotion, some error occured");
-    const x = chess.move(move.move);
+    chess.move(move.move);
+    if(handleGameOver()) return;
     setSoundTrigger("/sounds/promote.mp3");
     setFen(chess.fen());
+    console.log(chess.pgn());
     setOpenDrawer(false);
     setPromotionArray([]);
   }
@@ -460,16 +507,16 @@ export default function Page() {
     } else {
       const move: string = trigger[0].move;
       const x = chess.move(move);
-      if(x.hasOwnProperty('captured')) {
-        setSoundTrigger('/sounds/capture.mp3');
-      }
-      else if(x.san === 'O-O-O' || x.san === 'O-O'){
+      if(handleGameOver()) return;
+      if (x.hasOwnProperty("captured")) {
+        setSoundTrigger("/sounds/capture.mp3");
+      } else if (x.san === "O-O-O" || x.san === "O-O") {
         setSoundTrigger("/sounds/castle.mp3");
-      }
-      else {
+      } else {
         setSoundTrigger("/sounds/move-self.mp3");
       }
       setFen(chess.fen());
+      console.log(chess.pgn());
     }
   }, [trigger]);
   useEffect(() => {
@@ -499,16 +546,16 @@ export default function Page() {
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
-          if(x.hasOwnProperty('captured')) {
+          if(handleGameOver()) return;
+          if (x.hasOwnProperty("captured")) {
             setSoundTrigger("/sounds/capture.mp3");
-          }
-          else if(x.san === 'O-O-O' || x.san === 'O-O'){
+          } else if (x.san === "O-O-O" || x.san === "O-O") {
             setSoundTrigger("/sounds/castle.mp3");
-          }
-          else {
+          } else {
             setSoundTrigger("/sounds/move-self.mp3");
           }
           setFen(chess.fen());
+          console.log(chess.pgn());
         }
       },
     });
@@ -518,6 +565,7 @@ export default function Page() {
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
+
           <Drawer
             open={openSettings}
             modal={true}
@@ -568,9 +616,28 @@ export default function Page() {
               </DrawerDescription>
             </DrawerContent>
           </Drawer>
+
+          <Dialog open={gameEnded.gameEnded} modal={true} onOpenChange={(open: boolean) => {redirect('/dashboard')}}>
+            <DialogContent className="flex flex-col justify-center">
+              <DialogHeader>
+                <DialogTitle className="text-3xl flex justify-center">
+                  {gameEnded.gameEndTitle}
+                </DialogTitle>
+                <DialogDescription className="text-5xl flex justify-center">
+                  {gameEnded.gameEndResult}
+                </DialogDescription>
+                <DialogDescription className="flex justify-center pt-3">
+                  <Button variant={"default"} className="flex justify-center mx-2 text-xl w-56" ><Link href={'/dashboard'}> Return to dashboard </Link> </Button>
+                  <Button variant={"default"} className="flex justify-center mx-2 text-xl w-56" onClick={() => setNewGame()}>New game</Button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
+
           {openDrawer ? (
             <Drawer open={openDrawer} modal={true} dismissible={false}>
               <DrawerContent>
