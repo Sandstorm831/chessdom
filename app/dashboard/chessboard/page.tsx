@@ -483,7 +483,6 @@ export default function Page() {
     if(handleGameOver()) return;
     setSoundTrigger("/sounds/promote.mp3");
     setFen(chess.fen());
-    console.log(chess.pgn());
     setOpenDrawer(false);
     setPromotionArray([]);
   }
@@ -516,7 +515,6 @@ export default function Page() {
         setSoundTrigger("/sounds/move-self.mp3");
       }
       setFen(chess.fen());
-      console.log(chess.pgn());
     }
   }, [trigger]);
   useEffect(() => {
@@ -555,7 +553,6 @@ export default function Page() {
             setSoundTrigger("/sounds/move-self.mp3");
           }
           setFen(chess.fen());
-          console.log(chess.pgn());
         }
       },
     });
