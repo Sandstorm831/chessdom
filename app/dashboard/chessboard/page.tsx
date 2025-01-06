@@ -28,15 +28,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 import Link from "next/link";
 const chess = new Chess();
 
 type gameEndObject = {
-  gameEndTitle: String,
-  gameEndResult: String,
-  gameEnded: boolean
-}
+  gameEndTitle: String;
+  gameEndResult: String;
+  gameEnded: boolean;
+};
 
 type positionObject = {
   square: Square;
@@ -436,42 +436,49 @@ function RenderSquare(
 }
 
 export default function Page() {
-  const originalFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  const originalFEN =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<string>(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
   let gameEndResult = "";
   let gameEndTitle = "";
-  const [gameEnded, setGameEnded] = useState<gameEndObject>({gameEnded: false, gameEndResult: "", gameEndTitle: ""});
+  const [gameEnded, setGameEnded] = useState<gameEndObject>({
+    gameEnded: false,
+    gameEndResult: "",
+    gameEndTitle: "",
+  });
   const [trigger, setTrigger] = useState<SquareAndMove[]>([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
-  function setNewGame(){
+  function setNewGame() {
     setFen(originalFEN);
     setOpenSettings(true);
-    setGameEnded({gameEnded: false, gameEndResult: "", gameEndTitle: ""})
+    setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
   }
-  function handleGameOver(){
+  function handleGameOver() {
     const gameOver = chess.isGameOver();
-    if(!gameOver) return false;
+    if (!gameOver) return false;
     setFen(chess.fen());
-    if(chess.isDraw()) {
+    if (chess.isDraw()) {
       gameEndResult = "1/2 - 1/2";
       gameEndTitle = "Equally positioned";
-    }
-    else if(chess.turn() === 'w'){
+    } else if (chess.turn() === "w") {
       gameEndResult = "0 - 1";
-      gameEndTitle = playColor === 'w' ? "Better luck next time" : "You Won";
-    }
-    else{
+      gameEndTitle = playColor === "w" ? "Better luck next time" : "You Won";
+    } else {
       gameEndResult = "1 - 0";
-      gameEndTitle = playColor === 'w' ? "You Won" : "Better luck next time";
+      gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
     }
-    setGameEnded({gameEnded: true, gameEndResult: gameEndResult, gameEndTitle: gameEndTitle});
-    setSoundTrigger("/sounds/promote.mp3");
+    setGameEnded({
+      gameEnded: true,
+      gameEndResult: gameEndResult,
+      gameEndTitle: gameEndTitle,
+    });
+    setSoundTrigger("/sounds/game-end.mp3");
     return true;
   }
 
@@ -480,8 +487,12 @@ export default function Page() {
     if (move === undefined)
       throw new Error("Failed promotion, some error occured");
     chess.move(move.move);
-    if(handleGameOver()) return;
-    setSoundTrigger("/sounds/promote.mp3");
+    if (handleGameOver()) return;
+    if (chess.isCheck()) {
+      setSoundTrigger("/sounds/move-check.mp3");
+    } else {
+      setSoundTrigger("/sounds/promote.mp3");
+    }
     setFen(chess.fen());
     setOpenDrawer(false);
     setPromotionArray([]);
@@ -506,8 +517,10 @@ export default function Page() {
     } else {
       const move: string = trigger[0].move;
       const x = chess.move(move);
-      if(handleGameOver()) return;
-      if (x.hasOwnProperty("captured")) {
+      if (handleGameOver()) return;
+      if (chess.isCheck()) {
+        setSoundTrigger("/sounds/move-check.mp3");
+      } else if (x.hasOwnProperty("captured")) {
         setSoundTrigger("/sounds/capture.mp3");
       } else if (x.san === "O-O-O" || x.san === "O-O") {
         setSoundTrigger("/sounds/castle.mp3");
@@ -544,8 +557,10 @@ export default function Page() {
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
-          if(handleGameOver()) return;
-          if (x.hasOwnProperty("captured")) {
+          if (handleGameOver()) return;
+          if (chess.isCheck()) {
+            setSoundTrigger("/sounds/move-check.mp3");
+          } else if (x.hasOwnProperty("captured")) {
             setSoundTrigger("/sounds/capture.mp3");
           } else if (x.san === "O-O-O" || x.san === "O-O") {
             setSoundTrigger("/sounds/castle.mp3");
@@ -562,7 +577,6 @@ export default function Page() {
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
-
           <Drawer
             open={openSettings}
             modal={true}
@@ -614,7 +628,13 @@ export default function Page() {
             </DrawerContent>
           </Drawer>
 
-          <Dialog open={gameEnded.gameEnded} modal={true} onOpenChange={(open: boolean) => {redirect('/dashboard')}}>
+          <Dialog
+            open={gameEnded.gameEnded}
+            modal={true}
+            onOpenChange={(open: boolean) => {
+              redirect("/dashboard");
+            }}
+          >
             <DialogContent className="flex flex-col justify-center">
               <DialogHeader>
                 <DialogTitle className="text-3xl flex justify-center">
@@ -624,8 +644,19 @@ export default function Page() {
                   {gameEnded.gameEndResult}
                 </DialogDescription>
                 <DialogDescription className="flex justify-center pt-3">
-                  <Button variant={"default"} className="flex justify-center mx-2 text-xl w-56" ><Link href={'/dashboard'}> Return to dashboard </Link> </Button>
-                  <Button variant={"default"} className="flex justify-center mx-2 text-xl w-56" onClick={() => setNewGame()}>New game</Button>
+                  <Button
+                    variant={"default"}
+                    className="flex justify-center mx-2 text-xl w-56"
+                  >
+                    <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
+                  </Button>
+                  <Button
+                    variant={"default"}
+                    className="flex justify-center mx-2 text-xl w-56"
+                    onClick={() => setNewGame()}
+                  >
+                    New game
+                  </Button>
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
