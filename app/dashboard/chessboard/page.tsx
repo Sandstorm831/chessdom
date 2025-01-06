@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { useRef } from "react";
@@ -423,20 +424,34 @@ export default function Page() {
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
   const [trigger, setTrigger] = useState<SquareAndMove[]>([]);
+  const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
+
   function handlePromotion(piece: string) {
     const move = promotionArray.find((obj) => obj.move[5] === piece);
     if (move === undefined)
       throw new Error("Failed promotion, some error occured");
-    chess.move(move.move);
+    const x = chess.move(move.move);
+    setSoundTrigger("/sounds/promote.mp3");
     setFen(chess.fen());
     setOpenDrawer(false);
     setPromotionArray([]);
   }
   chess.load(fen);
+  useEffect(() => {
+    if (soundTrigger.length === 0) return;
+    try {
+      const Sound = new Audio(soundTrigger);
+      Sound.play();
+      setSoundTrigger("");
+    } catch (err) {
+      setSoundTrigger("");
+      throw new Error("Error occured in playing sound");
+    }
+  }, [soundTrigger]);
   useEffect(() => {
     if (trigger.length === 0) return;
     if (trigger.length === 4) {
@@ -444,7 +459,16 @@ export default function Page() {
       setOpenDrawer(true);
     } else {
       const move: string = trigger[0].move;
-      chess.move(move);
+      const x = chess.move(move);
+      if(x.hasOwnProperty('captured')) {
+        setSoundTrigger('/sounds/capture.mp3');
+      }
+      else if(x.san === 'O-O-O' || x.san === 'O-O'){
+        setSoundTrigger("/sounds/castle.mp3");
+      }
+      else {
+        setSoundTrigger("/sounds/move-self.mp3");
+      }
       setFen(chess.fen());
     }
   }, [trigger]);
@@ -474,7 +498,16 @@ export default function Page() {
           setOpenDrawer(true);
         } else {
           const move: string = tempObj[0].move;
-          chess.move(move);
+          const x = chess.move(move);
+          if(x.hasOwnProperty('captured')) {
+            setSoundTrigger("/sounds/capture.mp3");
+          }
+          else if(x.san === 'O-O-O' || x.san === 'O-O'){
+            setSoundTrigger("/sounds/castle.mp3");
+          }
+          else {
+            setSoundTrigger("/sounds/move-self.mp3");
+          }
           setFen(chess.fen());
         }
       },
