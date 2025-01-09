@@ -59,12 +59,12 @@ HTML > By <a href="//commons.wikimedia.org/wiki/User:Cburnett" title="User:Cburn
 
 --------
 
-setoption name UCI_AnalyseMode value true
-setoption name UCI_Chess960 value true
-setoption name Threads value {}
-setoption name Hash value {}
-setoption name MultiPV value {}
+setoption name Threads value 2
+setoption name Hash value 64
+setoption name MultiPV value 1
 position fen {} moves {}
+setoption name UCI_LimitStrength value true
+setoption name UCI_Elo value 1320
 go movetime {}\n
 go depth {}\n
 go nodes {}\n
