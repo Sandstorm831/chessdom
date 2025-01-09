@@ -12,7 +12,7 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import {
   Drawer,
   DrawerContent,
@@ -30,7 +30,19 @@ import {
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 const chess = new Chess();
+let EngineStarted: boolean = false;
+
+async function yourTurnStockfish(fen: string, setStockfishTrigger: Dispatch<SetStateAction<string>>){
+  if(!EngineStarted){
+    await startTheEngine();
+    EngineStarted = true;
+  }
+  const bestMove: string = await getBestMove(fen);
+  setStockfishTrigger(bestMove);
+  return;
+}
 
 type gameEndObject = {
   gameEndTitle: String;
@@ -74,7 +86,7 @@ function IJToSquare(i: number, j: number, color: Color): Square {
 }
 
 function SquareBlock({
-  setTrigger,
+  setClickAndMoveTrigger,
   setBlueDotFunc,
   color,
   validMovesArray,
@@ -82,7 +94,7 @@ function SquareBlock({
   children,
   ...props
 }: {
-  setTrigger: Dispatch<SetStateAction<SquareAndMove[]>>;
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>;
   setBlueDotFunc: (a: Square, b: boolean) => void;
   color: Color;
   validMovesArray: SquareAndMove[];
@@ -98,7 +110,7 @@ function SquareBlock({
     if (canMove.length === 0) {
       return;
     } else {
-      setTrigger(canMove);
+      setClickAndMoveTrigger(canMove);
     }
   }
   useEffect(() => {
@@ -185,7 +197,7 @@ function Peice({
 function RenderSquare(
   fen: string,
   color: Color,
-  setTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -217,7 +229,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -246,7 +258,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -273,7 +285,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -301,7 +313,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -325,7 +337,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -354,7 +366,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -381,7 +393,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -409,7 +421,7 @@ function RenderSquare(
           chessBoardArray.push(
             <SquareBlock
               setBlueDotFunc={setBlueDotArrayFunc}
-              setTrigger={setTrigger}
+              setClickAndMoveTrigger={setClickAndMoveTrigger}
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
@@ -448,7 +460,8 @@ export default function Page() {
     gameEndResult: "",
     gameEndTitle: "",
   });
-  const [trigger, setTrigger] = useState<SquareAndMove[]>([]);
+  const [stockfishTrigger, setStockfishTrigger] = useState<string>("");
+  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<SquareAndMove[]>([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -499,6 +512,31 @@ export default function Page() {
   }
   chess.load(fen);
   useEffect(() => {
+    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
+      yourTurnStockfish(fen, setStockfishTrigger);
+    }else{
+      return;
+    }
+  }, [fen])
+  useEffect(()=>{
+    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
+      const x = chess.move(stockfishTrigger);
+      if (handleGameOver()) return;
+      if (chess.isCheck()) {
+        setSoundTrigger("/sounds/move-check.mp3");
+      } else if (x.hasOwnProperty("captured")) {
+        setSoundTrigger("/sounds/capture.mp3");
+      } else if (x.san === "O-O-O" || x.san === "O-O") {
+        setSoundTrigger("/sounds/castle.mp3");
+      } else {
+        setSoundTrigger("/sounds/move-self.mp3");
+      }
+      setFen(chess.fen());
+      return;
+    }
+    else return;
+  }, [stockfishTrigger])
+  useEffect(() => {
     if (soundTrigger.length === 0) return;
     try {
       const Sound = new Audio(soundTrigger);
@@ -510,12 +548,12 @@ export default function Page() {
     }
   }, [soundTrigger]);
   useEffect(() => {
-    if (trigger.length === 0) return;
-    if (trigger.length === 4) {
-      setPromotionArray(trigger);
+    if (clickAndMoveTrigger.length === 0) return;
+    if (clickAndMoveTrigger.length === 4) {
+      setPromotionArray(clickAndMoveTrigger);
       setOpenDrawer(true);
     } else {
-      const move: string = trigger[0].move;
+      const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
       if (handleGameOver()) return;
       if (chess.isCheck()) {
@@ -529,7 +567,7 @@ export default function Page() {
       }
       setFen(chess.fen());
     }
-  }, [trigger]);
+  }, [clickAndMoveTrigger]);
   useEffect(() => {
     return monitorForElements({
       onDrop({ source, location }) {
@@ -572,7 +610,7 @@ export default function Page() {
       },
     });
   }, [fen]);
-  const chessBoardArray = RenderSquare(fen, playColor, setTrigger);
+  const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">

@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
-import fs from 'fs';
+// import fs from 'fs';
+import { promises as fs } from 'fs';
 
 async function ReadFile(){
     const runningPID = await fs.readFile('running.pid', 'utf-8', (err, data) => {
@@ -28,7 +29,7 @@ async function ReadFile(){
 //   terminal.stdout.on('data', (data) => {console.log(`OUTPUT : ${data}`)});
 //   terminal.stdin.write('ls\n');
 //   await new Promise(resolve => setTimeout(resolve, 10000));
-  terminal.stdin.write('exit\n');
+  // terminal.stdin.write('exit\n');
 
 // fs.writeFile('running.pid', '', (err) => {
 //     if(err){

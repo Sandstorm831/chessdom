@@ -1,9 +1,11 @@
+'use server'
+
 const stockfish_executable_path =
-  "./../../../stockfish/stockfish/stockfish-ubuntu-x86-64-avx2";
+  "./stockfish/stockfish-ubuntu-x86-64-avx2";
 import { ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 const controller = new AbortController();
 const { signal } = controller;
-import fs from 'fs/promises';
+import * as fs from "node:fs/promises";
 let lastProcess: string = 'null';
 
 let stockFish: ChildProcessWithoutNullStreams; 
@@ -32,7 +34,7 @@ async function terminatePIDs(PIDList: string[]){
 export async function startTheEngine(elo: string = '1320'){
     let isReady = false;
     try{
-      const data = await fs.readFile('running.pid', 'utf-8')
+      const data = await fs.readFile('./running.pid', 'utf-8')
       if(data.length !== 0){
         await terminatePIDs(data.split('\n'));
       }
