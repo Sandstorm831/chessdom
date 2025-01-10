@@ -12,19 +12,19 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, PieceSymbol, Square } from "chess.js";
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -34,9 +34,9 @@ import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 const chess = new Chess();
 let EngineStarted: boolean = false;
 
-async function yourTurnStockfish(fen: string, setStockfishTrigger: Dispatch<SetStateAction<string>>){
+async function yourTurnStockfish(fen: string, setStockfishTrigger: Dispatch<SetStateAction<string>>, elo: number){
   if(!EngineStarted){
-    await startTheEngine();
+    await startTheEngine(elo.toString());
     EngineStarted = true;
   }
   const bestMove: string = await getBestMove(fen);
@@ -460,6 +460,7 @@ export default function Page() {
     gameEndResult: "",
     gameEndTitle: "",
   });
+  const [stockfishElo, setStockfishElo] = useState<number>(1350);
   const [stockfishTrigger, setStockfishTrigger] = useState<string>("");
   const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<SquareAndMove[]>([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
@@ -471,6 +472,16 @@ export default function Page() {
     setFen(originalFEN);
     setOpenSettings(true);
     setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
+  }
+  function startTheGame(){
+    if(playColor === 'b'){
+      setOpenSettings(false);
+      yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
+    }
+    else {
+      setOpenSettings(false);
+      startTheEngine(stockfishElo.toString());
+    }
   }
   function handleGameOver() {
     const gameOver = chess.isGameOver();
@@ -496,10 +507,22 @@ export default function Page() {
   }
 
   function handlePromotion(piece: string) {
-    const move = promotionArray.find((obj) => obj.move[5] === piece);
-    if (move === undefined)
+    let promotionMove;
+    for(let i=0; i<promotionArray.length; i++){
+      const ithMove = promotionArray[i].move;
+      if(ithMove[ithMove.length - 1] === piece || ithMove[ithMove.length -2] === piece) {
+        promotionMove = promotionArray[i];
+        break;
+      }
+
+    }
+    if (promotionMove === undefined){
+      console.log(promotionArray)
       throw new Error("Failed promotion, some error occured");
-    chess.move(move.move);
+    }
+    chess.move(promotionMove.move);
+    setOpenDrawer(false);
+    setPromotionArray([]);
     if (handleGameOver()) return;
     if (chess.isCheck()) {
       setSoundTrigger("/sounds/move-check.mp3");
@@ -507,19 +530,17 @@ export default function Page() {
       setSoundTrigger("/sounds/promote.mp3");
     }
     setFen(chess.fen());
-    setOpenDrawer(false);
-    setPromotionArray([]);
   }
   chess.load(fen);
   useEffect(() => {
     if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
-      yourTurnStockfish(fen, setStockfishTrigger);
+      yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
     }else{
       return;
     }
   }, [fen])
   useEffect(()=>{
-    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
+    if(chess.turn() === (playColor === 'w' ? 'b' : 'w') && !chess.isGameOver){
       const x = chess.move(stockfishTrigger);
       if (handleGameOver()) return;
       if (chess.isCheck()) {
@@ -625,27 +646,27 @@ export default function Page() {
               <DrawerTitle className="flex justify-center text-3xl mb-16">
                 Settings
               </DrawerTitle>
-              <DrawerTitle className="flex justify-center text-xl mb-3">
-                Play as
+              <DrawerTitle className="flex justify-center text-xl mb-2">
+                Play as : {playColor === 'w' ? 'White' : 'Black'}
               </DrawerTitle>
               <DrawerDescription className="flex justify-center mt-2 mb-5">
                 <Button
                   variant={"secondary"}
-                  className="mx-2"
+                  className="mx-2 hover:bg-gray-5"
                   onClick={() => setPlayColor("w")}
                 >
                   White
                 </Button>
                 <Button
                   variant={"secondary"}
-                  className="mx-2"
+                  className="mx-2 hover:bg-gray-5"
                   onClick={() => setPlayColor("b")}
                 >
                   Black
                 </Button>
                 <Button
                   variant={"secondary"}
-                  className="mx-2"
+                  className="mx-2 hover:bg-gray-5"
                   onClick={() => {
                     return Math.round(Math.random()) === 1
                       ? setPlayColor("b")
@@ -655,10 +676,15 @@ export default function Page() {
                   Random
                 </Button>
               </DrawerDescription>
-              <DrawerDescription className="flex justify-center">
+              <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">Stockfish Elo : {stockfishElo}</DrawerDescription>
+              <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
+                <Slider defaultValue={[stockfishElo]} max={3150} min={1350} step={50} onValueChange={(value) => setStockfishElo(value[0])}/>
+              </DrawerDescription>
+              <DrawerDescription className="flex justify-center w-full px-12">
                 <Button
-                  variant={"outline"}
-                  onClick={() => setOpenSettings(false)}
+                  className="w-full"
+                  variant={"default"}
+                  onClick={() => startTheGame()}
                 >
                   Apply and Play
                 </Button>
