@@ -210,7 +210,7 @@ function RenderSquare(
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {
-    if (toBeCleared) setBlueDotArray([]);
+    if (toBeCleared || color !== chess.turn()) setBlueDotArray([]);
     else {
       const possibleMoves = chess.moves({ square: square, verbose: true });
       const tempArray: SquareAndMove[] = [];
@@ -497,11 +497,13 @@ export default function Page() {
       gameEndResult = "1 - 0";
       gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
     }
-    setGameEnded({
-      gameEnded: true,
-      gameEndResult: gameEndResult,
-      gameEndTitle: gameEndTitle,
-    });
+    setTimeout( () => {
+      setGameEnded({
+        gameEnded: true,
+        gameEndResult: gameEndResult,
+        gameEndTitle: gameEndTitle,
+      });
+    }, 1000)
     setSoundTrigger("/sounds/game-end.mp3");
     return true;
   }
@@ -534,13 +536,13 @@ export default function Page() {
   chess.load(fen);
   useEffect(() => {
     if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
-      yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
+      if(!chess.isGameOver()) yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
     }else{
       return;
     }
   }, [fen])
   useEffect(()=>{
-    if(chess.turn() === (playColor === 'w' ? 'b' : 'w') && !chess.isGameOver){
+    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
       const x = chess.move(stockfishTrigger);
       if (handleGameOver()) return;
       if (chess.isCheck()) {
