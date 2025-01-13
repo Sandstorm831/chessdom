@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "link-lib": "rm -rf public/lib && ln -s $PWD/node_modules/stockfish-nnue.wasm public/lib",
+    "copy-lib": "rm -rf public/lib && mkdir -p public/lib && cp node_modules/stockfish-nnue.wasm/* public/lib",
+    "serve": "serve public --no-compression"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.4.0",
@@ -24,6 +27,7 @@
     "next-auth": "^5.0.0-beta.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "serve": "^14.2.4",
     "stockfish-nnue.wasm": "^1.0.0-1946a675.smolnet",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

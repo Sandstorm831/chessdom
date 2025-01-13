@@ -31,7 +31,7 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
-import { wasmThreadsSupported } from "./stockfishWasm";
+import { startEngine, wasmThreadsSupported } from "./stockfishWasm";
 const chess = new Chess();
 let EngineStarted: boolean = false;
 
@@ -537,6 +537,7 @@ export default function Page() {
   chess.load(fen);
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
+    startEngine();
     if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
       if(!chess.isGameOver()) yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
     }else{
