@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { playfair_display } from "./ui/fonts";
 import Navbar from "./ui/navbar";
+import StoreProvider from "./storeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,14 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair_display.className} antialiased h-screen w-screen flex flex-col`}
-      >
-        <Navbar />
-        <div className="grow">
-          {children}
-        </div>
-      </body>
+      <StoreProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${playfair_display.className} antialiased h-screen w-screen flex flex-col`}
+        >
+          <Navbar />
+          <div className="grow">{children}</div>
+        </body>
+      </StoreProvider>
     </html>
   );
 }
