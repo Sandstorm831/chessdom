@@ -8,7 +8,7 @@ module.exports = {
   async headers() {
     return [
       {
-        source: '/dashboard/chessboard',
+        source: '/(.*)',
         headers: [
           {
             key: 'Cross-Origin-Embedder-Policy',
@@ -17,6 +17,15 @@ module.exports = {
           {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin',
+          },
+        ],
+      },
+      {
+        source: '/lib/(.*)',  // Apply headers to all files in public/lib/
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
           },
         ],
       },

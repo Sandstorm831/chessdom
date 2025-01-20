@@ -19,7 +19,7 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Slider } from "@/components/ui/slider"
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,12 +31,18 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
-import { startEngine, wasmThreadsSupported } from "./stockfishWasm";
+// import { startEngine, wasmThreadsSupported } from "./stockfishWasm";
+import { getEngineState } from "@/lib/features/engine/engineSlice";
+import { useAppSelector } from "@/lib/hooks";
 const chess = new Chess();
 let EngineStarted: boolean = false;
 
-async function yourTurnStockfish(fen: string, setStockfishTrigger: Dispatch<SetStateAction<string>>, elo: number){
-  if(!EngineStarted){
+async function yourTurnStockfish(
+  fen: string,
+  setStockfishTrigger: Dispatch<SetStateAction<string>>,
+  elo: number,
+) {
+  if (!EngineStarted) {
     await startTheEngine(elo.toString());
     EngineStarted = true;
   }
@@ -198,7 +204,7 @@ function Peice({
 function RenderSquare(
   fen: string,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
 ) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -249,11 +255,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -276,11 +282,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -304,11 +310,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else
           chessBoardArray.push(
@@ -327,11 +333,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
       } else {
         if (j === 0 && i === 7) {
@@ -357,11 +363,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -384,11 +390,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -412,11 +418,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else
           chessBoardArray.push(
@@ -436,11 +442,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
       }
     }
@@ -452,7 +458,7 @@ export default function Page() {
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<string>(
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   );
   let gameEndResult = "";
   let gameEndTitle = "";
@@ -463,7 +469,9 @@ export default function Page() {
   });
   const [stockfishElo, setStockfishElo] = useState<number>(1350);
   const [stockfishTrigger, setStockfishTrigger] = useState<string>("");
-  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<SquareAndMove[]>([]);
+  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<
+    SquareAndMove[]
+  >([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -474,12 +482,11 @@ export default function Page() {
     setOpenSettings(true);
     setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
   }
-  function startTheGame(){
-    if(playColor === 'b'){
+  function startTheGame() {
+    if (playColor === "b") {
       setOpenSettings(false);
       yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
-    }
-    else {
+    } else {
       setOpenSettings(false);
       startTheEngine(stockfishElo.toString());
     }
@@ -498,29 +505,31 @@ export default function Page() {
       gameEndResult = "1 - 0";
       gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
     }
-    setTimeout( () => {
+    setTimeout(() => {
       setGameEnded({
         gameEnded: true,
         gameEndResult: gameEndResult,
         gameEndTitle: gameEndTitle,
       });
-    }, 1000)
+    }, 1000);
     setSoundTrigger("/sounds/game-end.mp3");
     return true;
   }
 
   function handlePromotion(piece: string) {
     let promotionMove;
-    for(let i=0; i<promotionArray.length; i++){
+    for (let i = 0; i < promotionArray.length; i++) {
       const ithMove = promotionArray[i].move;
-      if(ithMove[ithMove.length - 1] === piece || ithMove[ithMove.length -2] === piece) {
+      if (
+        ithMove[ithMove.length - 1] === piece ||
+        ithMove[ithMove.length - 2] === piece
+      ) {
         promotionMove = promotionArray[i];
         break;
       }
-
     }
-    if (promotionMove === undefined){
-      console.log(promotionArray)
+    if (promotionMove === undefined) {
+      console.log(promotionArray);
       throw new Error("Failed promotion, some error occured");
     }
     chess.move(promotionMove.move);
@@ -536,16 +545,21 @@ export default function Page() {
   }
   chess.load(fen);
   useEffect(() => {
-    console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
-    startEngine();
-    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
-      if(!chess.isGameOver()) yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
-    }else{
+    const engine = new window.Worker("/lib/loadEngine.js")
+    engine.postMessage('uci');
+  }, [])
+  useEffect(() => {
+    // console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
+    // startEngine();
+    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
+      if (!chess.isGameOver())
+        yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
+    } else {
       return;
     }
-  }, [fen])
-  useEffect(()=>{
-    if(chess.turn() === (playColor === 'w' ? 'b' : 'w')){
+  }, [fen]);
+  useEffect(() => {
+    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
       const x = chess.move(stockfishTrigger);
       if (handleGameOver()) return;
       if (chess.isCheck()) {
@@ -559,9 +573,8 @@ export default function Page() {
       }
       setFen(chess.fen());
       return;
-    }
-    else return;
-  }, [stockfishTrigger])
+    } else return;
+  }, [stockfishTrigger]);
   useEffect(() => {
     if (soundTrigger.length === 0) return;
     try {
@@ -610,7 +623,7 @@ export default function Page() {
         ///////////////////////////////////////////////////////////////////////
 
         const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates
+          (obj) => obj.square === destSquareCoordinates,
         );
         if (tempObj.length === 0) {
           throw new Error("Some Error occured, can not find the right move");
@@ -652,7 +665,7 @@ export default function Page() {
                 Settings
               </DrawerTitle>
               <DrawerTitle className="flex justify-center text-xl mb-2">
-                Play as : {playColor === 'w' ? 'White' : 'Black'}
+                Play as : {playColor === "w" ? "White" : "Black"}
               </DrawerTitle>
               <DrawerDescription className="flex justify-center mt-2 mb-5">
                 <Button
@@ -681,15 +694,26 @@ export default function Page() {
                   Random
                 </Button>
               </DrawerDescription>
-              <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">Stockfish Elo : {stockfishElo}</DrawerDescription>
+              <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">
+                Stockfish Elo : {stockfishElo}
+              </DrawerDescription>
               <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
-                <Slider defaultValue={[stockfishElo]} max={3150} min={1350} step={50} onValueChange={(value) => setStockfishElo(value[0])}/>
+                <Slider
+                  defaultValue={[stockfishElo]}
+                  max={3150}
+                  min={1350}
+                  step={50}
+                  onValueChange={(value) => setStockfishElo(value[0])}
+                />
               </DrawerDescription>
               <DrawerDescription className="flex justify-center w-full px-12">
                 <Button
                   className="w-full"
                   variant={"default"}
                   onClick={() => startTheGame()}
+                  disabled={
+                    useAppSelector(getEngineState) === "ready" ? false : true
+                  }
                 >
                   Apply and Play
                 </Button>
