@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import EngineReducer, { setFailed } from "./features/engine/engineSlice";
+import EngineReducer from "./features/engine/engineSlice";
+import outputArrayReducer  from "./features/engine/outputArraySlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       engine: EngineReducer,
+      outputArray: outputArrayReducer,
     },
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware({

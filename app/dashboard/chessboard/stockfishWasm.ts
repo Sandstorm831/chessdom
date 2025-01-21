@@ -1,98 +1,35 @@
-"use client"
+import { getEngine } from "@/lib/features/engine/engineSlice";
+import { getLatestResponse, getResponseArray, pushResponse } from "@/lib/features/engine/outputArraySlice";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 
-import { useEffect } from "react";
-import axios from "axios";
+export function onMessageFunc(e: MessageEvent) {
+  const dispatch = useAppDispatch();
+  dispatch(pushResponse(e.data));
+}
 
-export function wasmThreadsSupported() {
-    // WebAssembly 1.0
-    const source = Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
-    if (
-      typeof WebAssembly !== "object" ||
-      typeof WebAssembly.validate !== "function"
-    )
-      return false;
-    if (!WebAssembly.validate(source)) return false;
+export function applyInitialSettings(elo: string){
+  const stockfishEngine = useAppSelector(getEngine);
   
-    // SharedArrayBuffer
-    if (typeof SharedArrayBuffer !== "function") return false;
-  
-    // Atomics
-    if (typeof Atomics !== "object") return false;
-  
-    // Shared memory
-    const mem = new WebAssembly.Memory({ shared: true, initial: 8, maximum: 16 });
-    if (!(mem.buffer instanceof SharedArrayBuffer)) return false;
-  
-    // Structured cloning
-    try {
-      // You have to make sure nobody cares about these messages!
-      window.postMessage(mem, "*");
-    } catch (e) {
-      return false;
-    }
-  
-    // Growable shared memory (optional)
-    try {
-      mem.grow(8);
-    } catch (e) {
-      return false;
-    }
-  
-    return true;
+  stockfishEngine.postMessage("setoption name Threads value 2");                    // setting option
+  stockfishEngine.postMessage("setoption name Hash value 64");                      // setting option
+  stockfishEngine.postMessage("setoption name MultiPV value 1");                    // setting option
+  stockfishEngine.postMessage("setoption name UCI_LimitStrength value true");       // setting option
+  stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`);               // setting option
+  stockfishEngine.postMessage(`isready`);
+
+}
+
+export function getBestMove(fen: string){
+  const stockfishEngine = useAppSelector(getEngine);
+  const latestResponse = useAppSelector(getLatestResponse);
+  const responseArray = useAppSelector(getResponseArray);
+  stockfishEngine.postMessage(`position fen ${fen}`)
+  stockfishEngine.postMessage("go depth 15");
+  stockfishEngine.postMessage('isready');
+  if(latestResponse ===  'readyok'){
+    console.log(responseArray); 
+    return 'e2e4';
+    // return responseArray[responseArray.length - 2];
   }
-
-export async function startEngine() {
-
-  useEffect(() => {
-    if (!wasmThreadsSupported()) {
-      alert(
-        "Web assembly threads are not supported in this browser, please update or switch the browser"
-      );
-      return;
-    } else {
-      const script = document.createElement("script");
-      script.src = "/lib/stockfish.js";
-      script.async = true;
-      script.type = "text/javascript";
-      script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
-      script.onload = () => {
-        try {
-          axios({
-            url: "/lib/stockfish.wasm",
-            method: "GET",
-            headers: {
-              Accept: "*/*",
-              "Cross-Origin-Embedder-Policy": "require-corp",
-            },
-            responseType: "arraybuffer",
-            onDownloadProgress: (progressEvent) => {
-              setState("Loading");
-              const loading = progressEvent.loaded;
-              const total = progressEvent.total || 27444194;
-              setProgress({ loaded: loading, total: total });
-            },
-          }).then(async (_stockfish) => {
-            // @ts-expect-error Loaded from the stockfish.js script, it works but doesn't get detected
-            const x = await Stockfish(_stockfish); // Loaded from the stockfish.js script, it works but doesn't get detected
-            x.addMessageListener((line: string) => {
-              output += line + `\n`;
-              setStockfishResponse(output);
-            });
-            x.postMessage("isready");
-            setStockfishEngine(x);
-            setState("Ready");
-          });
-        } catch (err) {
-          console.log(
-            `Some error occured while fetching web assembly module: ${err}`
-          );
-        }
-      };
-      return () => {
-        console.log("I am removing the script");
-        document.body.removeChild(script);
-      };
-    }
-  }, []);
+  return 'e2e4'; // should be removed afterwards, it should be async function not immediate resolver;
 }
