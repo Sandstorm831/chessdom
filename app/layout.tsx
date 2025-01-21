@@ -4,6 +4,7 @@ import "./globals.css";
 import { playfair_display } from "./ui/fonts";
 import Navbar from "./ui/navbar";
 import StoreProvider from "./storeProvider";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${playfair_display.className} antialiased h-screen w-screen flex flex-col`}
         >
+          <Script src="/lib/stockfish.js" strategy="afterInteractive" />
           <Navbar />
           <div className="grow">{children}</div>
         </body>

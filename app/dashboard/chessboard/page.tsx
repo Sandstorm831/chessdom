@@ -477,6 +477,7 @@ export default function Page() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
+  const workerRef = useRef<Worker>(null);
   function setNewGame() {
     setFen(originalFEN);
     setOpenSettings(true);
@@ -545,8 +546,25 @@ export default function Page() {
   }
   chess.load(fen);
   useEffect(() => {
-    const engine = new window.Worker("/lib/loadEngine.js")
-    engine.postMessage('uci');
+    workerRef.current = new window.Worker("/lib/loadEngine.js")
+    if(workerRef.current === null) throw new Error('worker is null');
+    workerRef.current.onmessage = async (e) => {
+      alert("web worker responded");
+      console.log(e.data);
+      // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
+      const x = await Stockfish(e.data);
+      console.log(x);
+    }
+    workerRef.current.onmessageerror = (e) => {
+      console.log(e)
+      alert('web worker throws an message error')
+    }
+    workerRef.current.onerror = (e) => {
+      console.log(e);
+      alert("dedicated error by worker");
+    }
+    workerRef.current.postMessage('start');
+    console.log(workerRef.current)
   }, [])
   useEffect(() => {
     // console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
@@ -710,10 +728,18 @@ export default function Page() {
                 <Button
                   className="w-full"
                   variant={"default"}
-                  onClick={() => startTheGame()}
-                  disabled={
-                    useAppSelector(getEngineState) === "ready" ? false : true
-                  }
+                  // onClick={() => startTheGame()}
+                  onClick={() => {
+                    if(!workerRef.current) {
+                      console.log("worker not initialized")
+                      return;
+                    }else{
+                      console.log(workerRef.current)
+                      return workerRef.current.postMessage('start')
+                    }}}
+                  // disabled={
+                  //   useAppSelector(getEngineState) === "ready" ? false : true
+                  // }
                 >
                   Apply and Play
                 </Button>
