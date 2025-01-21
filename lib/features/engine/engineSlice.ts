@@ -1,14 +1,17 @@
 import { RootState } from "@/lib/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { StockfishEngine } from "@/app/dashboard/chessboard/page";
 
 type engine = {
   ready: "waiting" | "loading" | "failed" | "ready";
-  engine: object;
+  engine: StockfishEngine;
+  error: Error | null;
 };
 
 const initialState: engine = {
   ready: "waiting",
-  engine: Object,
+  engine: {onmessage: () => {}, postMessage: () => {}},
+  error: null,
 };
 
 export const engineSlice = createSlice({
@@ -19,10 +22,12 @@ export const engineSlice = createSlice({
       state.ready = "loading";
     },
     setFailed: (state, action: PayloadAction<Error>) => {
-      (state.ready = "failed"), (state.engine = action.payload);
+      state.ready = "failed";
+      state.error = action.payload;
     },
-    setReady: (state, action: PayloadAction<object>) => {
-      (state.ready = "ready"), (state.engine = action.payload);
+    setReady: (state, action: PayloadAction<StockfishEngine>) => {
+      state.ready = "ready";
+      state.engine = action.payload;
     },
   },
 });

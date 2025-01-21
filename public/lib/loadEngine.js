@@ -18,7 +18,9 @@ async function StartEngine() {
     console.log("got the engine")
     console.log(`module loaded: ${doneEvent.loaded} bytes transferred`);
     postMessage(xhr.response);
-    console.log('loaded the engine')
+    console.log('loaded the engine');
+    close();
+    
   }
   xhr.onerror = (errorEvent) => {
     console.log(`Some Error occured while laoding modules: ${errorEvent.loaded} bytes transferred`)

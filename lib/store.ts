@@ -1,11 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import EngineReducer from "./features/engine/engineSlice";
+import EngineReducer, { setFailed } from "./features/engine/engineSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       engine: EngineReducer,
     },
+    middleware: (getDefaultMiddleware) => {
+      return getDefaultMiddleware({
+        serializableCheck: false,
+      })
+    }
   });
 };
 

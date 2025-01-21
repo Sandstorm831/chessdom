@@ -32,11 +32,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 // import { startEngine, wasmThreadsSupported } from "./stockfishWasm";
-import { getEngineState } from "@/lib/features/engine/engineSlice";
-import { useAppSelector } from "@/lib/hooks";
+import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 const chess = new Chess();
 let EngineStarted: boolean = false;
-
 async function yourTurnStockfish(
   fen: string,
   setStockfishTrigger: Dispatch<SetStateAction<string>>,
@@ -49,6 +48,12 @@ async function yourTurnStockfish(
   const bestMove: string = await getBestMove(fen);
   setStockfishTrigger(bestMove);
   return;
+}
+
+export type StockfishEngine = {
+  onmessage: Function;
+  postMessage: Function;
+  [key: string] : any;
 }
 
 type gameEndObject = {
@@ -454,6 +459,7 @@ function RenderSquare(
   return chessBoardArray;
 }
 
+
 export default function Page() {
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -478,6 +484,9 @@ export default function Page() {
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
   const workerRef = useRef<Worker>(null);
+  const dispatch = useAppDispatch();
+  const engineStator = useAppSelector(getEngineState);
+  const EngineRef = useRef<StockfishEngine>({onmessage: ()=>{}, postMessage: ()=>{}})
   function setNewGame() {
     setFen(originalFEN);
     setOpenSettings(true);
@@ -549,11 +558,31 @@ export default function Page() {
     workerRef.current = new window.Worker("/lib/loadEngine.js")
     if(workerRef.current === null) throw new Error('worker is null');
     workerRef.current.onmessage = async (e) => {
-      alert("web worker responded");
-      console.log(e.data);
+      // alert("web worker responded");
+      console.log(e.data && e.data.buffer instanceof ArrayBuffer && e.data.byteLength !== undefined);
+      console.log(e.data)
+      console.log(ArrayBuffer.isView(e.data));
+      console.time("starting")
       // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
-      const x = await Stockfish(e.data);
+      const x: StockfishEngine = await Stockfish(e.data);
+      console.timeEnd('starting')
+      x.onmessage = (e: MessageEvent) => {
+        console.log(e.data);
+      }
+      dispatch(setReady(x));
+      console.log("arraybuffer view : ")
+      console.log(ArrayBuffer.isView(x));
+      // dispatch(setReady(x));
+      // console.log(typeof x);
       console.log(x);
+      // console.log(typeof x);
+      console.log(engineStator);
+      // console.log(JSON.stringify(x));
+      console.log(x);
+      // const ax: string = JSON.stringify(x);
+      // const cx: object = JSON.parse(ax);
+      // console.log(cx === x);
+      // console.log(useAppSelector(getEngineState))
     }
     workerRef.current.onmessageerror = (e) => {
       console.log(e)
@@ -729,17 +758,17 @@ export default function Page() {
                   className="w-full"
                   variant={"default"}
                   // onClick={() => startTheGame()}
-                  onClick={() => {
-                    if(!workerRef.current) {
-                      console.log("worker not initialized")
-                      return;
-                    }else{
-                      console.log(workerRef.current)
-                      return workerRef.current.postMessage('start')
-                    }}}
-                  // disabled={
-                  //   useAppSelector(getEngineState) === "ready" ? false : true
-                  // }
+                  // onClick={() => {
+                  //   if(!workerRef.current) {
+                  //     console.log("worker not initialized")
+                  //     return;
+                  //   }else{
+                  //     console.log(workerRef.current)
+                  //     return workerRef.current.postMessage('start')
+                  //   }}}
+                  disabled={
+                    useAppSelector(getEngineState) === "ready" ? false : true
+                  }
                 >
                   Apply and Play
                 </Button>
