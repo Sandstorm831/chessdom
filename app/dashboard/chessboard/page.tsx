@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 import { useRef } from "react";
 import { ReactElement } from "react";
 import {
@@ -31,10 +31,18 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
-import { getEngine, getEngineState, setReady } from "@/lib/features/engine/engineSlice";
+import {
+  getEngine,
+  getEngineState,
+  setReady,
+} from "@/lib/features/engine/engineSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 // import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./stockfishWasm";
-import { getLatestResponse, getResponseArray, pushResponse } from "@/lib/features/engine/outputArraySlice";
+import {
+  getLatestResponse,
+  getResponseArray,
+  pushResponse,
+} from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
 let EngineStarted: boolean = false;
 // async function yourTurnStockfish(
@@ -48,18 +56,21 @@ let EngineStarted: boolean = false;
 //   return;
 // }
 
-export function applyInitialSettings(elo: string, stockfishEngine: StockfishEngine){
-  stockfishEngine.postMessage('ucinewgame');
-  stockfishEngine.postMessage("setoption name Threads value 2");                    // setting option
-  stockfishEngine.postMessage("setoption name Hash value 64");                      // setting option
-  stockfishEngine.postMessage("setoption name MultiPV value 1");                    // setting option
-  stockfishEngine.postMessage("setoption name UCI_LimitStrength value true");       // setting option
-  stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`);               // setting option
+export function applyInitialSettings(
+  elo: string,
+  stockfishEngine: StockfishEngine
+) {
+  stockfishEngine.postMessage("ucinewgame");
+  stockfishEngine.postMessage("setoption name Threads value 2"); // setting option
+  stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
+  stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
+  stockfishEngine.postMessage("setoption name UCI_LimitStrength value true"); // setting option
+  stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
   stockfishEngine.postMessage("isready");
 }
 
-export function getBestMove(fen: string, stockfishEngine: StockfishEngine){
-  stockfishEngine.postMessage(`position fen ${fen}`)
+export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
+  stockfishEngine.postMessage(`position fen ${fen}`);
   stockfishEngine.postMessage("go depth 15");
 }
 
@@ -74,8 +85,8 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine){
 export type StockfishEngine = {
   onmessage: Function;
   postMessage: Function;
-  [key: string] : any;
-}
+  [key: string]: any;
+};
 
 type gameEndObject = {
   gameEndTitle: String;
@@ -268,7 +279,7 @@ function Peice({
 function RenderSquare(
   fen: string,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
   chess.load(fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -319,11 +330,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -346,11 +357,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -374,11 +385,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -397,11 +408,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -427,11 +438,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -454,11 +465,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -482,11 +493,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -506,11 +517,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       }
     }
@@ -518,12 +529,367 @@ function RenderSquare(
   return chessBoardArray;
 }
 
+function setNewGame(
+  setFen: Dispatch<SetStateAction<string>>,
+  originalFEN: string,
+  setOpenSettings: Dispatch<SetStateAction<boolean>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
+) {
+  setFen(originalFEN);
+  setOpenSettings(true);
+  setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
+}
+
+function startTheGame(
+  setOpenSettings: Dispatch<SetStateAction<boolean>>,
+  stockfishElo: number,
+  TheStockfishEngine: StockfishEngine,
+  playColor: Color,
+  originalFEN: string
+) {
+  setOpenSettings(false);
+  applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
+  if (playColor === "b") {
+    getBestMove(originalFEN, TheStockfishEngine);
+    // const bestMoveString = useCaptureBestMoves();
+    // console.log(`latest response = ${latestStockfishResponse}`);
+    // yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
+  }
+}
+
+function handleGameOver(
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  const gameOver = chess.isGameOver();
+  if (!gameOver) return false;
+  setFen(chess.fen());
+  if (chess.isDraw()) {
+    gameEndResult = "1/2 - 1/2";
+    gameEndTitle = "Equally positioned";
+  } else if (chess.turn() === "w") {
+    gameEndResult = "0 - 1";
+    gameEndTitle = playColor === "w" ? "Better luck next time" : "You Won";
+  } else {
+    gameEndResult = "1 - 0";
+    gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
+  }
+  setTimeout(() => {
+    setGameEnded({
+      gameEnded: true,
+      gameEndResult: gameEndResult,
+      gameEndTitle: gameEndTitle,
+    });
+  }, 1000);
+  setSoundTrigger("/sounds/game-end.mp3");
+  return true;
+}
+
+function handlePromotion(
+  piece: string,
+  promotionArray: SquareAndMove[],
+  setOpenDrawer: Dispatch<SetStateAction<boolean>>,
+  setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<string>>
+) {
+  let promotionMove;
+  for (let i = 0; i < promotionArray.length; i++) {
+    const ithMove = promotionArray[i].move;
+    if (
+      ithMove[ithMove.length - 1] === piece ||
+      ithMove[ithMove.length - 2] === piece
+    ) {
+      promotionMove = promotionArray[i];
+      break;
+    }
+  }
+  if (promotionMove === undefined) {
+    console.log(promotionArray);
+    throw new Error("Failed promotion, some error occured");
+  }
+  chess.move(promotionMove.move);
+  setOpenDrawer(false);
+  setPromotionArray([]);
+  if (
+    handleGameOver(
+      setFen,
+      gameEndResult,
+      gameEndTitle,
+      setGameEnded,
+      setSoundTrigger
+    )
+  )
+    return;
+  if (chess.isCheck()) {
+    setSoundTrigger("/sounds/move-check.mp3");
+  } else {
+    setSoundTrigger("/sounds/promote.mp3");
+  }
+  setFen(chess.fen());
+}
+
+function useLatestStockfishResponse(
+  latestStockfishResponse: string,
+  setStockfishTrigger: Dispatch<SetStateAction<string>>
+) {
+  useEffect(() => {
+    // console.log(`engine on message : ${TheStockfishEngine.onmessage}`);
+    // console.log("am in the latest response" + latestStockfishResponse)
+    if (
+      latestStockfishResponse &&
+      latestStockfishResponse.split(" ")[0] === "bestmove"
+    ) {
+      const bestMove: string = latestStockfishResponse.split(" ")[1];
+      setStockfishTrigger(bestMove);
+      console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
+    }
+  }, [latestStockfishResponse]);
+}
+
+function useEngine(workerRef: RefObject<Worker | null>) {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    workerRef.current = new window.Worker("/lib/loadEngine.js");
+    if (workerRef.current === null) throw new Error("worker is null");
+    workerRef.current.onmessage = async (e) => {
+      // alert("web worker responded");
+      console.log(
+        e.data &&
+          e.data.buffer instanceof ArrayBuffer &&
+          e.data.byteLength !== undefined
+      );
+      console.log(e.data);
+      console.log(ArrayBuffer.isView(e.data));
+      console.time("starting");
+      // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
+      const x: StockfishEngine = await Stockfish(e.data);
+      console.timeEnd("starting");
+      x.addMessageListener((line: string) => {
+        console.log(`hello : ${line}`);
+        // setStockfishResponseArray(StockfishResponseArray.concat([line]));
+        dispatch(pushResponse(line));
+      });
+      // x.onmessage = (e: MessageEvent) => {
+
+      // }
+      console.log(x.onmessage);
+      dispatch(setReady(x));
+      console.log("arraybuffer view : ");
+      console.log(ArrayBuffer.isView(x));
+      // dispatch(setReady(x));
+      // console.log(typeof x);
+      console.log(x);
+      // console.log(typeof x);
+      // console.log(JSON.stringify(x));
+      console.log(x);
+      // const ax: string = JSON.stringify(x);
+      // const cx: object = JSON.parse(ax);
+      // console.log(cx === x);
+      // console.log(useAppSelector(getEngineState))
+    };
+    workerRef.current.onmessageerror = (e) => {
+      console.log(e);
+      alert("web worker throws an message error");
+    };
+    workerRef.current.onerror = (e) => {
+      console.log(e);
+      alert("dedicated error by worker");
+    };
+    workerRef.current.postMessage("start");
+    console.log(workerRef.current);
+
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+}
+
+function useUpdateBoardFEN(
+  playColor: Color,
+  fen: string,
+  TheStockfishEngine: StockfishEngine
+) {
+  useEffect(() => {
+    console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
+    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
+      if (!chess.isGameOver()) getBestMove(fen, TheStockfishEngine);
+      // const bestMoveString = useCaptureBestMoves();
+      // console.log(bestMoveString);
+      // yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
+    } else {
+      return;
+    }
+  }, [fen]);
+}
+
+function useStockfishTrigger(
+  playColor: Color,
+  stockfishTrigger: string,
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  useEffect(() => {
+    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
+      const x = chess.move(stockfishTrigger);
+      if (
+        handleGameOver(
+          setFen,
+          gameEndResult,
+          gameEndTitle,
+          setGameEnded,
+          setSoundTrigger
+        )
+      )
+        return;
+      if (chess.isCheck()) {
+        setSoundTrigger("/sounds/move-check.mp3");
+      } else if (x.hasOwnProperty("captured")) {
+        setSoundTrigger("/sounds/capture.mp3");
+      } else if (x.san === "O-O-O" || x.san === "O-O") {
+        setSoundTrigger("/sounds/castle.mp3");
+      } else {
+        setSoundTrigger("/sounds/move-self.mp3");
+      }
+      setFen(chess.fen());
+      return;
+    } else return;
+  }, [stockfishTrigger]);
+}
+
+function useSound(
+  soundTrigger: string,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  useEffect(() => {
+    if (soundTrigger.length === 0) return;
+    try {
+      const Sound = new Audio(soundTrigger);
+      Sound.play();
+      setSoundTrigger("");
+    } catch (err) {
+      setSoundTrigger("");
+      throw new Error("Error occured in playing sound");
+    }
+  }, [soundTrigger]);
+}
+
+function useClickAndMove(
+  clickAndMoveTrigger: SquareAndMove[],
+  setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setOpenDrawer: Dispatch<SetStateAction<boolean>>,
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  useEffect(() => {
+    if (clickAndMoveTrigger.length === 0) return;
+    if (clickAndMoveTrigger.length === 4) {
+      setPromotionArray(clickAndMoveTrigger);
+      setOpenDrawer(true);
+    } else {
+      const move: string = clickAndMoveTrigger[0].move;
+      const x = chess.move(move);
+      if (
+        handleGameOver(
+          setFen,
+          gameEndResult,
+          gameEndTitle,
+          setGameEnded,
+          setSoundTrigger
+        )
+      )
+        return;
+      if (chess.isCheck()) {
+        setSoundTrigger("/sounds/move-check.mp3");
+      } else if (x.hasOwnProperty("captured")) {
+        setSoundTrigger("/sounds/capture.mp3");
+      } else if (x.san === "O-O-O" || x.san === "O-O") {
+        setSoundTrigger("/sounds/castle.mp3");
+      } else {
+        setSoundTrigger("/sounds/move-self.mp3");
+      }
+      setFen(chess.fen());
+    }
+  }, [clickAndMoveTrigger]);
+}
+
+function useOnPieceDrop(
+  fen: string,
+  setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setOpenDrawer: Dispatch<SetStateAction<boolean>>,
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  useEffect(() => {
+    return monitorForElements({
+      onDrop({ source, location }) {
+        const destination = location.current.dropTargets[0];
+        if (!destination) return;
+        const dest = destination.data.cord; // Square object
+        const aary = destination.data.validMovesArray; // SquareAndMoves[] Object
+        // Should validate destSquareCoordinates for Square and sourcePieceData for positionObject
+
+        ///////////////////////////////////////////////////////////////////////
+        // Typecasting for a while
+        const destSquareCoordinates = dest as Square;
+        const validMovesArray = aary as SquareAndMove[];
+        ///////////////////////////////////////////////////////////////////////
+
+        const tempObj = validMovesArray.filter(
+          (obj) => obj.square === destSquareCoordinates
+        );
+        if (tempObj.length === 0) {
+          throw new Error("Some Error occured, can not find the right move");
+        }
+        if (tempObj.length === 4) {
+          setPromotionArray(tempObj);
+          setOpenDrawer(true);
+        } else {
+          const move: string = tempObj[0].move;
+          const x = chess.move(move);
+          if (
+            handleGameOver(
+              setFen,
+              gameEndResult,
+              gameEndTitle,
+              setGameEnded,
+              setSoundTrigger
+            )
+          )
+            return;
+          if (chess.isCheck()) {
+            setSoundTrigger("/sounds/move-check.mp3");
+          } else if (x.hasOwnProperty("captured")) {
+            setSoundTrigger("/sounds/capture.mp3");
+          } else if (x.san === "O-O-O" || x.san === "O-O") {
+            setSoundTrigger("/sounds/castle.mp3");
+          } else {
+            setSoundTrigger("/sounds/move-self.mp3");
+          }
+          setFen(chess.fen());
+        }
+      },
+    });
+  }, [fen]);
+}
 
 export default function Page() {
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<string>(
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
   let gameEndResult = "";
   let gameEndTitle = "";
@@ -547,243 +913,46 @@ export default function Page() {
   const engineStator = useAppSelector(getEngineState);
   const TheStockfishEngine = useAppSelector(getEngine);
   const latestStockfishResponse = useAppSelector(getLatestResponse);
-  const [StockfishResponseArray, setStockfishResponseArray] = useState<string[]>([]);
-  const EngineRef = useRef<StockfishEngine>({onmessage: ()=>{}, postMessage: ()=>{}})
-  function onMessageFunc(e: MessageEvent) {
-    console.log("hello");
-    dispatch(pushResponse(e.data));
-  }
-  function setNewGame() {
-    setFen(originalFEN);
-    setOpenSettings(true);
-    setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
-  }
-  function startTheGame() {
-    setOpenSettings(false);
-    applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
-    if (playColor === "b") {
-      getBestMove(originalFEN, TheStockfishEngine);
-      // const bestMoveString = useCaptureBestMoves();
-      // console.log(`latest response = ${latestStockfishResponse}`);
-      // yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
-    }
-  }
-  function handleGameOver() {
-    const gameOver = chess.isGameOver();
-    if (!gameOver) return false;
-    setFen(chess.fen());
-    if (chess.isDraw()) {
-      gameEndResult = "1/2 - 1/2";
-      gameEndTitle = "Equally positioned";
-    } else if (chess.turn() === "w") {
-      gameEndResult = "0 - 1";
-      gameEndTitle = playColor === "w" ? "Better luck next time" : "You Won";
-    } else {
-      gameEndResult = "1 - 0";
-      gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
-    }
-    setTimeout(() => {
-      setGameEnded({
-        gameEnded: true,
-        gameEndResult: gameEndResult,
-        gameEndTitle: gameEndTitle,
-      });
-    }, 1000);
-    setSoundTrigger("/sounds/game-end.mp3");
-    return true;
-  }
+  const [StockfishResponseArray, setStockfishResponseArray] = useState<
+    string[]
+  >([]);
 
-  function handlePromotion(piece: string) {
-    let promotionMove;
-    for (let i = 0; i < promotionArray.length; i++) {
-      const ithMove = promotionArray[i].move;
-      if (
-        ithMove[ithMove.length - 1] === piece ||
-        ithMove[ithMove.length - 2] === piece
-      ) {
-        promotionMove = promotionArray[i];
-        break;
-      }
-    }
-    if (promotionMove === undefined) {
-      console.log(promotionArray);
-      throw new Error("Failed promotion, some error occured");
-    }
-    chess.move(promotionMove.move);
-    setOpenDrawer(false);
-    setPromotionArray([]);
-    if (handleGameOver()) return;
-    if (chess.isCheck()) {
-      setSoundTrigger("/sounds/move-check.mp3");
-    } else {
-      setSoundTrigger("/sounds/promote.mp3");
-    }
-    setFen(chess.fen());
-  }
   chess.load(fen);
-  useEffect(() => {
-    // console.log(`engine on message : ${TheStockfishEngine.onmessage}`);
-    // console.log("am in the latest response" + latestStockfishResponse)
-    if(latestStockfishResponse && latestStockfishResponse.split(' ')[0] === 'bestmove'){
-      const bestMove: string = latestStockfishResponse.split(' ')[1];
-      setStockfishTrigger(bestMove);
-      console.log(`found best move = ${latestStockfishResponse.split(' ')[1]}`)
-    }
-  }, [latestStockfishResponse])
-  useEffect(() => {
-    workerRef.current = new window.Worker("/lib/loadEngine.js")
-    if(workerRef.current === null) throw new Error('worker is null');
-    workerRef.current.onmessage = async (e) => {
-      // alert("web worker responded");
-      console.log(e.data && e.data.buffer instanceof ArrayBuffer && e.data.byteLength !== undefined);
-      console.log(e.data)
-      console.log(ArrayBuffer.isView(e.data));
-      console.time("starting")
-      // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
-      const x: StockfishEngine = await Stockfish(e.data);
-      console.timeEnd('starting')
-      x.addMessageListener((line: string) => {
-        console.log(`hello : ${line}`);
-        // setStockfishResponseArray(StockfishResponseArray.concat([line]));
-        dispatch(pushResponse(line));
-      });
-      // x.onmessage = (e: MessageEvent) => {
+  // custom hook calls
+  useLatestStockfishResponse(latestStockfishResponse, setStockfishTrigger);
+  useEngine(workerRef);
+  useUpdateBoardFEN(playColor, fen, TheStockfishEngine);
+  useStockfishTrigger(
+    playColor,
+    stockfishTrigger,
+    setFen,
+    gameEndResult,
+    gameEndTitle,
+    setGameEnded,
+    setSoundTrigger
+  );
+  useSound(soundTrigger, setSoundTrigger);
+  useClickAndMove(
+    clickAndMoveTrigger,
+    setPromotionArray,
+    setOpenDrawer,
+    setFen,
+    gameEndResult,
+    gameEndTitle,
+    setGameEnded,
+    setSoundTrigger
+  );
+  useOnPieceDrop(
+    fen,
+    setPromotionArray,
+    setOpenDrawer,
+    setFen,
+    gameEndResult,
+    gameEndTitle,
+    setGameEnded,
+    setSoundTrigger
+  );
 
-      // }
-      console.log(x.onmessage);
-      dispatch(setReady(x));
-      console.log("arraybuffer view : ")
-      console.log(ArrayBuffer.isView(x));
-      // dispatch(setReady(x));
-      // console.log(typeof x);
-      console.log(x);
-      // console.log(typeof x);
-      console.log(engineStator);
-      // console.log(JSON.stringify(x));
-      console.log(x);
-      // const ax: string = JSON.stringify(x);
-      // const cx: object = JSON.parse(ax);
-      // console.log(cx === x);
-      // console.log(useAppSelector(getEngineState))
-    }
-    workerRef.current.onmessageerror = (e) => {
-      console.log(e)
-      alert('web worker throws an message error')
-    }
-    workerRef.current.onerror = (e) => {
-      console.log(e);
-      alert("dedicated error by worker");
-    }
-    workerRef.current.postMessage('start');
-    console.log(workerRef.current)
-
-    return () => {
-      workerRef.current?.terminate();
-    }
-  }, [])
-  useEffect(() => {
-    console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
-    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      if (!chess.isGameOver())
-        getBestMove(fen, TheStockfishEngine);
-        // const bestMoveString = useCaptureBestMoves();
-        // console.log(bestMoveString);
-        // yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
-    } else {
-      return;
-    }
-  }, [fen]);
-  useEffect(() => {
-    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      const x = chess.move(stockfishTrigger);
-      if (handleGameOver()) return;
-      if (chess.isCheck()) {
-        setSoundTrigger("/sounds/move-check.mp3");
-      } else if (x.hasOwnProperty("captured")) {
-        setSoundTrigger("/sounds/capture.mp3");
-      } else if (x.san === "O-O-O" || x.san === "O-O") {
-        setSoundTrigger("/sounds/castle.mp3");
-      } else {
-        setSoundTrigger("/sounds/move-self.mp3");
-      }
-      setFen(chess.fen());
-      return;
-    } else return;
-  }, [stockfishTrigger]);
-  useEffect(() => {
-    if (soundTrigger.length === 0) return;
-    try {
-      const Sound = new Audio(soundTrigger);
-      Sound.play();
-      setSoundTrigger("");
-    } catch (err) {
-      setSoundTrigger("");
-      throw new Error("Error occured in playing sound");
-    }
-  }, [soundTrigger]);
-  useEffect(() => {
-    if (clickAndMoveTrigger.length === 0) return;
-    if (clickAndMoveTrigger.length === 4) {
-      setPromotionArray(clickAndMoveTrigger);
-      setOpenDrawer(true);
-    } else {
-      const move: string = clickAndMoveTrigger[0].move;
-      const x = chess.move(move);
-      if (handleGameOver()) return;
-      if (chess.isCheck()) {
-        setSoundTrigger("/sounds/move-check.mp3");
-      } else if (x.hasOwnProperty("captured")) {
-        setSoundTrigger("/sounds/capture.mp3");
-      } else if (x.san === "O-O-O" || x.san === "O-O") {
-        setSoundTrigger("/sounds/castle.mp3");
-      } else {
-        setSoundTrigger("/sounds/move-self.mp3");
-      }
-      setFen(chess.fen());
-    }
-  }, [clickAndMoveTrigger]);
-  useEffect(() => {
-    return monitorForElements({
-      onDrop({ source, location }) {
-        const destination = location.current.dropTargets[0];
-        if (!destination) return;
-        const dest = destination.data.cord; // Square object
-        const aary = destination.data.validMovesArray; // SquareAndMoves[] Object
-        // Should validate destSquareCoordinates for Square and sourcePieceData for positionObject
-
-        ///////////////////////////////////////////////////////////////////////
-        // Typecasting for a while
-        const destSquareCoordinates = dest as Square;
-        const validMovesArray = aary as SquareAndMove[];
-        ///////////////////////////////////////////////////////////////////////
-
-        const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates,
-        );
-        if (tempObj.length === 0) {
-          throw new Error("Some Error occured, can not find the right move");
-        }
-        if (tempObj.length === 4) {
-          setPromotionArray(tempObj);
-          setOpenDrawer(true);
-        } else {
-          const move: string = tempObj[0].move;
-          const x = chess.move(move);
-          if (handleGameOver()) return;
-          if (chess.isCheck()) {
-            setSoundTrigger("/sounds/move-check.mp3");
-          } else if (x.hasOwnProperty("captured")) {
-            setSoundTrigger("/sounds/capture.mp3");
-          } else if (x.san === "O-O-O" || x.san === "O-O") {
-            setSoundTrigger("/sounds/castle.mp3");
-          } else {
-            setSoundTrigger("/sounds/move-self.mp3");
-          }
-          setFen(chess.fen());
-        }
-      },
-    });
-  }, [fen]);
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
   return (
     <div className="w-full h-full flex flex-col justify-center">
@@ -845,7 +1014,15 @@ export default function Page() {
                 <Button
                   className="w-full"
                   variant={"default"}
-                  onClick={() => startTheGame()}
+                  onClick={() =>
+                    startTheGame(
+                      setOpenSettings,
+                      stockfishElo,
+                      TheStockfishEngine,
+                      playColor,
+                      originalFEN
+                    )
+                  }
                   // onClick={() => {
                   //   if(!workerRef.current) {
                   //     console.log("worker not initialized")
@@ -889,7 +1066,14 @@ export default function Page() {
                   <Button
                     variant={"default"}
                     className="flex justify-center mx-2 text-xl w-56"
-                    onClick={() => setNewGame()}
+                    onClick={() =>
+                      setNewGame(
+                        setFen,
+                        originalFEN,
+                        setOpenSettings,
+                        setGameEnded
+                      )
+                    }
                   >
                     New game
                   </Button>
@@ -918,7 +1102,16 @@ export default function Page() {
                     width={100}
                     height={100}
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() => handlePromotion("N")}
+                    onClick={() =>
+                      handlePromotion(
+                        "N",
+                        promotionArray,
+                        setOpenDrawer,
+                        setPromotionArray,
+                        setSoundTrigger,
+                        setFen
+                      )
+                    }
                   />
                   <Image
                     src={`/chesspeices/${
@@ -929,7 +1122,16 @@ export default function Page() {
                     width={100}
                     height={100}
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() => handlePromotion("R")}
+                    onClick={() =>
+                      handlePromotion(
+                        "R",
+                        promotionArray,
+                        setOpenDrawer,
+                        setPromotionArray,
+                        setSoundTrigger,
+                        setFen
+                      )
+                    }
                   />
                   <Image
                     src={`/chesspeices/${
@@ -940,7 +1142,16 @@ export default function Page() {
                     width={100}
                     height={100}
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() => handlePromotion("B")}
+                    onClick={() =>
+                      handlePromotion(
+                        "B",
+                        promotionArray,
+                        setOpenDrawer,
+                        setPromotionArray,
+                        setSoundTrigger,
+                        setFen
+                      )
+                    }
                   />
                   <Image
                     src={`/chesspeices/${
@@ -951,7 +1162,16 @@ export default function Page() {
                     width={100}
                     height={100}
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() => handlePromotion("Q")}
+                    onClick={() =>
+                      handlePromotion(
+                        "Q",
+                        promotionArray,
+                        setOpenDrawer,
+                        setPromotionArray,
+                        setSoundTrigger,
+                        setFen
+                      )
+                    }
                   />
                 </DrawerDescription>
               </DrawerContent>
