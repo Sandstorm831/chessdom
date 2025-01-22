@@ -558,15 +558,19 @@ function startTheGame(
 }
 
 function handleGameOver(
+  playColor: Color,
   setFen: Dispatch<SetStateAction<string>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  TheStockfishEngine: StockfishEngine,
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
   setFen(chess.fen());
+  TheStockfishEngine.postMessage('ucinewgame')
+  TheStockfishEngine.postMessage('isready')
   if (chess.isDraw()) {
     gameEndResult = "1/2 - 1/2";
     gameEndTitle = "Equally positioned";
@@ -589,12 +593,17 @@ function handleGameOver(
 }
 
 function handlePromotion(
+  playColor: Color,
   piece: string,
   promotionArray: SquareAndMove[],
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  setFen: Dispatch<SetStateAction<string>>
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  TheStockfishEngine: StockfishEngine,
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -616,11 +625,13 @@ function handlePromotion(
   setPromotionArray([]);
   if (
     handleGameOver(
+      playColor,
       setFen,
       gameEndResult,
       gameEndTitle,
       setGameEnded,
-      setSoundTrigger
+      setSoundTrigger,
+      TheStockfishEngine
     )
   )
     return;
@@ -711,12 +722,13 @@ function useEngine(workerRef: RefObject<Worker | null>) {
 function useUpdateBoardFEN(
   playColor: Color,
   fen: string,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
+  openSettings: boolean
 ) {
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      if (!chess.isGameOver()) getBestMove(fen, TheStockfishEngine);
+      if (!chess.isGameOver() && !openSettings) getBestMove(fen, TheStockfishEngine);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
       // yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
@@ -733,18 +745,21 @@ function useStockfishTrigger(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  TheStockfishEngine: StockfishEngine
 ) {
   useEffect(() => {
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
       const x = chess.move(stockfishTrigger);
       if (
         handleGameOver(
+          playColor,
           setFen,
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger
+          setSoundTrigger,
+          TheStockfishEngine
         )
       )
         return;
@@ -781,6 +796,7 @@ function useSound(
 }
 
 function useClickAndMove(
+  playColor: Color,
   clickAndMoveTrigger: SquareAndMove[],
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
@@ -788,7 +804,8 @@ function useClickAndMove(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  TheStockfishEngine: StockfishEngine
 ) {
   useEffect(() => {
     if (clickAndMoveTrigger.length === 0) return;
@@ -800,11 +817,13 @@ function useClickAndMove(
       const x = chess.move(move);
       if (
         handleGameOver(
+          playColor,
           setFen,
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger
+          setSoundTrigger,
+          TheStockfishEngine
         )
       )
         return;
@@ -823,6 +842,7 @@ function useClickAndMove(
 }
 
 function useOnPieceDrop(
+  playColor: Color,
   fen: string,
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
@@ -830,7 +850,8 @@ function useOnPieceDrop(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  TheStockfishEngine: StockfishEngine
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -861,11 +882,13 @@ function useOnPieceDrop(
           const x = chess.move(move);
           if (
             handleGameOver(
+              playColor,
               setFen,
               gameEndResult,
               gameEndTitle,
               setGameEnded,
-              setSoundTrigger
+              setSoundTrigger,
+              TheStockfishEngine
             )
           )
             return;
@@ -921,7 +944,7 @@ export default function Page() {
   // custom hook calls
   useLatestStockfishResponse(latestStockfishResponse, setStockfishTrigger);
   useEngine(workerRef);
-  useUpdateBoardFEN(playColor, fen, TheStockfishEngine);
+  useUpdateBoardFEN(playColor, fen, TheStockfishEngine, openSettings);
   useStockfishTrigger(
     playColor,
     stockfishTrigger,
@@ -929,10 +952,12 @@ export default function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger
+    setSoundTrigger, 
+    TheStockfishEngine
   );
   useSound(soundTrigger, setSoundTrigger);
   useClickAndMove(
+    playColor,
     clickAndMoveTrigger,
     setPromotionArray,
     setOpenDrawer,
@@ -940,9 +965,11 @@ export default function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger
+    setSoundTrigger,
+    TheStockfishEngine
   );
   useOnPieceDrop(
+    playColor,
     fen,
     setPromotionArray,
     setOpenDrawer,
@@ -950,7 +977,8 @@ export default function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger
+    setSoundTrigger,
+    TheStockfishEngine
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
@@ -1104,12 +1132,17 @@ export default function Page() {
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
                     onClick={() =>
                       handlePromotion(
+                        playColor,
                         "N",
                         promotionArray,
                         setOpenDrawer,
                         setPromotionArray,
                         setSoundTrigger,
-                        setFen
+                        setFen,
+                        gameEndResult,
+                        gameEndTitle,
+                        setGameEnded,
+                        TheStockfishEngine
                       )
                     }
                   />
@@ -1124,12 +1157,17 @@ export default function Page() {
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
                     onClick={() =>
                       handlePromotion(
+                        playColor,
                         "R",
                         promotionArray,
                         setOpenDrawer,
                         setPromotionArray,
                         setSoundTrigger,
-                        setFen
+                        setFen,
+                        gameEndResult,
+                        gameEndTitle,
+                        setGameEnded,
+                        TheStockfishEngine
                       )
                     }
                   />
@@ -1144,12 +1182,17 @@ export default function Page() {
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
                     onClick={() =>
                       handlePromotion(
+                        playColor,
                         "B",
                         promotionArray,
                         setOpenDrawer,
                         setPromotionArray,
                         setSoundTrigger,
-                        setFen
+                        setFen,
+                        gameEndResult,
+                        gameEndTitle,
+                        setGameEnded,
+                        TheStockfishEngine
                       )
                     }
                   />
@@ -1164,12 +1207,17 @@ export default function Page() {
                     className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
                     onClick={() =>
                       handlePromotion(
+                        playColor,
                         "Q",
                         promotionArray,
                         setOpenDrawer,
                         setPromotionArray,
                         setSoundTrigger,
-                        setFen
+                        setFen,
+                        gameEndResult,
+                        gameEndTitle,
+                        setGameEnded,
+                        TheStockfishEngine
                       )
                     }
                   />
