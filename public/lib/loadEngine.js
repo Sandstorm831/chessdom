@@ -1,10 +1,8 @@
 importScripts('/lib/stockfish.js')
 
 onmessage = async (e) => {
-  console.log("yupp, I am here")
   if(e.data === 'start'){
     await StartEngine();
-    console.log('started the engine')
   }
 }
 
@@ -15,21 +13,21 @@ async function StartEngine() {
   xhr.setRequestHeader('Cross-Origin-Embedder-Policy', 'require-corp')
   xhr.responseType = 'arraybuffer';
   xhr.onload = async (doneEvent) => {
-    console.log("got the engine")
-    console.log(`module loaded: ${doneEvent.loaded} bytes transferred`);
+    // console.log("got the engine")
+    // console.log(`module loaded: ${doneEvent.loaded} bytes transferred`);
     postMessage(xhr.response);
     console.log('loaded the engine');
     close();
-    
   }
   xhr.onerror = (errorEvent) => {
-    console.log(`Some Error occured while laoding modules: ${errorEvent.loaded} bytes transferred`)
+    console.log(`Some Error occured while fetching WASM engine`)
     console.log('failed to get wasm file')
+    throw new Error(errorEvent);
   }
-  xhr.onprogress = (ProgressEvent) => {
-    console.log(`Loading : ${ProgressEvent.loaded}`);
-  }
-  console.log("starting the fetch request");
+  // xhr.onprogress = (ProgressEvent) => {
+  //   console.log(`Loading : ${ProgressEvent.loaded}`);
+  // }
+  // console.log("starting the fetch request");
   xhr.send();
 }
 

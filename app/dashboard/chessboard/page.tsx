@@ -45,16 +45,6 @@ import {
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
 let EngineStarted: boolean = false;
-// async function yourTurnStockfish(
-//   fen: string,
-//   setStockfishTrigger: Dispatch<SetStateAction<string>>,
-//   elo: number,
-// ) {
-//   if (!EngineStarted) {}
-//   const bestMove: string = await useGetBestMove(fen);
-//   setStockfishTrigger(bestMove);
-//   return;
-// }
 
 export function applyInitialSettings(
   elo: string,
@@ -553,7 +543,6 @@ function startTheGame(
     getBestMove(originalFEN, TheStockfishEngine);
     // const bestMoveString = useCaptureBestMoves();
     // console.log(`latest response = ${latestStockfishResponse}`);
-    // yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
   }
 }
 
@@ -564,13 +553,13 @@ function handleGameOver(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
+  TheStockfishEngine: StockfishEngine
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
   setFen(chess.fen());
-  TheStockfishEngine.postMessage('ucinewgame')
-  TheStockfishEngine.postMessage('isready')
+  TheStockfishEngine.postMessage("ucinewgame");
+  TheStockfishEngine.postMessage("isready");
   if (chess.isDraw()) {
     gameEndResult = "1/2 - 1/2";
     gameEndTitle = "Equally positioned";
@@ -603,7 +592,7 @@ function handlePromotion(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  TheStockfishEngine: StockfishEngine,
+  TheStockfishEngine: StockfishEngine
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -617,7 +606,7 @@ function handlePromotion(
     }
   }
   if (promotionMove === undefined) {
-    console.log(promotionArray);
+    // console.log(promotionArray);
     throw new Error("Failed promotion, some error occured");
   }
   chess.move(promotionMove.move);
@@ -644,9 +633,15 @@ function handlePromotion(
 }
 
 function useLatestStockfishResponse(
-  latestStockfishResponse: string,
-  setStockfishTrigger: Dispatch<SetStateAction<string>>
+  playColor: Color,
+  setFen: Dispatch<SetStateAction<string>>,
+  gameEndResult: string,
+  gameEndTitle: string,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  TheStockfishEngine: StockfishEngine
 ) {
+  const latestStockfishResponse = useAppSelector(getLatestResponse);
   useEffect(() => {
     // console.log(`engine on message : ${TheStockfishEngine.onmessage}`);
     // console.log("am in the latest response" + latestStockfishResponse)
@@ -655,8 +650,17 @@ function useLatestStockfishResponse(
       latestStockfishResponse.split(" ")[0] === "bestmove"
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
-      setStockfishTrigger(bestMove);
-      console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
+      triggerStockfishTrigger(
+        playColor,
+        bestMove,
+        setFen,
+        gameEndResult,
+        gameEndTitle,
+        setGameEnded,
+        setSoundTrigger,
+        TheStockfishEngine
+      );
+      // console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
     }
   }, [latestStockfishResponse]);
 }
@@ -668,50 +672,46 @@ function useEngine(workerRef: RefObject<Worker | null>) {
     if (workerRef.current === null) throw new Error("worker is null");
     workerRef.current.onmessage = async (e) => {
       // alert("web worker responded");
-      console.log(
-        e.data &&
-          e.data.buffer instanceof ArrayBuffer &&
-          e.data.byteLength !== undefined
-      );
-      console.log(e.data);
-      console.log(ArrayBuffer.isView(e.data));
+      // console.log(
+      //   e.data &&
+      //     e.data.buffer instanceof ArrayBuffer &&
+      //     e.data.byteLength !== undefined
+      // );
+      // console.log(e.data);
+      // console.log(ArrayBuffer.isView(e.data));
       console.time("starting");
       // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
       const x: StockfishEngine = await Stockfish(e.data);
       console.timeEnd("starting");
       x.addMessageListener((line: string) => {
-        console.log(`hello : ${line}`);
+        // console.log(`hello : ${line}`);
         // setStockfishResponseArray(StockfishResponseArray.concat([line]));
         dispatch(pushResponse(line));
       });
       // x.onmessage = (e: MessageEvent) => {
 
       // }
-      console.log(x.onmessage);
+      // console.log(x.onmessage);
       dispatch(setReady(x));
       console.log("arraybuffer view : ");
       console.log(ArrayBuffer.isView(x));
       // dispatch(setReady(x));
       // console.log(typeof x);
-      console.log(x);
+      // console.log(x);
       // console.log(typeof x);
       // console.log(JSON.stringify(x));
-      console.log(x);
+      // console.log(x);
       // const ax: string = JSON.stringify(x);
       // const cx: object = JSON.parse(ax);
       // console.log(cx === x);
       // console.log(useAppSelector(getEngineState))
     };
-    workerRef.current.onmessageerror = (e) => {
-      console.log(e);
-      alert("web worker throws an message error");
-    };
     workerRef.current.onerror = (e) => {
       console.log(e);
-      alert("dedicated error by worker");
+      alert("Error while initiating the Engine, please refresh and try again");
     };
     workerRef.current.postMessage("start");
-    console.log(workerRef.current);
+    // console.log(workerRef.current);
 
     return () => {
       workerRef.current?.terminate();
@@ -728,19 +728,19 @@ function useUpdateBoardFEN(
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      if (!chess.isGameOver() && !openSettings) getBestMove(fen, TheStockfishEngine);
+      if (!chess.isGameOver() && !openSettings)
+        getBestMove(fen, TheStockfishEngine);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
-      // yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
     } else {
       return;
     }
   }, [fen]);
 }
 
-function useStockfishTrigger(
+function triggerStockfishTrigger(
   playColor: Color,
-  stockfishTrigger: string,
+  bestMove: string,
   setFen: Dispatch<SetStateAction<string>>,
   gameEndResult: string,
   gameEndTitle: string,
@@ -748,34 +748,32 @@ function useStockfishTrigger(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   TheStockfishEngine: StockfishEngine
 ) {
-  useEffect(() => {
-    if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      const x = chess.move(stockfishTrigger);
-      if (
-        handleGameOver(
-          playColor,
-          setFen,
-          gameEndResult,
-          gameEndTitle,
-          setGameEnded,
-          setSoundTrigger,
-          TheStockfishEngine
-        )
+  if (chess.turn() === (playColor === "w" ? "b" : "w")) {
+    const x = chess.move(bestMove);
+    if (
+      handleGameOver(
+        playColor,
+        setFen,
+        gameEndResult,
+        gameEndTitle,
+        setGameEnded,
+        setSoundTrigger,
+        TheStockfishEngine
       )
-        return;
-      if (chess.isCheck()) {
-        setSoundTrigger("/sounds/move-check.mp3");
-      } else if (x.hasOwnProperty("captured")) {
-        setSoundTrigger("/sounds/capture.mp3");
-      } else if (x.san === "O-O-O" || x.san === "O-O") {
-        setSoundTrigger("/sounds/castle.mp3");
-      } else {
-        setSoundTrigger("/sounds/move-self.mp3");
-      }
-      setFen(chess.fen());
+    )
       return;
-    } else return;
-  }, [stockfishTrigger]);
+    if (chess.isCheck()) {
+      setSoundTrigger("/sounds/move-check.mp3");
+    } else if (x.hasOwnProperty("captured")) {
+      setSoundTrigger("/sounds/capture.mp3");
+    } else if (x.san === "O-O-O" || x.san === "O-O") {
+      setSoundTrigger("/sounds/castle.mp3");
+    } else {
+      setSoundTrigger("/sounds/move-self.mp3");
+    }
+    setFen(chess.fen());
+    return;
+  } else return;
 }
 
 function useSound(
@@ -808,6 +806,7 @@ function useClickAndMove(
   TheStockfishEngine: StockfishEngine
 ) {
   useEffect(() => {
+    console.log("clickAndMoveTriggerred")
     if (clickAndMoveTrigger.length === 0) return;
     if (clickAndMoveTrigger.length === 4) {
       setPromotionArray(clickAndMoveTrigger);
@@ -905,57 +904,55 @@ function useOnPieceDrop(
         }
       },
     });
-  }, [fen]);
+  }, []);
 }
 
 export default function Page() {
+  let gameEndResult = "";
+  let gameEndTitle = "";
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<string>(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
-  let gameEndResult = "";
-  let gameEndTitle = "";
   const [gameEnded, setGameEnded] = useState<gameEndObject>({
     gameEnded: false,
     gameEndResult: "",
     gameEndTitle: "",
   });
-  const [stockfishElo, setStockfishElo] = useState<number>(1350);
-  const [stockfishTrigger, setStockfishTrigger] = useState<string>("");
-  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<
-    SquareAndMove[]
-  >([]);
+  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<SquareAndMove[]>([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
   const workerRef = useRef<Worker>(null);
-  const dispatch = useAppDispatch();
-  const engineStator = useAppSelector(getEngineState);
   const TheStockfishEngine = useAppSelector(getEngine);
-  const latestStockfishResponse = useAppSelector(getLatestResponse);
-  const [StockfishResponseArray, setStockfishResponseArray] = useState<
-    string[]
-  >([]);
+
+  console.log("page rendering");
 
   chess.load(fen);
+
+
   // custom hook calls
-  useLatestStockfishResponse(latestStockfishResponse, setStockfishTrigger);
-  useEngine(workerRef);
-  useUpdateBoardFEN(playColor, fen, TheStockfishEngine, openSettings);
-  useStockfishTrigger(
+
+
+  useLatestStockfishResponse(
     playColor,
-    stockfishTrigger,
     setFen,
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger, 
+    setSoundTrigger,
     TheStockfishEngine
   );
+
+  useEngine(workerRef);
+
+  useUpdateBoardFEN(playColor, fen, TheStockfishEngine, openSettings);
+
   useSound(soundTrigger, setSoundTrigger);
+
   useClickAndMove(
     playColor,
     clickAndMoveTrigger,
@@ -968,6 +965,7 @@ export default function Page() {
     setSoundTrigger,
     TheStockfishEngine
   );
+
   useOnPieceDrop(
     playColor,
     fen,
@@ -986,88 +984,14 @@ export default function Page() {
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
-          <Drawer
-            open={openSettings}
-            modal={true}
-            dismissible={false}
-            direction="left"
-          >
-            <DrawerContent className="w-[500px] h-full rounded-lg">
-              <DrawerTitle className="flex justify-center text-3xl mb-16">
-                Settings
-              </DrawerTitle>
-              <DrawerTitle className="flex justify-center text-xl mb-2">
-                Play as : {playColor === "w" ? "White" : "Black"}
-              </DrawerTitle>
-              <DrawerDescription className="flex justify-center mt-2 mb-5">
-                <Button
-                  variant={"secondary"}
-                  className="mx-2 hover:bg-gray-5"
-                  onClick={() => setPlayColor("w")}
-                >
-                  White
-                </Button>
-                <Button
-                  variant={"secondary"}
-                  className="mx-2 hover:bg-gray-5"
-                  onClick={() => setPlayColor("b")}
-                >
-                  Black
-                </Button>
-                <Button
-                  variant={"secondary"}
-                  className="mx-2 hover:bg-gray-5"
-                  onClick={() => {
-                    return Math.round(Math.random()) === 1
-                      ? setPlayColor("b")
-                      : setPlayColor("w");
-                  }}
-                >
-                  Random
-                </Button>
-              </DrawerDescription>
-              <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">
-                Stockfish Elo : {stockfishElo}
-              </DrawerDescription>
-              <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
-                <Slider
-                  defaultValue={[stockfishElo]}
-                  max={3150}
-                  min={1350}
-                  step={50}
-                  onValueChange={(value) => setStockfishElo(value[0])}
-                />
-              </DrawerDescription>
-              <DrawerDescription className="flex justify-center w-full px-12">
-                <Button
-                  className="w-full"
-                  variant={"default"}
-                  onClick={() =>
-                    startTheGame(
-                      setOpenSettings,
-                      stockfishElo,
-                      TheStockfishEngine,
-                      playColor,
-                      originalFEN
-                    )
-                  }
-                  // onClick={() => {
-                  //   if(!workerRef.current) {
-                  //     console.log("worker not initialized")
-                  //     return;
-                  //   }else{
-                  //     console.log(workerRef.current)
-                  //     return workerRef.current.postMessage('start')
-                  //   }}}
-                  disabled={
-                    useAppSelector(getEngineState) === "ready" ? false : true
-                  }
-                >
-                  Apply and Play
-                </Button>
-              </DrawerDescription>
-            </DrawerContent>
-          </Drawer>
+          {SettingComponent(
+            openSettings,
+            playColor,
+            setPlayColor,
+            setOpenSettings,
+            TheStockfishEngine,
+            originalFEN
+          )}
 
           <Dialog
             open={gameEnded.gameEnded}
@@ -1226,10 +1150,99 @@ export default function Page() {
             </Drawer>
           ) : null}
         </div>
-        <div className="w-1/4 h-1/4 flex flex-col p-2 overflow-scroll bg-fuchsia-100">
-          {latestStockfishResponse}
-        </div>
       </div>
     </div>
+  );
+}
+function SettingComponent(
+  openSettings: boolean,
+  playColor: Color,
+  setPlayColor: Dispatch<SetStateAction<Color>>,
+  setOpenSettings: Dispatch<SetStateAction<boolean>>,
+  TheStockfishEngine: StockfishEngine,
+  originalFEN: string
+) {
+  const [stockfishElo, setStockfishElo] = useState<number>(1350);
+  return (
+    <Drawer
+      open={openSettings}
+      modal={true}
+      dismissible={false}
+      direction="left"
+    >
+      <DrawerContent className="w-[500px] h-full rounded-lg">
+        <DrawerTitle className="flex justify-center text-3xl mb-16">
+          Settings
+        </DrawerTitle>
+        <DrawerTitle className="flex justify-center text-xl mb-2">
+          Play as : {playColor === "w" ? "White" : "Black"}
+        </DrawerTitle>
+        <DrawerDescription className="flex justify-center mt-2 mb-5">
+          <Button
+            variant={"secondary"}
+            className="mx-2 hover:bg-gray-5"
+            onClick={() => setPlayColor("w")}
+          >
+            White
+          </Button>
+          <Button
+            variant={"secondary"}
+            className="mx-2 hover:bg-gray-5"
+            onClick={() => setPlayColor("b")}
+          >
+            Black
+          </Button>
+          <Button
+            variant={"secondary"}
+            className="mx-2 hover:bg-gray-5"
+            onClick={() => {
+              return Math.round(Math.random()) === 1
+                ? setPlayColor("b")
+                : setPlayColor("w");
+            }}
+          >
+            Random
+          </Button>
+        </DrawerDescription>
+        <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">
+          Stockfish Elo : {stockfishElo}
+        </DrawerDescription>
+        <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
+          <Slider
+            defaultValue={[stockfishElo]}
+            max={3150}
+            min={1350}
+            step={50}
+            onValueChange={(value) => setStockfishElo(value[0])}
+          />
+        </DrawerDescription>
+        <DrawerDescription className="flex justify-center w-full px-12">
+          <Button
+            className="w-full"
+            variant={"default"}
+            onClick={() =>
+              startTheGame(
+                setOpenSettings,
+                stockfishElo,
+                TheStockfishEngine,
+                playColor,
+                originalFEN
+              )
+            }
+            // onClick={() => {
+            //   if(!workerRef.current) {
+            //     console.log("worker not initialized")
+            //     return;
+            //   }else{
+            //     console.log(workerRef.current)
+            //     return workerRef.current.postMessage('start')
+            //   }}}
+            disabled={useAppSelector(getEngineState) === "ready" ? false : true}
+          >
+            Apply and Play
+          </Button>
+        </DrawerDescription>
+      </DrawerContent>
+    </Drawer>
   );
 }
