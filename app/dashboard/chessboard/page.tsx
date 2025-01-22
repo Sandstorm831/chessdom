@@ -806,7 +806,7 @@ function useClickAndMove(
   TheStockfishEngine: StockfishEngine
 ) {
   useEffect(() => {
-    console.log("clickAndMoveTriggerred")
+    console.log("clickAndMoveTriggerred");
     if (clickAndMoveTrigger.length === 0) return;
     if (clickAndMoveTrigger.length === 4) {
       setPromotionArray(clickAndMoveTrigger);
@@ -920,7 +920,9 @@ export default function Page() {
     gameEndResult: "",
     gameEndTitle: "",
   });
-  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<SquareAndMove[]>([]);
+  const [clickAndMoveTrigger, setClickAndMoveTrigger] = useState<
+    SquareAndMove[]
+  >([]);
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -933,9 +935,7 @@ export default function Page() {
 
   chess.load(fen);
 
-
   // custom hook calls
-
 
   useLatestStockfishResponse(
     playColor,
@@ -984,184 +984,253 @@ export default function Page() {
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
-          {SettingComponent(
-            openSettings,
-            playColor,
-            setPlayColor,
-            setOpenSettings,
-            TheStockfishEngine,
-            originalFEN
-          )}
+          <SettingComponent
+            openSettings={openSettings}
+            playColor={playColor}
+            setPlayColor={setPlayColor}
+            setOpenSettings={setOpenSettings}
+            TheStockfishEngine={TheStockfishEngine}
+            originalFEN={originalFEN}
+          />
 
-          <Dialog
-            open={gameEnded.gameEnded}
-            modal={true}
-            onOpenChange={(open: boolean) => {
-              redirect("/dashboard");
-            }}
-          >
-            <DialogContent className="flex flex-col justify-center">
-              <DialogHeader>
-                <DialogTitle className="text-3xl flex justify-center">
-                  {gameEnded.gameEndTitle}
-                </DialogTitle>
-                <DialogDescription className="text-5xl flex justify-center">
-                  {gameEnded.gameEndResult}
-                </DialogDescription>
-                <DialogDescription className="flex justify-center pt-3">
-                  <Button
-                    variant={"default"}
-                    className="flex justify-center mx-2 text-xl w-56"
-                  >
-                    <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
-                  </Button>
-                  <Button
-                    variant={"default"}
-                    className="flex justify-center mx-2 text-xl w-56"
-                    onClick={() =>
-                      setNewGame(
-                        setFen,
-                        originalFEN,
-                        setOpenSettings,
-                        setGameEnded
-                      )
-                    }
-                  >
-                    New game
-                  </Button>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <GameEndDialogue
+            gameEnded={gameEnded}
+            setFen={setFen}
+            originalFEN={originalFEN}
+            setOpenSettings={setOpenSettings}
+            setGameEnded={setGameEnded}
+          />
 
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
 
           {openDrawer ? (
-            <Drawer open={openDrawer} modal={true} dismissible={false}>
-              <DrawerContent>
-                <DrawerTitle className="flex justify-center text-3xl mb-5">
-                  Select your piece
-                </DrawerTitle>
-                <DrawerDescription className="flex justify-center">
-                  <Image
-                    src={`/chesspeices/${
-                      promotionArray[0].square[1] === "1" ? "b" : "w"
-                    }n.svg`}
-                    alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}n`}
-                    draggable="false"
-                    width={100}
-                    height={100}
-                    className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() =>
-                      handlePromotion(
-                        playColor,
-                        "N",
-                        promotionArray,
-                        setOpenDrawer,
-                        setPromotionArray,
-                        setSoundTrigger,
-                        setFen,
-                        gameEndResult,
-                        gameEndTitle,
-                        setGameEnded,
-                        TheStockfishEngine
-                      )
-                    }
-                  />
-                  <Image
-                    src={`/chesspeices/${
-                      promotionArray[0].square[1] === "1" ? "b" : "w"
-                    }r.svg`}
-                    alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}r`}
-                    draggable="false"
-                    width={100}
-                    height={100}
-                    className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() =>
-                      handlePromotion(
-                        playColor,
-                        "R",
-                        promotionArray,
-                        setOpenDrawer,
-                        setPromotionArray,
-                        setSoundTrigger,
-                        setFen,
-                        gameEndResult,
-                        gameEndTitle,
-                        setGameEnded,
-                        TheStockfishEngine
-                      )
-                    }
-                  />
-                  <Image
-                    src={`/chesspeices/${
-                      promotionArray[0].square[1] === "1" ? "b" : "w"
-                    }b.svg`}
-                    alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}b`}
-                    draggable="false"
-                    width={100}
-                    height={100}
-                    className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() =>
-                      handlePromotion(
-                        playColor,
-                        "B",
-                        promotionArray,
-                        setOpenDrawer,
-                        setPromotionArray,
-                        setSoundTrigger,
-                        setFen,
-                        gameEndResult,
-                        gameEndTitle,
-                        setGameEnded,
-                        TheStockfishEngine
-                      )
-                    }
-                  />
-                  <Image
-                    src={`/chesspeices/${
-                      promotionArray[0].square[1] === "1" ? "b" : "w"
-                    }q.svg`}
-                    alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}q`}
-                    draggable="false"
-                    width={100}
-                    height={100}
-                    className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
-                    onClick={() =>
-                      handlePromotion(
-                        playColor,
-                        "Q",
-                        promotionArray,
-                        setOpenDrawer,
-                        setPromotionArray,
-                        setSoundTrigger,
-                        setFen,
-                        gameEndResult,
-                        gameEndTitle,
-                        setGameEnded,
-                        TheStockfishEngine
-                      )
-                    }
-                  />
-                </DrawerDescription>
-              </DrawerContent>
-            </Drawer>
+            <PromotionDrawer
+              openDrawer={openDrawer}
+              promotionArray={promotionArray}
+              playColor={playColor}
+              setOpenDrawer={setOpenDrawer}
+              setPromotionArray={setPromotionArray}
+              setSoundTrigger={setSoundTrigger}
+              setFen={setFen}
+              gameEndResult={gameEndResult}
+              gameEndTitle={gameEndTitle}
+              setGameEnded={setGameEnded}
+              TheStockfishEngine={TheStockfishEngine}
+            />
           ) : null}
         </div>
       </div>
     </div>
   );
 }
-function SettingComponent(
-  openSettings: boolean,
-  playColor: Color,
-  setPlayColor: Dispatch<SetStateAction<Color>>,
-  setOpenSettings: Dispatch<SetStateAction<boolean>>,
-  TheStockfishEngine: StockfishEngine,
-  originalFEN: string
-) {
+
+function GameEndDialogue({
+  gameEnded,
+  setFen,
+  originalFEN,
+  setOpenSettings,
+  setGameEnded,
+}: {
+  gameEnded: gameEndObject;
+  setFen: Dispatch<SetStateAction<string>>;
+  originalFEN: string;
+  setOpenSettings: Dispatch<SetStateAction<boolean>>;
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+}) {
+  return (
+    <Dialog
+      open={gameEnded.gameEnded}
+      modal={true}
+      onOpenChange={(open: boolean) => {
+        redirect("/dashboard");
+      }}
+    >
+      <DialogContent className="flex flex-col justify-center">
+        <DialogHeader>
+          <DialogTitle className="text-3xl flex justify-center">
+            {gameEnded.gameEndTitle}
+          </DialogTitle>
+          <DialogDescription className="text-5xl flex justify-center">
+            {gameEnded.gameEndResult}
+          </DialogDescription>
+          <DialogDescription className="flex justify-center pt-3">
+            <Button
+              variant={"default"}
+              className="flex justify-center mx-2 text-xl w-56"
+            >
+              <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
+            </Button>
+            <Button
+              variant={"default"}
+              className="flex justify-center mx-2 text-xl w-56"
+              onClick={() =>
+                setNewGame(setFen, originalFEN, setOpenSettings, setGameEnded)
+              }
+            >
+              New game
+            </Button>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PromotionDrawer({
+  openDrawer,
+  promotionArray,
+  playColor,
+  setOpenDrawer,
+  setPromotionArray,
+  setSoundTrigger,
+  setFen,
+  gameEndResult,
+  gameEndTitle,
+  setGameEnded,
+  TheStockfishEngine,
+}: {
+  openDrawer: boolean;
+  promotionArray: SquareAndMove[];
+  playColor: Color;
+  setOpenDrawer: Dispatch<SetStateAction<boolean>>;
+  setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>;
+  setSoundTrigger: Dispatch<SetStateAction<string>>;
+  setFen: Dispatch<SetStateAction<string>>;
+  gameEndResult: string;
+  gameEndTitle: string;
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+  TheStockfishEngine: StockfishEngine;
+}) {
+  return (
+    <Drawer open={openDrawer} modal={true} dismissible={false}>
+      <DrawerContent>
+        <DrawerTitle className="flex justify-center text-3xl mb-5">
+          Select your piece
+        </DrawerTitle>
+        <DrawerDescription className="flex justify-center">
+          <Image
+            src={`/chesspeices/${
+              promotionArray[0].square[1] === "1" ? "b" : "w"
+            }n.svg`}
+            alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}n`}
+            draggable="false"
+            width={100}
+            height={100}
+            className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
+            onClick={() =>
+              handlePromotion(
+                playColor,
+                "N",
+                promotionArray,
+                setOpenDrawer,
+                setPromotionArray,
+                setSoundTrigger,
+                setFen,
+                gameEndResult,
+                gameEndTitle,
+                setGameEnded,
+                TheStockfishEngine
+              )
+            }
+          />
+          <Image
+            src={`/chesspeices/${
+              promotionArray[0].square[1] === "1" ? "b" : "w"
+            }r.svg`}
+            alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}r`}
+            draggable="false"
+            width={100}
+            height={100}
+            className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
+            onClick={() =>
+              handlePromotion(
+                playColor,
+                "R",
+                promotionArray,
+                setOpenDrawer,
+                setPromotionArray,
+                setSoundTrigger,
+                setFen,
+                gameEndResult,
+                gameEndTitle,
+                setGameEnded,
+                TheStockfishEngine
+              )
+            }
+          />
+          <Image
+            src={`/chesspeices/${
+              promotionArray[0].square[1] === "1" ? "b" : "w"
+            }b.svg`}
+            alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}b`}
+            draggable="false"
+            width={100}
+            height={100}
+            className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
+            onClick={() =>
+              handlePromotion(
+                playColor,
+                "B",
+                promotionArray,
+                setOpenDrawer,
+                setPromotionArray,
+                setSoundTrigger,
+                setFen,
+                gameEndResult,
+                gameEndTitle,
+                setGameEnded,
+                TheStockfishEngine
+              )
+            }
+          />
+          <Image
+            src={`/chesspeices/${
+              promotionArray[0].square[1] === "1" ? "b" : "w"
+            }q.svg`}
+            alt={`${promotionArray[0].square[1] === "1" ? "b" : "w"}q`}
+            draggable="false"
+            width={100}
+            height={100}
+            className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
+            onClick={() =>
+              handlePromotion(
+                playColor,
+                "Q",
+                promotionArray,
+                setOpenDrawer,
+                setPromotionArray,
+                setSoundTrigger,
+                setFen,
+                gameEndResult,
+                gameEndTitle,
+                setGameEnded,
+                TheStockfishEngine
+              )
+            }
+          />
+        </DrawerDescription>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function SettingComponent({
+  openSettings,
+  playColor,
+  setPlayColor,
+  setOpenSettings,
+  TheStockfishEngine,
+  originalFEN,
+}: {
+  openSettings: boolean;
+  playColor: Color;
+  setPlayColor: Dispatch<SetStateAction<Color>>;
+  setOpenSettings: Dispatch<SetStateAction<boolean>>;
+  TheStockfishEngine: StockfishEngine;
+  originalFEN: string;
+}) {
   const [stockfishElo, setStockfishElo] = useState<number>(1350);
   return (
     <Drawer
