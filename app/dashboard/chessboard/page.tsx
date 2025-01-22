@@ -31,21 +31,45 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
-import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
+import { getEngine, getEngineState, setReady } from "@/lib/features/engine/engineSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { applyInitialSettings, getBestMove, onMessageFunc } from "./stockfishWasm";
+// import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./stockfishWasm";
+import { getLatestResponse, getResponseArray, pushResponse } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
 let EngineStarted: boolean = false;
-async function yourTurnStockfish(
-  fen: string,
-  setStockfishTrigger: Dispatch<SetStateAction<string>>,
-  elo: number,
-) {
-  if (!EngineStarted) {}
-  const bestMove: string = await getBestMove(fen);
-  setStockfishTrigger(bestMove);
-  return;
+// async function yourTurnStockfish(
+//   fen: string,
+//   setStockfishTrigger: Dispatch<SetStateAction<string>>,
+//   elo: number,
+// ) {
+//   if (!EngineStarted) {}
+//   const bestMove: string = await useGetBestMove(fen);
+//   setStockfishTrigger(bestMove);
+//   return;
+// }
+
+export function applyInitialSettings(elo: string, stockfishEngine: StockfishEngine){
+  stockfishEngine.postMessage('ucinewgame');
+  stockfishEngine.postMessage("setoption name Threads value 2");                    // setting option
+  stockfishEngine.postMessage("setoption name Hash value 64");                      // setting option
+  stockfishEngine.postMessage("setoption name MultiPV value 1");                    // setting option
+  stockfishEngine.postMessage("setoption name UCI_LimitStrength value true");       // setting option
+  stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`);               // setting option
+  stockfishEngine.postMessage("isready");
 }
+
+export function getBestMove(fen: string, stockfishEngine: StockfishEngine){
+  stockfishEngine.postMessage(`position fen ${fen}`)
+  stockfishEngine.postMessage("go depth 15");
+}
+
+// export function captureBestMoves(){
+//   const stockfishOutputArray = useAppSelector(getResponseArray);
+//   if(stockfishOutputArray[stockfishOutputArray.length - 1] === 'readyok'){
+//     return stockfishOutputArray[stockfishOutputArray.length - 2];
+//   }
+//   return stockfishOutputArray[stockfishOutputArray.length - 1];
+// }
 
 export type StockfishEngine = {
   onmessage: Function;
@@ -521,7 +545,14 @@ export default function Page() {
   const workerRef = useRef<Worker>(null);
   const dispatch = useAppDispatch();
   const engineStator = useAppSelector(getEngineState);
+  const TheStockfishEngine = useAppSelector(getEngine);
+  const latestStockfishResponse = useAppSelector(getLatestResponse);
+  const [StockfishResponseArray, setStockfishResponseArray] = useState<string[]>([]);
   const EngineRef = useRef<StockfishEngine>({onmessage: ()=>{}, postMessage: ()=>{}})
+  function onMessageFunc(e: MessageEvent) {
+    console.log("hello");
+    dispatch(pushResponse(e.data));
+  }
   function setNewGame() {
     setFen(originalFEN);
     setOpenSettings(true);
@@ -529,9 +560,12 @@ export default function Page() {
   }
   function startTheGame() {
     setOpenSettings(false);
-    applyInitialSettings(stockfishElo.toString());
+    applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
     if (playColor === "b") {
-      yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
+      getBestMove(originalFEN, TheStockfishEngine);
+      // const bestMoveString = useCaptureBestMoves();
+      // console.log(`latest response = ${latestStockfishResponse}`);
+      // yourTurnStockfish(originalFEN, setStockfishTrigger, stockfishElo);
     }
   }
   function handleGameOver() {
@@ -588,6 +622,15 @@ export default function Page() {
   }
   chess.load(fen);
   useEffect(() => {
+    // console.log(`engine on message : ${TheStockfishEngine.onmessage}`);
+    // console.log("am in the latest response" + latestStockfishResponse)
+    if(latestStockfishResponse && latestStockfishResponse.split(' ')[0] === 'bestmove'){
+      const bestMove: string = latestStockfishResponse.split(' ')[1];
+      setStockfishTrigger(bestMove);
+      console.log(`found best move = ${latestStockfishResponse.split(' ')[1]}`)
+    }
+  }, [latestStockfishResponse])
+  useEffect(() => {
     workerRef.current = new window.Worker("/lib/loadEngine.js")
     if(workerRef.current === null) throw new Error('worker is null');
     workerRef.current.onmessage = async (e) => {
@@ -599,7 +642,15 @@ export default function Page() {
       // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
       const x: StockfishEngine = await Stockfish(e.data);
       console.timeEnd('starting')
-      x.onmessage = onMessageFunc;
+      x.addMessageListener((line: string) => {
+        console.log(`hello : ${line}`);
+        // setStockfishResponseArray(StockfishResponseArray.concat([line]));
+        dispatch(pushResponse(line));
+      });
+      // x.onmessage = (e: MessageEvent) => {
+
+      // }
+      console.log(x.onmessage);
       dispatch(setReady(x));
       console.log("arraybuffer view : ")
       console.log(ArrayBuffer.isView(x));
@@ -634,7 +685,10 @@ export default function Page() {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
       if (!chess.isGameOver())
-        yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
+        getBestMove(fen, TheStockfishEngine);
+        // const bestMoveString = useCaptureBestMoves();
+        // console.log(bestMoveString);
+        // yourTurnStockfish(fen, setStockfishTrigger, stockfishElo);
     } else {
       return;
     }
@@ -903,6 +957,9 @@ export default function Page() {
               </DrawerContent>
             </Drawer>
           ) : null}
+        </div>
+        <div className="w-1/4 h-1/4 flex flex-col p-2 overflow-scroll bg-fuchsia-100">
+          {latestStockfishResponse}
         </div>
       </div>
     </div>
