@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import * as motion from "motion/react-client";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 import {
   getEngine,
@@ -44,7 +45,6 @@ import {
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
-let EngineStarted: boolean = false;
 
 export function applyInitialSettings(
   elo: string,
@@ -71,6 +71,12 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
 //   }
 //   return stockfishOutputArray[stockfishOutputArray.length - 1];
 // }
+
+export type FenObject = {
+  fen: string,
+  isDnD: boolean,
+
+}
 
 export type StockfishEngine = {
   onmessage: Function;
@@ -235,6 +241,7 @@ function Peice({
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
 }) {
+  // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
@@ -253,16 +260,18 @@ function Peice({
     });
   }, [chessBoardIJ]);
   return (
-    <Image
-      src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
-      alt={chessBoardIJ?.color + chessBoardIJ?.type}
-      ref={ref}
-      height={0}
-      width={0}
-      className="w-11/12 h-11/12 absolute left-[5%] top-[5%]"
-      style={dragging ? { opacity: 0 } : {}}
-      draggable="false"
-    />
+    <motion.div>
+      <Image
+        src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
+        alt={chessBoardIJ?.color + chessBoardIJ?.type}
+        ref={ref}
+        height={0}
+        width={0}
+        className="w-11/12 h-11/12 absolute left-[5%] top-[5%]"
+        style={dragging ? { opacity: 0 } : {}}
+        draggable="false"
+      />
+    </motion.div>
   );
 }
 
@@ -609,7 +618,8 @@ function handlePromotion(
     // console.log(promotionArray);
     throw new Error("Failed promotion, some error occured");
   }
-  chess.move(promotionMove.move);
+  const moveObj = chess.move(promotionMove.move);
+  console.log(moveObj);
   setOpenDrawer(false);
   setPromotionArray([]);
   if (
@@ -750,6 +760,7 @@ function triggerStockfishTrigger(
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
+    console.log(x);
     if (
       handleGameOver(
         playColor,
@@ -814,6 +825,7 @@ function useClickAndMove(
     } else {
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
+      console.log(x);
       if (
         handleGameOver(
           playColor,
@@ -879,6 +891,7 @@ function useOnPieceDrop(
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
+          console.log(x);
           if (
             handleGameOver(
               playColor,
