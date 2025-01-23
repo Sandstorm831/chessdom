@@ -12,7 +12,7 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
 import {
   Drawer,
   DrawerContent,
@@ -45,6 +45,7 @@ import {
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
+const HistoryArray : historyObject[] = [];
 
 export function applyInitialSettings(
   elo: string,
@@ -57,6 +58,25 @@ export function applyInitialSettings(
   stockfishEngine.postMessage("setoption name UCI_LimitStrength value true"); // setting option
   stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
   stockfishEngine.postMessage("isready");
+}
+
+export function initializeHistory(){
+  const x = ['a','b','c','d','e','f','g','h'];
+  for(let i=1; i<=4; i++){
+    for(let j=0; j<x.length; j++){
+      if(i < 3){
+        // const isq : Square = `${x[j]}${i}`;
+        // HistoryArray.push({
+        //   id: `${x[j]}{f}`,
+        //   from: 
+        // })
+      }
+      else{
+        const ii = i+4;
+      }
+
+    }
+  }
 }
 
 export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
@@ -72,10 +92,21 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
 //   return stockfishOutputArray[stockfishOutputArray.length - 1];
 // }
 
+export type historyObject = {
+  id: Square,
+  from: Square;
+  to: Square,
+}
+
+export type MoveLAN = {
+  from: Square,
+  to: Square,
+}
+
 export type FenObject = {
   fen: string,
   isDnD: boolean,
-
+  pieceMovements: MoveLAN[]
 }
 
 export type StockfishEngine = {
@@ -101,6 +132,25 @@ type SquareAndMove = {
 };
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
+
+function getPieceMovements(moveObj: Move): MoveLAN[] {
+  if(moveObj.san === "O-O"){
+    if(moveObj.color === 'w'){
+      return [{from: moveObj.from, to: moveObj.to},{from: 'h1', to: 'f1'}];
+    }
+    else if(moveObj.color === 'b'){
+      return [{from: moveObj.from, to: moveObj.to},{from: 'h8', to: 'f8'}];
+    }
+  }else if(moveObj.san === "O-O-O"){
+    if(moveObj.color === 'w'){
+      return [{from: moveObj.from, to: moveObj.to},{from: 'a1', to: 'd1'}];
+    }
+    else if(moveObj.color === 'b'){
+      return [{from: moveObj.from, to: moveObj.to},{from: 'a8', to: 'd8'}];
+    }
+  }
+  return [{from: moveObj.from, to: moveObj.to}];
+}
 
 export function wasmThreadsSupported() {
   // WebAssembly 1.0
@@ -138,6 +188,14 @@ export function wasmThreadsSupported() {
   }
 
   return true;
+}
+
+function getPieceId(chessBoardIJ : positionObject | null, pieceMovements : MoveLAN[], i: number, j: number, playColor: Color){
+  let IJsquare = IJToSquare(i,j,playColor);
+  if(!chessBoardIJ) return IJsquare;
+  let x = pieceMovements.find(obj => obj.to === chessBoardIJ.square);
+  if(!x) return IJsquare;
+  return x.from;
 }
 
 function squareToIJ(square: Square, color: Color) {
@@ -237,9 +295,13 @@ function SquareBlock({
 function Peice({
   chessBoardIJ,
   blueDotFunc,
+  isDnD,
+  id,
 }: {
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
+  isDnD: boolean,
+  id: string,
 }) {
   // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
@@ -260,8 +322,9 @@ function Peice({
     });
   }, [chessBoardIJ]);
   return (
-    <motion.div>
+    <motion.div layoutId={id}>
       <Image
+        id={id}
         src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
         alt={chessBoardIJ?.color + chessBoardIJ?.type}
         ref={ref}
@@ -276,11 +339,11 @@ function Peice({
 }
 
 function RenderSquare(
-  fen: string,
+  fen: FenObject,
   color: Color,
   setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
-  chess.load(fen);
+  chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
   if (color === "b") {
     for (let ab = 0; ab < chessBoard.length; ab++) {
@@ -305,6 +368,7 @@ function RenderSquare(
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
+      const pieceId = getPieceId(chessBoardIJ, fen.pieceMovements, i, j, color);
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
@@ -326,6 +390,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -353,6 +419,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -381,6 +449,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -404,6 +474,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -434,6 +506,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -461,6 +535,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -489,6 +565,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -513,6 +591,8 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
+                  isDnD={fen.isDnD}
+                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -529,12 +609,12 @@ function RenderSquare(
 }
 
 function setNewGame(
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
-  setFen(originalFEN);
+  setFen({fen: originalFEN, isDnD: false, pieceMovements: []});
   setOpenSettings(true);
   setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
 }
@@ -556,8 +636,10 @@ function startTheGame(
 }
 
 function handleGameOver(
+  moveObj: Move,
+  isDnD: boolean,
   playColor: Color,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -566,7 +648,8 @@ function handleGameOver(
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
-  setFen(chess.fen());
+  const pieceMovements : MoveLAN[] = getPieceMovements(moveObj);
+  setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
   TheStockfishEngine.postMessage("ucinewgame");
   TheStockfishEngine.postMessage("isready");
   if (chess.isDraw()) {
@@ -591,13 +674,14 @@ function handleGameOver(
 }
 
 function handlePromotion(
+  isDnD: boolean,
   playColor: Color,
   piece: string,
   promotionArray: SquareAndMove[],
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -620,10 +704,13 @@ function handlePromotion(
   }
   const moveObj = chess.move(promotionMove.move);
   console.log(moveObj);
+  const pieceMovements = getPieceMovements(moveObj);
   setOpenDrawer(false);
   setPromotionArray([]);
   if (
     handleGameOver(
+      moveObj,
+      isDnD,
       playColor,
       setFen,
       gameEndResult,
@@ -639,12 +726,13 @@ function handlePromotion(
   } else {
     setSoundTrigger("/sounds/promote.mp3");
   }
-  setFen(chess.fen());
+  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
 }
 
 function useLatestStockfishResponse(
+  isDnD: boolean,
   playColor: Color,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -661,6 +749,7 @@ function useLatestStockfishResponse(
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
       triggerStockfishTrigger(
+        isDnD,
         playColor,
         bestMove,
         setFen,
@@ -731,7 +820,7 @@ function useEngine(workerRef: RefObject<Worker | null>) {
 
 function useUpdateBoardFEN(
   playColor: Color,
-  fen: string,
+  fen: FenObject,
   TheStockfishEngine: StockfishEngine,
   openSettings: boolean
 ) {
@@ -739,7 +828,7 @@ function useUpdateBoardFEN(
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
       if (!chess.isGameOver() && !openSettings)
-        getBestMove(fen, TheStockfishEngine);
+        getBestMove(fen.fen, TheStockfishEngine);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
     } else {
@@ -749,9 +838,10 @@ function useUpdateBoardFEN(
 }
 
 function triggerStockfishTrigger(
+  isDnD: boolean,
   playColor: Color,
   bestMove: string,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -760,9 +850,12 @@ function triggerStockfishTrigger(
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
+    const pieceMovements = getPieceMovements(x);
     console.log(x);
     if (
       handleGameOver(
+        x,
+        isDnD,
         playColor,
         setFen,
         gameEndResult,
@@ -782,7 +875,7 @@ function triggerStockfishTrigger(
     } else {
       setSoundTrigger("/sounds/move-self.mp3");
     }
-    setFen(chess.fen());
+    setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
     return;
   } else return;
 }
@@ -805,11 +898,12 @@ function useSound(
 }
 
 function useClickAndMove(
+  isDnD: boolean,
   playColor: Color,
   clickAndMoveTrigger: SquareAndMove[],
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -825,9 +919,12 @@ function useClickAndMove(
     } else {
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
+      const pieceMovements = getPieceMovements(x);
       console.log(x);
       if (
         handleGameOver(
+          x,
+          isDnD,
           playColor,
           setFen,
           gameEndResult,
@@ -847,17 +944,18 @@ function useClickAndMove(
       } else {
         setSoundTrigger("/sounds/move-self.mp3");
       }
-      setFen(chess.fen());
+      setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
     }
   }, [clickAndMoveTrigger]);
 }
 
 function useOnPieceDrop(
+  isDnD: boolean,
   playColor: Color,
-  fen: string,
+  fen: FenObject,
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>,
   setOpenDrawer: Dispatch<SetStateAction<boolean>>,
-  setFen: Dispatch<SetStateAction<string>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
@@ -891,9 +989,12 @@ function useOnPieceDrop(
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
+          const pieceMovements = getPieceMovements(x);
           console.log(x);
           if (
             handleGameOver(
+              x,
+              isDnD,
               playColor,
               setFen,
               gameEndResult,
@@ -913,7 +1014,7 @@ function useOnPieceDrop(
           } else {
             setSoundTrigger("/sounds/move-self.mp3");
           }
-          setFen(chess.fen());
+          setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
         }
       },
     });
@@ -925,9 +1026,7 @@ export default function Page() {
   let gameEndTitle = "";
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const [fen, setFen] = useState<string>(
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-  );
+  const [fen, setFen] = useState<FenObject>({fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []});
   const [gameEnded, setGameEnded] = useState<gameEndObject>({
     gameEnded: false,
     gameEndResult: "",
@@ -946,11 +1045,12 @@ export default function Page() {
 
   console.log("page rendering");
 
-  chess.load(fen);
+  chess.load(fen.fen);
 
   // custom hook calls
 
   useLatestStockfishResponse(
+    false,                      // Stockfish always use animation, that is, no one drags and drop functionality, i.e., false
     playColor,
     setFen,
     gameEndResult,
@@ -967,6 +1067,7 @@ export default function Page() {
   useSound(soundTrigger, setSoundTrigger);
 
   useClickAndMove(
+    false,                    // Click and Move mean that, it doesn't use drag and drop functionality, i.e., false
     playColor,
     clickAndMoveTrigger,
     setPromotionArray,
@@ -980,6 +1081,7 @@ export default function Page() {
   );
 
   useOnPieceDrop(
+    true,                     // OnPieceDrop simply means that drag and drop functionality is used, therfore, true
     playColor,
     fen,
     setPromotionArray,
@@ -1047,7 +1149,7 @@ function GameEndDialogue({
   setGameEnded,
 }: {
   gameEnded: gameEndObject;
-  setFen: Dispatch<SetStateAction<string>>;
+  setFen: Dispatch<SetStateAction<FenObject>>;
   originalFEN: string;
   setOpenSettings: Dispatch<SetStateAction<boolean>>;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
@@ -1110,7 +1212,7 @@ function PromotionDrawer({
   setOpenDrawer: Dispatch<SetStateAction<boolean>>;
   setPromotionArray: Dispatch<SetStateAction<SquareAndMove[]>>;
   setSoundTrigger: Dispatch<SetStateAction<string>>;
-  setFen: Dispatch<SetStateAction<string>>;
+  setFen: Dispatch<SetStateAction<FenObject>>;
   gameEndResult: string;
   gameEndTitle: string;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
@@ -1134,6 +1236,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "N",
                 promotionArray,
@@ -1159,6 +1262,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "R",
                 promotionArray,
@@ -1184,6 +1288,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "B",
                 promotionArray,
@@ -1209,6 +1314,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "Q",
                 promotionArray,
