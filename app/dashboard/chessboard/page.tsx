@@ -148,7 +148,8 @@ type chessBoardObject = rankObject[];
 //   // throw new Error("Error retreiving piece history");
 // }
 
-async function animatePieceMovement(pieceMovements: MoveLAN[]){
+async function animatePieceMovement(moveObj: Move){
+  const pieceMovements = getPieceMovements(moveObj);
   for(let i=0; i<pieceMovements.length; i++){
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -169,16 +170,25 @@ async function animatePieceMovement(pieceMovements: MoveLAN[]){
     // child?.getBoundingClientRect()
     console.log(`X = ${transX}`)
     console.log(`Y = ${transY}`);
+    child.style.transition = "all 0.2s"
+    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`
+    child.style.zIndex = "20";
+    // let destAlt = "";
     for(let i=0; i<destChild.length; i++){
       if(destChild[i].nodeName === 'IMG'){
-        destChild[i].style.transform = "scale(0, 0)"
-        destChild[i].style.transition = "all 0.15s"
+        const attacker:string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
+        //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+        setTimeout(() => {destChild[i].src = attacker}, 100);
+        // destChild[i].style.transform = "scale(0, 0)"
+        // destChild[i].style.transition = "all 0.15s"
+        // console.log(destAlt);
+        // destAlt = destChild[i].id;
+        // destChild[i].remove();
+        break;
         // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
       }
     }
-    child.style.transition = "all 0.2s"
-    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`
-    child.style.zIndex = "20"
+    return;
     // child.style.transform = ``
     // await new Promise(resolve => setTimeout(resolve, 2000));
   }
@@ -438,6 +448,7 @@ function Peice({
     <Image
       src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
       alt={chessBoardIJ?.color + chessBoardIJ?.type}
+      id={chessBoardIJ?.color + chessBoardIJ?.type}
       ref={ref}
       height={0}
       width={0}
@@ -835,7 +846,7 @@ function handlePromotion(
   const moveObj = chess.move(promotionMove.move);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
-  animatePieceMovement(pieceMovements);
+  animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
   setOpenDrawer(false);
   setPromotionArray([]);
@@ -984,7 +995,7 @@ function triggerStockfishTrigger(
     const x = chess.move(bestMove);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
-    animatePieceMovement(pieceMovements);
+    animatePieceMovement(x);
     console.log(x);
     if (
       handleGameOver(
@@ -1059,7 +1070,7 @@ function useClickAndMove(
       const x = chess.move(move);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
-      animatePieceMovement(pieceMovements);
+      animatePieceMovement(x);
       console.log(x);
       if (
         handleGameOver(
@@ -1139,7 +1150,7 @@ function useOnPieceDrop(
           const x = chess.move(move);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
-          animatePieceMovement(pieceMovements);
+          animatePieceMovement(x);
           // console.log(x);
           if (
             handleGameOver(
