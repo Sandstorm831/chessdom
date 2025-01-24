@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import * as motion from "motion/react-client";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 import {
   getEngine,
@@ -137,16 +136,44 @@ type SquareAndMove = {
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
 
-export function getOriginalID(square: Square) {
-  for (let i = 0; i < HistoryArray.length; i++) {
-    if (HistoryArray[i].to === square) return HistoryArray[i].id;
+// export function getOriginalID(square: Square) {
+//   for (let i = 0; i < HistoryArray.length; i++) {
+//     if (HistoryArray[i].to === square) return HistoryArray[i].id;
+//   }
+//   // console.log(HistoryArray);
+//   console.log(`OriginalID = ${square}`);
+//   console.log(HistoryArray);
+//   alert("Error retreiving piece history");
+//   // throw new Error("Error retreiving piece history");
+// }
+
+async function animatePieceMovement(pieceMovements: MoveLAN[]){
+  for(let i=0; i<pieceMovements.length; i++){
+    const from = pieceMovements[i].from;
+    const to = pieceMovements[i].to;
+    const destinaionRect = document.getElementById(to)?.getBoundingClientRect();
+    if(!destinaionRect) throw new Error("destinaionRect is undefined");
+    const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
+    const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
+    const parent = document.getElementById(from);
+    console.log(parent);
+    console.log("children of parent")
+    console.log(parent?.children[parent.children.length - 1]);
+    const child = parent?.children[parent.children.length - 1] as HTMLElement;      // Taking the last child, as it's always the last child which is the img object
+    const childRect = child.getBoundingClientRect();
+    const transX = MoveX - ((childRect.left + childRect.right) / 2);
+    const transY = MoveY - ((childRect.top + childRect.bottom) / 2);
+    // child?.getBoundingClientRect()
+    console.log(`X = ${transX}`)
+    console.log(`Y = ${transY}`);
+    child.style.transition = "all 0.5s"
+    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`
+    // child.style.transform = ``
+    // await new Promise(resolve => setTimeout(resolve, 2000));
   }
-  // console.log(HistoryArray);
-  console.log(`OriginalID = ${square}`);
-  console.log(HistoryArray);
-  alert("Error retreiving piece history");
-  // throw new Error("Error retreiving piece history");
 }
+
+const delay = () => new Promise(resolve => setTimeout(resolve, 500));
 
 function getPieceMovements(moveObj: Move): MoveLAN[] {
   if (moveObj.san === "O-O") {
@@ -364,7 +391,7 @@ function Peice({
 }) {
   // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
-  const ID = getOriginalID(chessBoardIJ.square);
+  // const ID = getOriginalID(chessBoardIJ.square);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
     const elm = ref.current;
@@ -388,7 +415,7 @@ function Peice({
       ref={ref}
       height={0}
       width={0}
-      className="w-11/12 h-11/12 absolute left-[5%] top-[5%]"
+      className="w-11/12 h-11/12 absolute left-[5%] top-[5%] z-10"
       style={dragging ? { opacity: 0 } : {}}
       draggable="false"
     />
@@ -435,6 +462,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">
@@ -454,7 +482,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -466,6 +494,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               {" "}
@@ -483,7 +512,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -495,6 +524,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
@@ -513,7 +543,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -525,6 +555,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? (
@@ -538,7 +569,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -551,6 +582,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">
@@ -570,7 +602,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -582,6 +614,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               {" "}
@@ -599,7 +632,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -611,6 +644,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
@@ -629,7 +663,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -642,6 +676,7 @@ function RenderSquare(
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
               className="bg-[#769656]"
+              key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? (
@@ -655,7 +690,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-3 h-3"></div>
+                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -763,7 +798,7 @@ function handlePromotion(
   const moveObj = chess.move(promotionMove.move);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
-  console.log(pieceMovements);
+  // animatePieceMovement(pieceMovements);
   updateHistory(pieceMovements);
   setOpenDrawer(false);
   setPromotionArray([]);
@@ -911,8 +946,8 @@ function triggerStockfishTrigger(
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
     const pieceMovements = getPieceMovements(x);
-    console.log(pieceMovements);
     updateHistory(pieceMovements);
+    // animatePieceMovement(pieceMovements);
     console.log(x);
     if (
       handleGameOver(
@@ -982,8 +1017,8 @@ function useClickAndMove(
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
       const pieceMovements = getPieceMovements(x);
-      console.log(pieceMovements);
       updateHistory(pieceMovements);
+      // animatePieceMovement(pieceMovements);
       console.log(x);
       if (
         handleGameOver(
@@ -1058,9 +1093,9 @@ function useOnPieceDrop(
           const move: string = tempObj[0].move;
           const x = chess.move(move);
           const pieceMovements = getPieceMovements(x);
-          console.log(pieceMovements);
           updateHistory(pieceMovements);
-          console.log(x);
+          // animatePieceMovement(pieceMovements);
+          // console.log(x);
           if (
             handleGameOver(
               x,
@@ -1177,6 +1212,7 @@ export default function Page() {
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
+
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
