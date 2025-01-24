@@ -45,6 +45,7 @@ import {
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
+const nextMoveObject: FenObject = {fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []}
 
 export function applyInitialSettings(
   elo: string,
@@ -151,8 +152,9 @@ async function animatePieceMovement(pieceMovements: MoveLAN[]){
   for(let i=0; i<pieceMovements.length; i++){
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
-    const destinaionRect = document.getElementById(to)?.getBoundingClientRect();
-    if(!destinaionRect) throw new Error("destinaionRect is undefined");
+    const destSquare = document.getElementById(to);
+    if(!destSquare) throw new Error("dest square is null");
+    const destinaionRect = destSquare?.getBoundingClientRect();
     const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
     const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
     const parent = document.getElementById(from);
@@ -160,16 +162,40 @@ async function animatePieceMovement(pieceMovements: MoveLAN[]){
     console.log("children of parent")
     console.log(parent?.children[parent.children.length - 1]);
     const child = parent?.children[parent.children.length - 1] as HTMLElement;      // Taking the last child, as it's always the last child which is the img object
+    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
     const transX = MoveX - ((childRect.left + childRect.right) / 2);
     const transY = MoveY - ((childRect.top + childRect.bottom) / 2);
     // child?.getBoundingClientRect()
     console.log(`X = ${transX}`)
     console.log(`Y = ${transY}`);
-    child.style.transition = "all 0.5s"
+    for(let i=0; i<destChild.length; i++){
+      if(destChild[i].nodeName === 'IMG'){
+        destChild[i].style.transform = "scale(0, 0)"
+        destChild[i].style.transition = "all 0.15s"
+        // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
+      }
+    }
+    child.style.transition = "all 0.2s"
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`
+    child.style.zIndex = "20"
     // child.style.transform = ``
     // await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+}
+
+function removeAnimationTransforms(pieceMovements: MoveLAN[]){
+  for(let i=0; i<pieceMovements.length; i++){
+    const from = pieceMovements[i].from;
+    const to = pieceMovements[i].to;
+    const destSquare = document.getElementById(to);
+    if(!destSquare) throw new Error("dest square is null");
+    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
+    for(let i=0; i<destChild.length; i++){
+      if(destChild[i].nodeName === 'IMG'){
+        destChild[i].style.transform = "none";
+      }
+    }
   }
 }
 
@@ -700,6 +726,13 @@ function RenderSquare(
   return chessBoardArray;
 }
 
+function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>){
+  const fen: string = nextMoveObject.fen;
+  const isDnD : boolean = nextMoveObject.isDnD;
+  const pieceMovements : MoveLAN[] = nextMoveObject.pieceMovements;
+  setFen({fen: fen, isDnD: isDnD, pieceMovements: pieceMovements});
+}
+
 function setNewGame(
   setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
@@ -742,7 +775,11 @@ function handleGameOver(
   if (!gameOver) return false;
   const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
   updateHistory(pieceMovements);
-  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+  nextMoveObject.fen = chess.fen();
+  nextMoveObject.isDnD = isDnD;
+  nextMoveObject.pieceMovements = pieceMovements;
+  setTimeout(() => FENCallback(setFen), 500);
+  // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
   TheStockfishEngine.postMessage("ucinewgame");
   TheStockfishEngine.postMessage("isready");
   if (chess.isDraw()) {
@@ -798,7 +835,7 @@ function handlePromotion(
   const moveObj = chess.move(promotionMove.move);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
-  // animatePieceMovement(pieceMovements);
+  animatePieceMovement(pieceMovements);
   updateHistory(pieceMovements);
   setOpenDrawer(false);
   setPromotionArray([]);
@@ -821,7 +858,7 @@ function handlePromotion(
   } else {
     setSoundTrigger("/sounds/promote.mp3");
   }
-  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });       // Not using animating move in promotion as promotion doesn't require it
 }
 
 function useLatestStockfishResponse(
@@ -947,7 +984,7 @@ function triggerStockfishTrigger(
     const x = chess.move(bestMove);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
-    // animatePieceMovement(pieceMovements);
+    animatePieceMovement(pieceMovements);
     console.log(x);
     if (
       handleGameOver(
@@ -972,7 +1009,11 @@ function triggerStockfishTrigger(
     } else {
       setSoundTrigger("/sounds/move-self.mp3");
     }
-    setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+    nextMoveObject.fen = chess.fen();
+    nextMoveObject.isDnD = isDnD;
+    nextMoveObject.pieceMovements = pieceMovements;
+    setTimeout(() => FENCallback(setFen), 500);
+    // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
     return;
   } else return;
 }
@@ -1018,7 +1059,7 @@ function useClickAndMove(
       const x = chess.move(move);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
-      // animatePieceMovement(pieceMovements);
+      animatePieceMovement(pieceMovements);
       console.log(x);
       if (
         handleGameOver(
@@ -1043,11 +1084,15 @@ function useClickAndMove(
       } else {
         setSoundTrigger("/sounds/move-self.mp3");
       }
-      setFen({
-        fen: chess.fen(),
-        isDnD: isDnD,
-        pieceMovements: pieceMovements,
-      });
+      nextMoveObject.fen = chess.fen();
+      nextMoveObject.isDnD = isDnD;
+      nextMoveObject.pieceMovements = pieceMovements;
+      setTimeout(() => FENCallback(setFen), 500);
+      // setFen({
+      //   fen: chess.fen(),
+      //   isDnD: isDnD,
+      //   pieceMovements: pieceMovements,
+      // });
     }
   }, [clickAndMoveTrigger]);
 }
@@ -1094,7 +1139,7 @@ function useOnPieceDrop(
           const x = chess.move(move);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
-          // animatePieceMovement(pieceMovements);
+          animatePieceMovement(pieceMovements);
           // console.log(x);
           if (
             handleGameOver(
@@ -1123,7 +1168,7 @@ function useOnPieceDrop(
             fen: chess.fen(),
             isDnD: isDnD,
             pieceMovements: pieceMovements,
-          });
+          });                                                        // Not using animated transition as it's drag and drop
         }
       },
     });
