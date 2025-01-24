@@ -45,7 +45,7 @@ import {
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
-const HistoryArray : historyObject[] = [];
+const HistoryArray: historyObject[] = [];
 
 export function applyInitialSettings(
   elo: string,
@@ -60,21 +60,26 @@ export function applyInitialSettings(
   stockfishEngine.postMessage("isready");
 }
 
-export function initializeHistory(){
-  const x = ['a','b','c','d','e','f','g','h'];
-  for(let i=1; i<=4; i++){
-    for(let j=0; j<x.length; j++){
-      if(i < 3){
-        // const isq : Square = `${x[j]}${i}`;
-        // HistoryArray.push({
-        //   id: `${x[j]}{f}`,
-        //   from: 
-        // })
+export function initializeHistory() {
+  const x = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  for (let i = 1; i <= 4; i++) {
+    for (let j = 0; j < x.length; j++) {
+      if (i < 3) {
+        //@ts-expect-error
+        const isq: Square = `${x[j]}${i}`;
+        HistoryArray.push({
+          id: isq,
+          to: isq,
+        });
+      } else {
+        const ii = i + 4;
+        //@ts-expect-error
+        const isq: Square = `${x[j]}${ii}`;
+        HistoryArray.push({
+          id: isq,
+          to: isq,
+        });
       }
-      else{
-        const ii = i+4;
-      }
-
     }
   }
 }
@@ -93,21 +98,20 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
 // }
 
 export type historyObject = {
-  id: Square,
-  from: Square;
-  to: Square,
-}
+  id: Square;
+  to: Square | "X";
+};
 
 export type MoveLAN = {
-  from: Square,
-  to: Square,
-}
+  from: Square;
+  to: Square;
+};
 
 export type FenObject = {
-  fen: string,
-  isDnD: boolean,
-  pieceMovements: MoveLAN[]
-}
+  fen: string;
+  isDnD: boolean;
+  pieceMovements: MoveLAN[];
+};
 
 export type StockfishEngine = {
   onmessage: Function;
@@ -133,23 +137,44 @@ type SquareAndMove = {
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
 
+export function getOriginalID(square: Square) {
+  for (let i = 0; i < HistoryArray.length; i++) {
+    if (HistoryArray[i].to === square) return HistoryArray[i].id;
+  }
+  // console.log(HistoryArray);
+  console.log(`OriginalID = ${square}`);
+  console.log(HistoryArray);
+  alert("Error retreiving piece history");
+  // throw new Error("Error retreiving piece history");
+}
+
 function getPieceMovements(moveObj: Move): MoveLAN[] {
-  if(moveObj.san === "O-O"){
-    if(moveObj.color === 'w'){
-      return [{from: moveObj.from, to: moveObj.to},{from: 'h1', to: 'f1'}];
+  if (moveObj.san === "O-O") {
+    if (moveObj.color === "w") {
+      return [
+        { from: moveObj.from, to: moveObj.to },
+        { from: "h1", to: "f1" },
+      ];
+    } else if (moveObj.color === "b") {
+      return [
+        { from: moveObj.from, to: moveObj.to },
+        { from: "h8", to: "f8" },
+      ];
     }
-    else if(moveObj.color === 'b'){
-      return [{from: moveObj.from, to: moveObj.to},{from: 'h8', to: 'f8'}];
-    }
-  }else if(moveObj.san === "O-O-O"){
-    if(moveObj.color === 'w'){
-      return [{from: moveObj.from, to: moveObj.to},{from: 'a1', to: 'd1'}];
-    }
-    else if(moveObj.color === 'b'){
-      return [{from: moveObj.from, to: moveObj.to},{from: 'a8', to: 'd8'}];
+  } else if (moveObj.san === "O-O-O") {
+    if (moveObj.color === "w") {
+      return [
+        { from: moveObj.from, to: moveObj.to },
+        { from: "a1", to: "d1" },
+      ];
+    } else if (moveObj.color === "b") {
+      return [
+        { from: moveObj.from, to: moveObj.to },
+        { from: "a8", to: "d8" },
+      ];
     }
   }
-  return [{from: moveObj.from, to: moveObj.to}];
+  return [{ from: moveObj.from, to: moveObj.to }];
 }
 
 export function wasmThreadsSupported() {
@@ -190,11 +215,45 @@ export function wasmThreadsSupported() {
   return true;
 }
 
-function getPieceId(chessBoardIJ : positionObject | null, pieceMovements : MoveLAN[], i: number, j: number, playColor: Color){
-  let IJsquare = IJToSquare(i,j,playColor);
-  if(!chessBoardIJ) return IJsquare;
-  let x = pieceMovements.find(obj => obj.to === chessBoardIJ.square);
-  if(!x) return IJsquare;
+function updateHistory(pieceMovement: MoveLAN[]) {
+  for (let i = 0; i < pieceMovement.length; i++) {
+    const take: number[] = [];
+    const upd: number[] = [];
+    const from = pieceMovement[i].from;
+    const to = pieceMovement[i].to;
+    for (let j = 0; j < HistoryArray.length; j++) {
+      if (HistoryArray[j].to === to) {
+        take.push(j);
+      } else if (HistoryArray[j].to === from) {
+        upd.push(j);
+      }
+    }
+    for (let j = 0; j < upd.length; j++) {
+      console.log(
+        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`
+      );
+      HistoryArray[upd[j]].to = pieceMovement[i].to;
+    }
+    for (let j = 0; j < take.length; j++) {
+      HistoryArray[take[j]].to = "X";
+      // HistoryArray.splice(take[j], 1);
+    }
+  }
+  console.log(`History`);
+  console.log(HistoryArray);
+}
+
+function getPieceId(
+  chessBoardIJ: positionObject | null,
+  pieceMovements: MoveLAN[],
+  i: number,
+  j: number,
+  playColor: Color
+) {
+  let IJsquare = IJToSquare(i, j, playColor);
+  if (!chessBoardIJ) return IJsquare;
+  let x = pieceMovements.find((obj) => obj.to === chessBoardIJ.square);
+  if (!x) return IJsquare;
   return x.from;
 }
 
@@ -300,11 +359,12 @@ function Peice({
 }: {
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
-  isDnD: boolean,
-  id: string,
+  isDnD: boolean;
+  id: string;
 }) {
   // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
+  const ID = getOriginalID(chessBoardIJ.square);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
     const elm = ref.current;
@@ -322,19 +382,16 @@ function Peice({
     });
   }, [chessBoardIJ]);
   return (
-    <motion.div layoutId={id}>
-      <Image
-        id={id}
-        src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
-        alt={chessBoardIJ?.color + chessBoardIJ?.type}
-        ref={ref}
-        height={0}
-        width={0}
-        className="w-11/12 h-11/12 absolute left-[5%] top-[5%]"
-        style={dragging ? { opacity: 0 } : {}}
-        draggable="false"
-      />
-    </motion.div>
+    <Image
+      src={`/chesspeices/${chessBoardIJ?.color + chessBoardIJ?.type}.svg`}
+      alt={chessBoardIJ?.color + chessBoardIJ?.type}
+      ref={ref}
+      height={0}
+      width={0}
+      className="w-11/12 h-11/12 absolute left-[5%] top-[5%]"
+      style={dragging ? { opacity: 0 } : {}}
+      draggable="false"
+    />
   );
 }
 
@@ -378,7 +435,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">
                 {color === "w" ? 1 : 8}
@@ -409,7 +466,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
@@ -438,7 +495,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {color === "w"
@@ -468,7 +525,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? (
                 <Peice
@@ -494,7 +551,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               <div className="absolute -top-[2px] left-2 z-10 text-lg">
                 {color === "w" ? 1 : 8}
@@ -525,7 +582,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               {" "}
               <div className="z-10 absolute -top-[2px] left-2 text-lg">
@@ -554,7 +611,7 @@ function RenderSquare(
               color={color}
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               <div className="z-10 absolute top-[70%] left-[80%] text-lg">
                 {color === "w"
@@ -585,7 +642,7 @@ function RenderSquare(
               validMovesArray={blueDotArray}
               cord={IJToSquare(i, j, color)}
               className="bg-[#769656]"
-              key={IJToSquare(i, j, color)}
+              id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? (
                 <Peice
@@ -614,7 +671,7 @@ function setNewGame(
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
-  setFen({fen: originalFEN, isDnD: false, pieceMovements: []});
+  setFen({ fen: originalFEN, isDnD: false, pieceMovements: [] });
   setOpenSettings(true);
   setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
 }
@@ -648,8 +705,9 @@ function handleGameOver(
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
-  const pieceMovements : MoveLAN[] = getPieceMovements(moveObj);
-  setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+  const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
+  updateHistory(pieceMovements);
+  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
   TheStockfishEngine.postMessage("ucinewgame");
   TheStockfishEngine.postMessage("isready");
   if (chess.isDraw()) {
@@ -705,6 +763,8 @@ function handlePromotion(
   const moveObj = chess.move(promotionMove.move);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
+  console.log(pieceMovements);
+  updateHistory(pieceMovements);
   setOpenDrawer(false);
   setPromotionArray([]);
   if (
@@ -726,7 +786,7 @@ function handlePromotion(
   } else {
     setSoundTrigger("/sounds/promote.mp3");
   }
-  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
 }
 
 function useLatestStockfishResponse(
@@ -851,6 +911,8 @@ function triggerStockfishTrigger(
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
     const pieceMovements = getPieceMovements(x);
+    console.log(pieceMovements);
+    updateHistory(pieceMovements);
     console.log(x);
     if (
       handleGameOver(
@@ -875,7 +937,7 @@ function triggerStockfishTrigger(
     } else {
       setSoundTrigger("/sounds/move-self.mp3");
     }
-    setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+    setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
     return;
   } else return;
 }
@@ -920,6 +982,8 @@ function useClickAndMove(
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
       const pieceMovements = getPieceMovements(x);
+      console.log(pieceMovements);
+      updateHistory(pieceMovements);
       console.log(x);
       if (
         handleGameOver(
@@ -944,7 +1008,11 @@ function useClickAndMove(
       } else {
         setSoundTrigger("/sounds/move-self.mp3");
       }
-      setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+      setFen({
+        fen: chess.fen(),
+        isDnD: isDnD,
+        pieceMovements: pieceMovements,
+      });
     }
   }, [clickAndMoveTrigger]);
 }
@@ -990,6 +1058,8 @@ function useOnPieceDrop(
           const move: string = tempObj[0].move;
           const x = chess.move(move);
           const pieceMovements = getPieceMovements(x);
+          console.log(pieceMovements);
+          updateHistory(pieceMovements);
           console.log(x);
           if (
             handleGameOver(
@@ -1014,7 +1084,11 @@ function useOnPieceDrop(
           } else {
             setSoundTrigger("/sounds/move-self.mp3");
           }
-          setFen({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+          setFen({
+            fen: chess.fen(),
+            isDnD: isDnD,
+            pieceMovements: pieceMovements,
+          });
         }
       },
     });
@@ -1026,7 +1100,11 @@ export default function Page() {
   let gameEndTitle = "";
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const [fen, setFen] = useState<FenObject>({fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []});
+  const [fen, setFen] = useState<FenObject>({
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  });
   const [gameEnded, setGameEnded] = useState<gameEndObject>({
     gameEnded: false,
     gameEndResult: "",
@@ -1047,10 +1125,14 @@ export default function Page() {
 
   chess.load(fen.fen);
 
+  if (HistoryArray.length === 0) {
+    initializeHistory();
+  }
+
   // custom hook calls
 
   useLatestStockfishResponse(
-    false,                      // Stockfish always use animation, that is, no one drags and drop functionality, i.e., false
+    false, // Stockfish always use animation, that is, no one drags and drop functionality, i.e., false
     playColor,
     setFen,
     gameEndResult,
@@ -1067,7 +1149,7 @@ export default function Page() {
   useSound(soundTrigger, setSoundTrigger);
 
   useClickAndMove(
-    false,                    // Click and Move mean that, it doesn't use drag and drop functionality, i.e., false
+    false, // Click and Move mean that, it doesn't use drag and drop functionality, i.e., false
     playColor,
     clickAndMoveTrigger,
     setPromotionArray,
@@ -1081,7 +1163,7 @@ export default function Page() {
   );
 
   useOnPieceDrop(
-    true,                     // OnPieceDrop simply means that drag and drop functionality is used, therfore, true
+    true, // OnPieceDrop simply means that drag and drop functionality is used, therfore, true
     playColor,
     fen,
     setPromotionArray,
@@ -1236,7 +1318,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
-                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
+                false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "N",
                 promotionArray,
@@ -1262,7 +1344,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
-                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
+                false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "R",
                 promotionArray,
@@ -1288,7 +1370,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
-                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
+                false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "B",
                 promotionArray,
@@ -1314,7 +1396,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
-                false,                // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
+                false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "Q",
                 promotionArray,
