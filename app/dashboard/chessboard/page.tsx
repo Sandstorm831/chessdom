@@ -45,7 +45,11 @@ import {
 } from "@/lib/features/engine/outputArraySlice";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
-const nextMoveObject: FenObject = {fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []}
+const nextMoveObject: FenObject = {
+  fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  isDnD: false,
+  pieceMovements: [],
+};
 
 export function applyInitialSettings(
   elo: string,
@@ -148,37 +152,39 @@ type chessBoardObject = rankObject[];
 //   // throw new Error("Error retreiving piece history");
 // }
 
-async function animatePieceMovement(moveObj: Move){
+async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
-  for(let i=0; i<pieceMovements.length; i++){
+  for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
     const destSquare = document.getElementById(to);
-    if(!destSquare) throw new Error("dest square is null");
+    if (!destSquare) throw new Error("dest square is null");
     const destinaionRect = destSquare?.getBoundingClientRect();
     const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
     const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
     const parent = document.getElementById(from);
     console.log(parent);
-    console.log("children of parent")
+    console.log("children of parent");
     console.log(parent?.children[parent.children.length - 1]);
-    const child = parent?.children[parent.children.length - 1] as HTMLElement;      // Taking the last child, as it's always the last child which is the img object
+    const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
-    const transX = MoveX - ((childRect.left + childRect.right) / 2);
-    const transY = MoveY - ((childRect.top + childRect.bottom) / 2);
+    const transX = MoveX - (childRect.left + childRect.right) / 2;
+    const transY = MoveY - (childRect.top + childRect.bottom) / 2;
     // child?.getBoundingClientRect()
-    console.log(`X = ${transX}`)
+    console.log(`X = ${transX}`);
     console.log(`Y = ${transY}`);
-    child.style.transition = "all 0.2s"
-    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`
+    child.style.transition = "all 0.2s";
+    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
     child.style.zIndex = "20";
     // let destAlt = "";
-    for(let i=0; i<destChild.length; i++){
-      if(destChild[i].nodeName === 'IMG'){
-        const attacker:string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
-        //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-        setTimeout(() => {destChild[i].src = attacker}, 100);
+    for (let i = 0; i < destChild.length; i++) {
+      if (destChild[i].nodeName === "IMG") {
+        const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
+        setTimeout(() => {
+          //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+          destChild[i].src = attacker;
+        }, 100);
         // destChild[i].style.transform = "scale(0, 0)"
         // destChild[i].style.transition = "all 0.15s"
         // console.log(destAlt);
@@ -194,22 +200,22 @@ async function animatePieceMovement(moveObj: Move){
   }
 }
 
-function removeAnimationTransforms(pieceMovements: MoveLAN[]){
-  for(let i=0; i<pieceMovements.length; i++){
+function removeAnimationTransforms(pieceMovements: MoveLAN[]) {
+  for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
     const destSquare = document.getElementById(to);
-    if(!destSquare) throw new Error("dest square is null");
+    if (!destSquare) throw new Error("dest square is null");
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
-    for(let i=0; i<destChild.length; i++){
-      if(destChild[i].nodeName === 'IMG'){
+    for (let i = 0; i < destChild.length; i++) {
+      if (destChild[i].nodeName === "IMG") {
         destChild[i].style.transform = "none";
       }
     }
   }
 }
 
-const delay = () => new Promise(resolve => setTimeout(resolve, 500));
+const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 function getPieceMovements(moveObj: Move): MoveLAN[] {
   if (moveObj.san === "O-O") {
@@ -737,11 +743,11 @@ function RenderSquare(
   return chessBoardArray;
 }
 
-function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>){
+function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>) {
   const fen: string = nextMoveObject.fen;
-  const isDnD : boolean = nextMoveObject.isDnD;
-  const pieceMovements : MoveLAN[] = nextMoveObject.pieceMovements;
-  setFen({fen: fen, isDnD: isDnD, pieceMovements: pieceMovements});
+  const isDnD: boolean = nextMoveObject.isDnD;
+  const pieceMovements: MoveLAN[] = nextMoveObject.pieceMovements;
+  setFen({ fen: fen, isDnD: isDnD, pieceMovements: pieceMovements });
 }
 
 function setNewGame(
@@ -869,7 +875,7 @@ function handlePromotion(
   } else {
     setSoundTrigger("/sounds/promote.mp3");
   }
-  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });       // Not using animating move in promotion as promotion doesn't require it
+  setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements }); // Not using animating move in promotion as promotion doesn't require it
 }
 
 function useLatestStockfishResponse(
@@ -1179,7 +1185,7 @@ function useOnPieceDrop(
             fen: chess.fen(),
             isDnD: isDnD,
             pieceMovements: pieceMovements,
-          });                                                        // Not using animated transition as it's drag and drop
+          }); // Not using animated transition as it's drag and drop
         }
       },
     });
