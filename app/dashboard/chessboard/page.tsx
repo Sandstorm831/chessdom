@@ -154,6 +154,8 @@ type chessBoardObject = rankObject[];
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
+  console.log("Piece movements")
+  console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -180,10 +182,12 @@ async function animatePieceMovement(moveObj: Move) {
     // let destAlt = "";
     for (let i = 0; i < destChild.length; i++) {
       if (destChild[i].nodeName === "IMG") {
-        const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
+        // const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
         setTimeout(() => {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-          destChild[i].src = attacker;
+          destChild[i].src = "";
+          //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+          destChild[i].alt = "";
         }, 100);
         // destChild[i].style.transform = "scale(0, 0)"
         // destChild[i].style.transition = "all 0.15s"
@@ -194,7 +198,7 @@ async function animatePieceMovement(moveObj: Move) {
         // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
       }
     }
-    return;
+    // return;
     // child.style.transform = ``
     // await new Promise(resolve => setTimeout(resolve, 2000));
   }
@@ -817,6 +821,7 @@ function handleGameOver(
     });
   }, 1000);
   setSoundTrigger("/sounds/game-end.mp3");
+  console.log(JSON.stringify(chess.pgn()));
   return true;
 }
 
@@ -1156,7 +1161,7 @@ function useOnPieceDrop(
           const x = chess.move(move);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
-          animatePieceMovement(x);
+          // animatePieceMovement(x);
           // console.log(x);
           if (
             handleGameOver(
