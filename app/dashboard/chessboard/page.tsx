@@ -43,6 +43,8 @@ import {
   getResponseArray,
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
+import { parse, ParseTree } from '@mliebelt/pgn-parser'
+import {PgnMove, Tags} from "@mliebelt/pgn-types/"
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -50,6 +52,7 @@ const nextMoveObject: FenObject = {
   isDnD: false,
   pieceMovements: [],
 };
+const PGN: PGNObject = {pgn: "", moveNumber: 0};
 
 export function applyInitialSettings(
   elo: string,
@@ -140,6 +143,11 @@ type SquareAndMove = {
 };
 type rankObject = (positionObject | null)[];
 type chessBoardObject = rankObject[];
+type PGNObject = {
+  pgn: string;
+  moveNumber: number;
+}
+
 
 // export function getOriginalID(square: Square) {
 //   for (let i = 0; i < HistoryArray.length; i++) {
@@ -151,6 +159,29 @@ type chessBoardObject = rankObject[];
 //   alert("Error retreiving piece history");
 //   // throw new Error("Error retreiving piece history");
 // }
+
+export function updatePGN(moveObj: Move, setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>){
+  if(moveObj.color === 'w'){
+    const x = PGN.moveNumber + 1;
+    const pgnString: string = `${x}. ${moveObj.san} `;
+    PGN.moveNumber = x;
+    PGN.pgn += pgnString;
+  }else{
+    const pgnString = `${PGN.moveNumber}... ${moveObj.san} `;
+    PGN.pgn += pgnString;
+  }
+  const parsed = parse(PGN.pgn, {startRule: 'game'}) ;
+  // Type Checking Code ------>
+  // if(!Array.isArray(parsed)){
+  //   console.log(parsed);
+  //   throw new Error("parsed output is not an array");
+  // }
+  const isOfType = (z : any) : z is ParseTree => "moves" in z;
+  if(! isOfType(parsed)) throw new Error("parsed output is not of type")
+  const x = [parsed];
+  // <-------- Type Checking Code
+  setParsedPGN(x);
+}
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
@@ -826,6 +857,7 @@ function handleGameOver(
 }
 
 function handlePromotion(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   piece: string,
@@ -855,6 +887,7 @@ function handlePromotion(
     throw new Error("Failed promotion, some error occured");
   }
   const moveObj = chess.move(promotionMove.move);
+  updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
@@ -884,6 +917,7 @@ function handlePromotion(
 }
 
 function useLatestStockfishResponse(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   setFen: Dispatch<SetStateAction<FenObject>>,
@@ -903,6 +937,7 @@ function useLatestStockfishResponse(
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
       triggerStockfishTrigger(
+        setParsedPGN,
         isDnD,
         playColor,
         bestMove,
@@ -992,6 +1027,7 @@ function useUpdateBoardFEN(
 }
 
 function triggerStockfishTrigger(
+  setParsedPGN : Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   bestMove: string,
@@ -1004,6 +1040,7 @@ function triggerStockfishTrigger(
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
+    updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
     animatePieceMovement(x);
@@ -1058,6 +1095,7 @@ function useSound(
 }
 
 function useClickAndMove(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   clickAndMoveTrigger: SquareAndMove[],
@@ -1079,6 +1117,7 @@ function useClickAndMove(
     } else {
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
+      updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
       animatePieceMovement(x);
@@ -1120,6 +1159,7 @@ function useClickAndMove(
 }
 
 function useOnPieceDrop(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   fen: FenObject,
@@ -1159,6 +1199,7 @@ function useOnPieceDrop(
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
+          updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
           // animatePieceMovement(x);
@@ -1222,6 +1263,7 @@ export default function Page() {
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
   const workerRef = useRef<Worker>(null);
   const TheStockfishEngine = useAppSelector(getEngine);
+  const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
 
   console.log("page rendering");
 
@@ -1234,6 +1276,7 @@ export default function Page() {
   // custom hook calls
 
   useLatestStockfishResponse(
+    setParsedPGN,
     false, // Stockfish always use animation, that is, no one drags and drop functionality, i.e., false
     playColor,
     setFen,
@@ -1251,6 +1294,7 @@ export default function Page() {
   useSound(soundTrigger, setSoundTrigger);
 
   useClickAndMove(
+    setParsedPGN,
     false, // Click and Move mean that, it doesn't use drag and drop functionality, i.e., false
     playColor,
     clickAndMoveTrigger,
@@ -1265,6 +1309,7 @@ export default function Page() {
   );
 
   useOnPieceDrop(
+    setParsedPGN,
     true, // OnPieceDrop simply means that drag and drop functionality is used, therfore, true
     playColor,
     fen,
@@ -1304,9 +1349,10 @@ export default function Page() {
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
-
+          
           {openDrawer ? (
             <PromotionDrawer
+              setParsedPGN={setParsedPGN}
               openDrawer={openDrawer}
               promotionArray={promotionArray}
               playColor={playColor}
@@ -1321,6 +1367,19 @@ export default function Page() {
             />
           ) : null}
         </div>
+
+        <div className="w-1/5 h-full border rouned-md bg-slate-300 flex flex-col justify-between">
+            <div className="bg-slate-500 w-full h-16">
+              PGN Table
+            </div>
+            <div className="overflow-scroll grid-cols-7 grid-flow-row-dense">
+              {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj) => obj.moveNumber) : null}
+            </div>
+            <div className="bg-slate-800 w-full h-20">
+              Some symbols
+            </div>
+        </div>
+
       </div>
     </div>
   );
@@ -1379,6 +1438,7 @@ function GameEndDialogue({
 }
 
 function PromotionDrawer({
+  setParsedPGN,
   openDrawer,
   promotionArray,
   playColor,
@@ -1391,6 +1451,7 @@ function PromotionDrawer({
   setGameEnded,
   TheStockfishEngine,
 }: {
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   openDrawer: boolean;
   promotionArray: SquareAndMove[];
   playColor: Color;
@@ -1421,6 +1482,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                setParsedPGN,
                 false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "N",
@@ -1447,6 +1509,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                setParsedPGN,
                 false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "R",
@@ -1473,6 +1536,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                setParsedPGN,
                 false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "B",
@@ -1499,6 +1563,7 @@ function PromotionDrawer({
             className="mx-5 hover:bg-gray-200 rounded-xl mb-3"
             onClick={() =>
               handlePromotion(
+                setParsedPGN,
                 false, // For promotion, since the drawer is opened, it doesn't matter if we have used drag&drop or click&Move
                 playColor,
                 "Q",
