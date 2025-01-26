@@ -45,6 +45,7 @@ import {
 } from "@/lib/features/engine/outputArraySlice";
 import { parse, ParseTree } from '@mliebelt/pgn-parser'
 import {PgnMove, Tags} from "@mliebelt/pgn-types/"
+import { ChevronLeft, ChevronRight } from "lucide-react";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -53,7 +54,8 @@ const nextMoveObject: FenObject = {
   pieceMovements: [],
 };
 const PGN: PGNObject = {pgn: "", moveNumber: 0};
-
+const FENHistory: FenObject[] = [{fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []}]
+let currentUIPosition = 0;
 export function applyInitialSettings(
   elo: string,
   stockfishEngine: StockfishEngine
@@ -65,6 +67,37 @@ export function applyInitialSettings(
   stockfishEngine.postMessage("setoption name UCI_LimitStrength value true"); // setting option
   stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
   stockfishEngine.postMessage("isready");
+}
+
+function moveForward(setFen: Dispatch<SetStateAction<FenObject>>){
+  if(currentUIPosition === FENHistory.length-1) return;
+  else{
+    const Movement = FENHistory[currentUIPosition+1].pieceMovements;
+    animatePieceMovement(Movement);
+    nextMoveObject.fen = FENHistory[currentUIPosition+1].fen;
+    nextMoveObject.isDnD = FENHistory[currentUIPosition+1].isDnD;
+    nextMoveObject.pieceMovements = FENHistory[currentUIPosition+1].pieceMovements;
+    setTimeout(() => FENCallback(setFen), 500);
+    currentUIPosition+=1;
+  }
+}
+
+function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>){
+  if(currentUIPosition === 0) return;
+  else{
+    const Movement = structuredClone(FENHistory[currentUIPosition].pieceMovements);
+    for(let i=0; i<Movement.length; i++){
+      const x = Movement[i].from;
+      Movement[i].from = Movement[i].to;
+      Movement[i].to = x;
+    }
+    animateBackwardPieceMovement(Movement, structuredClone(currentUIPosition));
+    nextMoveObject.fen = FENHistory[currentUIPosition - 1].fen;
+    nextMoveObject.isDnD = FENHistory[currentUIPosition - 1].isDnD;
+    nextMoveObject.pieceMovements = FENHistory[currentUIPosition - 1].pieceMovements;
+    setTimeout(() => FENCallback(setFen), 500);
+    currentUIPosition-=1;
+  }
 }
 
 export function initializeHistory() {
@@ -183,10 +216,80 @@ export function updatePGN(moveObj: Move, setParsedPGN: Dispatch<SetStateAction<P
   setParsedPGN(x);
 }
 
-async function animatePieceMovement(moveObj: Move) {
-  const pieceMovements = getPieceMovements(moveObj);
-  console.log("Piece movements")
-  console.log(pieceMovements);
+async function animateBackwardPieceMovement(pieceMovements: MoveLAN[], index: number) {
+  for (let i = 0; i < pieceMovements.length; i++) {
+    const from = pieceMovements[i].from;
+    const to = pieceMovements[i].to;
+    const destSquare = document.getElementById(to);
+    if (!destSquare) throw new Error("dest square is null");
+    const destinaionRect = destSquare?.getBoundingClientRect();
+    const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
+    const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
+    const parent = document.getElementById(from);
+    if(parent === null) throw new Error('parent is null');
+    console.log(parent);
+    console.log("children of parent");
+    console.log(parent?.children[parent.children.length - 1]);
+    const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
+    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
+    const childRect = child.getBoundingClientRect();
+    const transX = MoveX - (childRect.left + childRect.right) / 2;
+    const transY = MoveY - (childRect.top + childRect.bottom) / 2;
+    // child?.getBoundingClientRect()
+    console.log(`X = ${transX}`);
+    console.log(`Y = ${transY}`);
+    //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+    const childSrc = child.src;
+    if(chess.history({verbose: true})[index].captured !== undefined){
+      const piece = `${chess.history({verbose: true})[index].color}${chess.history({verbose: true})[index].captured}`
+      let imgChild = document.createElement('img');
+      imgChild.src = `/chesspeices/${piece}.svg`;
+      parent.appendChild(imgChild);
+      const children = parent.children
+      for(let i=0; i<children.length; i++){
+        //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+        if(children[i].src === childSrc){
+          child.style.transition = "all 0.2s";
+          child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
+          child.style.zIndex = "20";
+        }
+      }
+    }
+    child.style.transition = "all 0.2s";
+    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
+    child.style.zIndex = "20";
+    setTimeout(() => {
+      console.log("set timeout running");
+      // child.remove();
+      // child.style.transition = "all 0s";
+      // child.style.transform = ``;
+    }, 150)
+    // let destAlt = "";
+    // for (let i = 0; i < destChild.length; i++) {
+    //   if (destChild[i].nodeName === "IMG") {
+    //     console.log("ARe you Running")
+    //     setTimeout(() => {
+    //       //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+    //       destChild[i].src = "";
+    //       //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
+    //       destChild[i].alt = "";
+    //     }, 100);
+    //     // destChild[i].style.transform = "scale(0, 0)"
+    //     // destChild[i].style.transition = "all 0.15s"
+    //     // console.log(destAlt);
+    //     // destAlt = destChild[i].id;
+    //     // destChild[i].remove();
+    //     break;
+    //     // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
+    //   }
+    // }
+    // return;
+    // child.style.transform = ``
+    // await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+}
+
+async function animatePieceMovement(pieceMovements: MoveLAN[]) {
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -213,7 +316,7 @@ async function animatePieceMovement(moveObj: Move) {
     // let destAlt = "";
     for (let i = 0; i < destChild.length; i++) {
       if (destChild[i].nodeName === "IMG") {
-        // const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
+        console.log("ARe you Running")
         setTimeout(() => {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].src = "";
@@ -253,7 +356,7 @@ function removeAnimationTransforms(pieceMovements: MoveLAN[]) {
 const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 function getPieceMovements(moveObj: Move): MoveLAN[] {
-  if (moveObj.san === "O-O") {
+  if (moveObj.san === "O-O" || moveObj.san === "O-O+") {
     if (moveObj.color === "w") {
       return [
         { from: moveObj.from, to: moveObj.to },
@@ -265,7 +368,7 @@ function getPieceMovements(moveObj: Move): MoveLAN[] {
         { from: "h8", to: "f8" },
       ];
     }
-  } else if (moveObj.san === "O-O-O") {
+  } else if (moveObj.san === "O-O-O" || moveObj.san === "O-O-O+" ) {
     if (moveObj.color === "w") {
       return [
         { from: moveObj.from, to: moveObj.to },
@@ -516,7 +619,7 @@ function RenderSquare(
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {
-    if (toBeCleared || color !== chess.turn()) setBlueDotArray([]);
+    if (toBeCleared || color !== chess.turn() || FENHistory.length -1 !== currentUIPosition) setBlueDotArray([]);
     else {
       const possibleMoves = chess.moves({ square: square, verbose: true });
       const tempArray: SquareAndMove[] = [];
@@ -890,8 +993,10 @@ function handlePromotion(
   updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
-  animatePieceMovement(moveObj);
+  animatePieceMovement(pieceMovements);
   updateHistory(pieceMovements);
+  FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+  currentUIPosition+=1
   setOpenDrawer(false);
   setPromotionArray([]);
   if (
@@ -1016,7 +1121,7 @@ function useUpdateBoardFEN(
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      if (!chess.isGameOver() && !openSettings)
+      if (!chess.isGameOver() && !openSettings && FENHistory.length - 1 === currentUIPosition)
         getBestMove(fen.fen, TheStockfishEngine);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
@@ -1043,7 +1148,9 @@ function triggerStockfishTrigger(
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
-    animatePieceMovement(x);
+    FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+    currentUIPosition+=1
+    animatePieceMovement(pieceMovements);
     console.log(x);
     if (
       handleGameOver(
@@ -1120,7 +1227,9 @@ function useClickAndMove(
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
-      animatePieceMovement(x);
+      FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+      currentUIPosition+=1
+      animatePieceMovement(pieceMovements);
       console.log(x);
       if (
         handleGameOver(
@@ -1202,6 +1311,8 @@ function useOnPieceDrop(
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
+          FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
+          currentUIPosition+=1
           // animatePieceMovement(x);
           // console.log(x);
           if (
@@ -1368,15 +1479,33 @@ export default function Page() {
           ) : null}
         </div>
 
-        <div className="w-1/5 h-full border rouned-md bg-slate-300 flex flex-col justify-between">
-            <div className="bg-slate-500 w-full h-16">
-              PGN Table
+        <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
+            <div className="bg-slate-500 w-full h-16 flex justify-center">
+              <div className="text-2xl font-mono flex flex-col justify-center">
+                <div>
+                  PGN Table
+                </div>
+              </div>  
             </div>
-            <div className="overflow-scroll grid-cols-7 grid-flow-row-dense">
-              {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj) => obj.moveNumber) : null}
+            <div className="w-full h-full overflow-scroll bg-slate-600">
+              <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full">
+                {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj, id) => { 
+                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.notation.notation}</div></div></div> : 
+                    <div key={id} className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.notation.notation}</div></div>
+                   }) : null}
+              </div>
             </div>
-            <div className="bg-slate-800 w-full h-20">
-              Some symbols
+            <div className="bg-slate-500 w-full h-20 flex justify-around">
+              <div className="h-full flex flex-col justify-center">
+              <Button variant="outline" size={"icon"} className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white" onClick={() => moveBackward(setFen)}>
+                <ChevronLeft />
+              </Button>
+              </div>
+              <div className="h-full flex flex-col justify-center">
+              <Button variant="outline" size={"icon"} className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white" onClick={() => moveForward(setFen)}>
+                <ChevronRight />
+              </Button>
+              </div>
             </div>
         </div>
 
