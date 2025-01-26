@@ -72,32 +72,22 @@ export function applyInitialSettings(
 function moveForward(setFen: Dispatch<SetStateAction<FenObject>>){
   if(currentUIPosition === FENHistory.length-1) return;
   else{
-    const Movement = FENHistory[currentUIPosition+1].pieceMovements;
-    animatePieceMovement(Movement);
-    nextMoveObject.fen = FENHistory[currentUIPosition+1].fen;
-    nextMoveObject.isDnD = FENHistory[currentUIPosition+1].isDnD;
-    nextMoveObject.pieceMovements = FENHistory[currentUIPosition+1].pieceMovements;
-    setTimeout(() => FENCallback(setFen), 500);
-    currentUIPosition+=1;
+    setFen(FENHistory[currentUIPosition + 1])
+    currentUIPosition += 1;
   }
 }
 
 function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>){
   if(currentUIPosition === 0) return;
   else{
-    const Movement = structuredClone(FENHistory[currentUIPosition].pieceMovements);
-    for(let i=0; i<Movement.length; i++){
-      const x = Movement[i].from;
-      Movement[i].from = Movement[i].to;
-      Movement[i].to = x;
-    }
-    animateBackwardPieceMovement(Movement, structuredClone(currentUIPosition));
-    nextMoveObject.fen = FENHistory[currentUIPosition - 1].fen;
-    nextMoveObject.isDnD = FENHistory[currentUIPosition - 1].isDnD;
-    nextMoveObject.pieceMovements = FENHistory[currentUIPosition - 1].pieceMovements;
-    setTimeout(() => FENCallback(setFen), 500);
-    currentUIPosition-=1;
+    setFen(FENHistory[currentUIPosition - 1]);
+    currentUIPosition -= 1;
   }
+}
+
+function arbitraryTimeTravel(moveNumber: number, turn: string, setFen: Dispatch<SetStateAction<FenObject>>){
+  setFen(FENHistory[moveNumber*2 - (turn === 'w' ? 1 : 0)]);
+  currentUIPosition = moveNumber*2 - (turn === 'w' ? 1 : 0)
 }
 
 export function initializeHistory() {
@@ -216,80 +206,10 @@ export function updatePGN(moveObj: Move, setParsedPGN: Dispatch<SetStateAction<P
   setParsedPGN(x);
 }
 
-async function animateBackwardPieceMovement(pieceMovements: MoveLAN[], index: number) {
-  for (let i = 0; i < pieceMovements.length; i++) {
-    const from = pieceMovements[i].from;
-    const to = pieceMovements[i].to;
-    const destSquare = document.getElementById(to);
-    if (!destSquare) throw new Error("dest square is null");
-    const destinaionRect = destSquare?.getBoundingClientRect();
-    const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
-    const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
-    const parent = document.getElementById(from);
-    if(parent === null) throw new Error('parent is null');
-    console.log(parent);
-    console.log("children of parent");
-    console.log(parent?.children[parent.children.length - 1]);
-    const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
-    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
-    const childRect = child.getBoundingClientRect();
-    const transX = MoveX - (childRect.left + childRect.right) / 2;
-    const transY = MoveY - (childRect.top + childRect.bottom) / 2;
-    // child?.getBoundingClientRect()
-    console.log(`X = ${transX}`);
-    console.log(`Y = ${transY}`);
-    //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-    const childSrc = child.src;
-    if(chess.history({verbose: true})[index].captured !== undefined){
-      const piece = `${chess.history({verbose: true})[index].color}${chess.history({verbose: true})[index].captured}`
-      let imgChild = document.createElement('img');
-      imgChild.src = `/chesspeices/${piece}.svg`;
-      parent.appendChild(imgChild);
-      const children = parent.children
-      for(let i=0; i<children.length; i++){
-        //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-        if(children[i].src === childSrc){
-          child.style.transition = "all 0.2s";
-          child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
-          child.style.zIndex = "20";
-        }
-      }
-    }
-    child.style.transition = "all 0.2s";
-    child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
-    child.style.zIndex = "20";
-    setTimeout(() => {
-      console.log("set timeout running");
-      // child.remove();
-      // child.style.transition = "all 0s";
-      // child.style.transform = ``;
-    }, 150)
-    // let destAlt = "";
-    // for (let i = 0; i < destChild.length; i++) {
-    //   if (destChild[i].nodeName === "IMG") {
-    //     console.log("ARe you Running")
-    //     setTimeout(() => {
-    //       //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-    //       destChild[i].src = "";
-    //       //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
-    //       destChild[i].alt = "";
-    //     }, 100);
-    //     // destChild[i].style.transform = "scale(0, 0)"
-    //     // destChild[i].style.transition = "all 0.15s"
-    //     // console.log(destAlt);
-    //     // destAlt = destChild[i].id;
-    //     // destChild[i].remove();
-    //     break;
-    //     // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
-    //   }
-    // }
-    // return;
-    // child.style.transform = ``
-    // await new Promise(resolve => setTimeout(resolve, 2000));
-  }
-}
-
-async function animatePieceMovement(pieceMovements: MoveLAN[]) {
+async function animatePieceMovement(moveObj: Move) {
+  const pieceMovements = getPieceMovements(moveObj);
+  console.log("Piece movements")
+  console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -316,7 +236,7 @@ async function animatePieceMovement(pieceMovements: MoveLAN[]) {
     // let destAlt = "";
     for (let i = 0; i < destChild.length; i++) {
       if (destChild[i].nodeName === "IMG") {
-        console.log("ARe you Running")
+        // const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
         setTimeout(() => {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].src = "";
@@ -993,7 +913,7 @@ function handlePromotion(
   updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
-  animatePieceMovement(pieceMovements);
+  animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
   FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
   currentUIPosition+=1
@@ -1150,7 +1070,7 @@ function triggerStockfishTrigger(
     updateHistory(pieceMovements);
     FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
     currentUIPosition+=1
-    animatePieceMovement(pieceMovements);
+    animatePieceMovement(x);
     console.log(x);
     if (
       handleGameOver(
@@ -1229,7 +1149,7 @@ function useClickAndMove(
       updateHistory(pieceMovements);
       FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
       currentUIPosition+=1
-      animatePieceMovement(pieceMovements);
+      animatePieceMovement(x);
       console.log(x);
       if (
         handleGameOver(
@@ -1490,8 +1410,8 @@ export default function Page() {
             <div className="w-full h-full overflow-scroll bg-slate-600">
               <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full">
                 {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj, id) => { 
-                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.notation.notation}</div></div></div> : 
-                    <div key={id} className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.notation.notation}</div></div>
+                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}>{obj.notation.notation}</div></div></div> : 
+                    <div key={id} className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)} >{obj.notation.notation}</div></div>
                    }) : null}
               </div>
             </div>
