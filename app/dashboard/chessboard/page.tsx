@@ -961,18 +961,20 @@ function useLatestStockfishResponse(
       latestStockfishResponse.split(" ")[0] === "bestmove"
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
-      triggerStockfishTrigger(
-        setParsedPGN,
-        isDnD,
-        playColor,
-        bestMove,
-        setFen,
-        gameEndResult,
-        gameEndTitle,
-        setGameEnded,
-        setSoundTrigger,
-        TheStockfishEngine
-      );
+      if(currentUIPosition === FENHistory.length -1){
+        triggerStockfishTrigger(
+          setParsedPGN,
+          isDnD,
+          playColor,
+          bestMove,
+          setFen,
+          gameEndResult,
+          gameEndTitle,
+          setGameEnded,
+          setSoundTrigger,
+          TheStockfishEngine
+        );
+      }
       // console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
     }
   }, [latestStockfishResponse]);
@@ -1410,19 +1412,19 @@ export default function Page() {
             <div className="w-full h-full overflow-scroll bg-slate-600">
               <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full">
                 {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj, id) => { 
-                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}>{obj.notation.notation}</div></div></div> : 
-                    <div key={id} className="col-span-3 w-full flex justify-center"><div className="h-full flex flex-col justify-center" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)} >{obj.notation.notation}</div></div>
+                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center cursor-pointer" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}><div className="h-full flex flex-col justify-center" >{obj.notation.notation}</div></div></div> : 
+                    <div key={id} className="col-span-3 w-full flex justify-center cursor-pointer" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}><div className="h-full flex flex-col justify-center" >{obj.notation.notation}</div></div>
                    }) : null}
               </div>
             </div>
             <div className="bg-slate-500 w-full h-20 flex justify-around">
-              <div className="h-full flex flex-col justify-center">
-              <Button variant="outline" size={"icon"} className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white" onClick={() => moveBackward(setFen)}>
+              <div className="h-full w-1/2 flex flex-col justify-center p-2">
+              <Button variant="outline" className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full" onClick={() => moveBackward(setFen)}>
                 <ChevronLeft />
               </Button>
               </div>
-              <div className="h-full flex flex-col justify-center">
-              <Button variant="outline" size={"icon"} className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white" onClick={() => moveForward(setFen)}>
+              <div className="h-full w-1/2 flex flex-col justify-center p-2">
+              <Button variant="outline" className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full" onClick={() => moveForward(setFen)}>
                 <ChevronRight />
               </Button>
               </div>
