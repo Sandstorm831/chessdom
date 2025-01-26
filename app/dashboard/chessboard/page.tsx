@@ -209,7 +209,7 @@ export function updatePGN(
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
   console.log(parsed);
-  console.log(PGN.pgn)
+  console.log(PGN.pgn);
   // Type Checking Code ------>
   // if(!Array.isArray(parsed)){
   //   console.log(parsed);
@@ -386,8 +386,14 @@ function updateHistory(pieceMovement: MoveLAN[]) {
   console.log(HistoryArray);
 }
 
-function handleResignation(setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>, playColor: Color, TheStockfishEngine: StockfishEngine, setGameEnded: Dispatch<SetStateAction<gameEndObject>>, setSoundTrigger: Dispatch<SetStateAction<string>>){
-  const resgString: string = playColor === 'w' ? "0-1" : "1-0";
+function handleResignation(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  playColor: Color,
+  TheStockfishEngine: StockfishEngine,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
+) {
+  const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
     const x = PGN.moveNumber + 1;
     const pgnString: string = `{ White Resigns. } ${resgString} `;
@@ -399,7 +405,7 @@ function handleResignation(setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>, 
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
   console.log(parsed);
-  console.log(PGN.pgn)
+  console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -412,7 +418,7 @@ function handleResignation(setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>, 
   TheStockfishEngine.postMessage("isready");
   setGameEnded({
     gameEnded: true,
-    gameEndResult: playColor === 'w' ? '0 - 1' : '1 - 0',
+    gameEndResult: playColor === "w" ? "0 - 1" : "1 - 0",
     gameEndTitle: "Better luck next time",
   });
   setSoundTrigger("/sounds/game-end.mp3");
@@ -863,7 +869,7 @@ function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>) {
 }
 
 function setNewGame(
-  setParsedPGN : Dispatch<SetStateAction<ParseTree[]>>,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
@@ -1455,7 +1461,7 @@ export default function Page() {
           />
 
           <GameEndDialogue
-            setParsedPGN = {setParsedPGN}
+            setParsedPGN={setParsedPGN}
             gameEnded={gameEnded}
             setFen={setFen}
             originalFEN={originalFEN}
@@ -1535,7 +1541,11 @@ export default function Page() {
                     );
                   })
                 : null}
-                {gameEnded.gameEnded ? <div className="col-span-7 text-3xl w-full flex justify-center text-white"><div>{gameEnded.gameEndResult}</div></div> : null}
+              {gameEnded.gameEnded ? (
+                <div className="col-span-7 text-3xl w-full flex justify-center text-white">
+                  <div>{gameEnded.gameEndResult}</div>
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="bg-slate-500 w-full h-20 flex justify-around">
@@ -1568,9 +1578,31 @@ export default function Page() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className=" text-xl flex justify-center">Are you sure you want to resign ?</div>
+                  <div className=" text-xl flex justify-center">
+                    Are you sure you want to resign ?
+                  </div>
                   <div className="w-full flex justify-center text-xl">
-                    <Button variant={"destructive"} className="w-full mt-2" onClick={() => handleResignation(setParsedPGN, playColor, TheStockfishEngine, setGameEnded, setSoundTrigger)} disabled={playColor === chess.turn() && currentUIPosition === FENHistory.length - 1 ? false : true}>Yes</Button>
+                    <Button
+                      variant={"destructive"}
+                      className="w-full mt-2"
+                      onClick={() =>
+                        handleResignation(
+                          setParsedPGN,
+                          playColor,
+                          TheStockfishEngine,
+                          setGameEnded,
+                          setSoundTrigger
+                        )
+                      }
+                      disabled={
+                        playColor === chess.turn() &&
+                        currentUIPosition === FENHistory.length - 1
+                          ? false
+                          : true
+                      }
+                    >
+                      Yes
+                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -1624,7 +1656,13 @@ function GameEndDialogue({
               variant={"default"}
               className="flex justify-center mx-2 text-xl w-56"
               onClick={() =>
-                setNewGame(setParsedPGN, setFen, originalFEN, setOpenSettings, setGameEnded)
+                setNewGame(
+                  setParsedPGN,
+                  setFen,
+                  originalFEN,
+                  setOpenSettings,
+                  setGameEnded
+                )
               }
             >
               New game
