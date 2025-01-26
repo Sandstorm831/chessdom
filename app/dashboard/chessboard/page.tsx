@@ -43,9 +43,11 @@ import {
   getResponseArray,
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
-import { parse, ParseTree } from '@mliebelt/pgn-parser'
-import {PgnMove, Tags} from "@mliebelt/pgn-types/"
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { parse, ParseTree } from "@mliebelt/pgn-parser";
+import { PgnMove, Tags } from "@mliebelt/pgn-types/";
+import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
+import { Popover } from "@radix-ui/react-popover";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -53,8 +55,14 @@ const nextMoveObject: FenObject = {
   isDnD: false,
   pieceMovements: [],
 };
-const PGN: PGNObject = {pgn: "", moveNumber: 0};
-const FENHistory: FenObject[] = [{fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", isDnD: false, pieceMovements: []}]
+const PGN: PGNObject = { pgn: "", moveNumber: 0 };
+const FENHistory: FenObject[] = [
+  {
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  },
+];
 let currentUIPosition = 0;
 export function applyInitialSettings(
   elo: string,
@@ -69,25 +77,29 @@ export function applyInitialSettings(
   stockfishEngine.postMessage("isready");
 }
 
-function moveForward(setFen: Dispatch<SetStateAction<FenObject>>){
-  if(currentUIPosition === FENHistory.length-1) return;
-  else{
-    setFen(FENHistory[currentUIPosition + 1])
+function moveForward(setFen: Dispatch<SetStateAction<FenObject>>) {
+  if (currentUIPosition === FENHistory.length - 1) return;
+  else {
+    setFen(FENHistory[currentUIPosition + 1]);
     currentUIPosition += 1;
   }
 }
 
-function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>){
-  if(currentUIPosition === 0) return;
-  else{
+function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
+  if (currentUIPosition === 0) return;
+  else {
     setFen(FENHistory[currentUIPosition - 1]);
     currentUIPosition -= 1;
   }
 }
 
-function arbitraryTimeTravel(moveNumber: number, turn: string, setFen: Dispatch<SetStateAction<FenObject>>){
-  setFen(FENHistory[moveNumber*2 - (turn === 'w' ? 1 : 0)]);
-  currentUIPosition = moveNumber*2 - (turn === 'w' ? 1 : 0)
+function arbitraryTimeTravel(
+  moveNumber: number,
+  turn: string,
+  setFen: Dispatch<SetStateAction<FenObject>>
+) {
+  setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
+  currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
 
 export function initializeHistory() {
@@ -169,8 +181,7 @@ type chessBoardObject = rankObject[];
 type PGNObject = {
   pgn: string;
   moveNumber: number;
-}
-
+};
 
 // export function getOriginalID(square: Square) {
 //   for (let i = 0; i < HistoryArray.length; i++) {
@@ -183,24 +194,27 @@ type PGNObject = {
 //   // throw new Error("Error retreiving piece history");
 // }
 
-export function updatePGN(moveObj: Move, setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>){
-  if(moveObj.color === 'w'){
+export function updatePGN(
+  moveObj: Move,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>
+) {
+  if (moveObj.color === "w") {
     const x = PGN.moveNumber + 1;
     const pgnString: string = `${x}. ${moveObj.san} `;
     PGN.moveNumber = x;
     PGN.pgn += pgnString;
-  }else{
+  } else {
     const pgnString = `${PGN.moveNumber}... ${moveObj.san} `;
     PGN.pgn += pgnString;
   }
-  const parsed = parse(PGN.pgn, {startRule: 'game'}) ;
+  const parsed = parse(PGN.pgn, { startRule: "game" });
   // Type Checking Code ------>
   // if(!Array.isArray(parsed)){
   //   console.log(parsed);
   //   throw new Error("parsed output is not an array");
   // }
-  const isOfType = (z : any) : z is ParseTree => "moves" in z;
-  if(! isOfType(parsed)) throw new Error("parsed output is not of type")
+  const isOfType = (z: any): z is ParseTree => "moves" in z;
+  if (!isOfType(parsed)) throw new Error("parsed output is not of type");
   const x = [parsed];
   // <-------- Type Checking Code
   setParsedPGN(x);
@@ -208,7 +222,7 @@ export function updatePGN(moveObj: Move, setParsedPGN: Dispatch<SetStateAction<P
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
-  console.log("Piece movements")
+  console.log("Piece movements");
   console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
@@ -288,7 +302,7 @@ function getPieceMovements(moveObj: Move): MoveLAN[] {
         { from: "h8", to: "f8" },
       ];
     }
-  } else if (moveObj.san === "O-O-O" || moveObj.san === "O-O-O+" ) {
+  } else if (moveObj.san === "O-O-O" || moveObj.san === "O-O-O+") {
     if (moveObj.color === "w") {
       return [
         { from: moveObj.from, to: moveObj.to },
@@ -539,7 +553,12 @@ function RenderSquare(
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {
-    if (toBeCleared || color !== chess.turn() || FENHistory.length -1 !== currentUIPosition) setBlueDotArray([]);
+    if (
+      toBeCleared ||
+      color !== chess.turn() ||
+      FENHistory.length - 1 !== currentUIPosition
+    )
+      setBlueDotArray([]);
     else {
       const possibleMoves = chess.moves({ square: square, verbose: true });
       const tempArray: SquareAndMove[] = [];
@@ -915,8 +934,12 @@ function handlePromotion(
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
-  FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
-  currentUIPosition+=1
+  FENHistory.push({
+    fen: chess.fen(),
+    isDnD: isDnD,
+    pieceMovements: pieceMovements,
+  });
+  currentUIPosition += 1;
   setOpenDrawer(false);
   setPromotionArray([]);
   if (
@@ -961,7 +984,7 @@ function useLatestStockfishResponse(
       latestStockfishResponse.split(" ")[0] === "bestmove"
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
-      if(currentUIPosition === FENHistory.length -1){
+      if (currentUIPosition === FENHistory.length - 1) {
         triggerStockfishTrigger(
           setParsedPGN,
           isDnD,
@@ -1043,7 +1066,11 @@ function useUpdateBoardFEN(
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
-      if (!chess.isGameOver() && !openSettings && FENHistory.length - 1 === currentUIPosition)
+      if (
+        !chess.isGameOver() &&
+        !openSettings &&
+        FENHistory.length - 1 === currentUIPosition
+      )
         getBestMove(fen.fen, TheStockfishEngine);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
@@ -1054,7 +1081,7 @@ function useUpdateBoardFEN(
 }
 
 function triggerStockfishTrigger(
-  setParsedPGN : Dispatch<SetStateAction<ParseTree[]>>,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   isDnD: boolean,
   playColor: Color,
   bestMove: string,
@@ -1070,8 +1097,12 @@ function triggerStockfishTrigger(
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
-    FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
-    currentUIPosition+=1
+    FENHistory.push({
+      fen: chess.fen(),
+      isDnD: isDnD,
+      pieceMovements: pieceMovements,
+    });
+    currentUIPosition += 1;
     animatePieceMovement(x);
     console.log(x);
     if (
@@ -1149,8 +1180,12 @@ function useClickAndMove(
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
-      FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
-      currentUIPosition+=1
+      FENHistory.push({
+        fen: chess.fen(),
+        isDnD: isDnD,
+        pieceMovements: pieceMovements,
+      });
+      currentUIPosition += 1;
       animatePieceMovement(x);
       console.log(x);
       if (
@@ -1233,8 +1268,12 @@ function useOnPieceDrop(
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
-          FENHistory.push({fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements});
-          currentUIPosition+=1
+          FENHistory.push({
+            fen: chess.fen(),
+            isDnD: isDnD,
+            pieceMovements: pieceMovements,
+          });
+          currentUIPosition += 1;
           // animatePieceMovement(x);
           // console.log(x);
           if (
@@ -1382,7 +1421,7 @@ export default function Page() {
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
-          
+
           {openDrawer ? (
             <PromotionDrawer
               setParsedPGN={setParsedPGN}
@@ -1402,35 +1441,96 @@ export default function Page() {
         </div>
 
         <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
-            <div className="bg-slate-500 w-full h-16 flex justify-center">
-              <div className="text-2xl font-mono flex flex-col justify-center">
-                <div>
-                  PGN Table
-                </div>
-              </div>  
+          <div className="bg-slate-500 w-full h-16 flex justify-center">
+            <div className="text-2xl font-mono flex flex-col justify-center">
+              <div>PGN Table</div>
             </div>
-            <div className="w-full h-full overflow-scroll bg-slate-600">
-              <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full">
-                {parsedPGN && parsedPGN.length ? parsedPGN[0].moves.map((obj, id) => { 
-                    return obj.turn === 'w' ? <div key={id} className="col-span-4 grid grid-cols-4 grid-rows-1"><div className="col-span-1 bg-slate-700 w-full flex justify-center"><div className="h-full flex flex-col justify-center">{obj.moveNumber}</div></div><div className="col-span-3 w-full flex justify-center cursor-pointer" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}><div className="h-full flex flex-col justify-center" >{obj.notation.notation}</div></div></div> : 
-                    <div key={id} className="col-span-3 w-full flex justify-center cursor-pointer" onClick={() => arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)}><div className="h-full flex flex-col justify-center" >{obj.notation.notation}</div></div>
-                   }) : null}
-              </div>
+          </div>
+          <div className="w-full h-full overflow-scroll bg-slate-600">
+            <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full">
+              {parsedPGN && parsedPGN.length
+                ? parsedPGN[0].moves.map((obj, id) => {
+                    return obj.turn === "w" ? (
+                      <div
+                        key={id}
+                        className="col-span-4 grid grid-cols-4 grid-rows-1"
+                      >
+                        <div className="col-span-1 bg-slate-700 w-full flex justify-center">
+                          <div className="h-full flex flex-col justify-center">
+                            {obj.moveNumber}
+                          </div>
+                        </div>
+                        <div
+                          className="col-span-3 w-full flex justify-center cursor-pointer"
+                          onClick={() =>
+                            arbitraryTimeTravel(
+                              obj.moveNumber,
+                              obj.turn,
+                              setFen
+                            )
+                          }
+                        >
+                          <div className="h-full flex flex-col justify-center">
+                            {obj.notation.notation}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        key={id}
+                        className="col-span-3 w-full flex justify-center cursor-pointer"
+                        onClick={() =>
+                          arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
+                        }
+                      >
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.notation.notation}
+                        </div>
+                      </div>
+                    );
+                  })
+                : null}
             </div>
-            <div className="bg-slate-500 w-full h-20 flex justify-around">
-              <div className="h-full w-1/2 flex flex-col justify-center p-2">
-              <Button variant="outline" className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full" onClick={() => moveBackward(setFen)}>
+          </div>
+          <div className="bg-slate-500 w-full h-20 flex justify-around">
+            <div className="h-full w-1/3 flex flex-col justify-center p-2">
+              <Button
+                variant="outline"
+                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+                onClick={() => moveBackward(setFen)}
+              >
                 <ChevronLeft />
               </Button>
-              </div>
-              <div className="h-full w-1/2 flex flex-col justify-center p-2">
-              <Button variant="outline" className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full" onClick={() => moveForward(setFen)}>
+            </div>
+            <div className="h-full w-1/3 flex flex-col justify-center p-2">
+              <Button
+                variant="outline"
+                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+                onClick={() => moveForward(setFen)}
+              >
                 <ChevronRight />
               </Button>
-              </div>
             </div>
+            <div className="h-full w-1/3 flex flex-col justify-center p-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+                  >
+                    <Flag />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className=" text-xl flex justify-center">Are you sure you want to resign ?</div>
+                  <div className="w-full flex justify-center text-xl">
+                    <Button variant={"destructive"} className="w-full mt-2" >Yes</Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
         </div>
-
       </div>
     </div>
   );
