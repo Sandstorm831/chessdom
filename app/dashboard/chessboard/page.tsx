@@ -395,9 +395,7 @@ function handleResignation(
 ) {
   const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
-    const x = PGN.moveNumber + 1;
     const pgnString: string = `{ White Resigns. } ${resgString} `;
-    PGN.moveNumber = x;
     PGN.pgn += pgnString;
   } else {
     const pgnString = `{ Black Resigns. } ${resgString} `;
@@ -878,6 +876,13 @@ function setNewGame(
   PGN.pgn = "";
   PGN.moveNumber = 0;
   setParsedPGN([]);
+  FENHistory.length = 0;
+  FENHistory.push({
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  },)
+  currentUIPosition = 0;
   setFen({ fen: originalFEN, isDnD: false, pieceMovements: [] });
   setOpenSettings(true);
   setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
@@ -894,6 +899,13 @@ function startTheGame(
   PGN.pgn = "";
   PGN.moveNumber = 0;
   setParsedPGN([]);
+  FENHistory.length = 0;
+  FENHistory.push({
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  },)
+  currentUIPosition = 0;
   setOpenSettings(false);
   applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
   if (playColor === "b") {
@@ -904,6 +916,7 @@ function startTheGame(
 }
 
 function handleGameOver(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   moveObj: Move,
   isDnD: boolean,
   playColor: Color,
@@ -935,6 +948,23 @@ function handleGameOver(
     gameEndResult = "1 - 0";
     gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
   }
+  const resgString: string = chess.turn() === "w" ? "0-1" : "1-0";
+  if (playColor === "w") {
+    const pgnString: string = `${resgString} `;
+    PGN.pgn += pgnString;
+  } else {
+    const pgnString = `${resgString} `;
+    PGN.pgn += pgnString;
+  }
+  const parsed = parse(PGN.pgn, { startRule: "game" });
+  console.log(parsed);
+  console.log(PGN.pgn);
+  // Type Checking Code ------>
+  const isOfType = (z: any): z is ParseTree => "moves" in z;
+  if (!isOfType(parsed)) throw new Error("parsed output is not of type");
+  const x = [parsed];
+  // <-------- Type Checking Code
+  setParsedPGN(x);
   setTimeout(() => {
     setGameEnded({
       gameEnded: true,
@@ -993,6 +1023,7 @@ function handlePromotion(
   setPromotionArray([]);
   if (
     handleGameOver(
+      setParsedPGN,
       moveObj,
       isDnD,
       playColor,
@@ -1156,6 +1187,7 @@ function triggerStockfishTrigger(
     console.log(x);
     if (
       handleGameOver(
+        setParsedPGN,
         x,
         isDnD,
         playColor,
@@ -1239,6 +1271,7 @@ function useClickAndMove(
       console.log(x);
       if (
         handleGameOver(
+          setParsedPGN,
           x,
           isDnD,
           playColor,
@@ -1327,6 +1360,7 @@ function useOnPieceDrop(
           // console.log(x);
           if (
             handleGameOver(
+              setParsedPGN,
               x,
               isDnD,
               playColor,
@@ -1359,6 +1393,12 @@ function useOnPieceDrop(
   }, []);
 }
 
+function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function){
+  useEffect(() => {
+    ScrollToBottom();
+  }, [parsedPGN])
+}
+
 export default function Page() {
   let gameEndResult = "";
   let gameEndTitle = "";
@@ -1385,7 +1425,7 @@ export default function Page() {
   const workerRef = useRef<Worker>(null);
   const TheStockfishEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
-
+  const parsedPGNRef = useRef<null | HTMLDivElement>(null);
   console.log("page rendering");
 
   chess.load(fen.fen);
@@ -1394,7 +1434,13 @@ export default function Page() {
     initializeHistory();
   }
 
+  const ScrollToBottom = () => {
+    parsedPGNRef.current?.scrollIntoView({behavior: 'smooth'});
+  }
+
   // custom hook calls
+
+  useParsedPGNView(parsedPGN, ScrollToBottom)
 
   useLatestStockfishResponse(
     setParsedPGN,
@@ -1547,6 +1593,7 @@ export default function Page() {
                 </div>
               ) : null}
             </div>
+            <div ref={parsedPGNRef}></div>
           </div>
           <div className="bg-slate-500 w-full h-20 flex justify-around">
             <div className="h-full w-1/3 flex flex-col justify-center p-2">
