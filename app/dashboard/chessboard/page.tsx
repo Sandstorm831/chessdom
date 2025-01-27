@@ -108,7 +108,7 @@ export function initializeHistory() {
   for (let i = 1; i <= 4; i++) {
     for (let j = 0; j < x.length; j++) {
       if (i < 3) {
-        //@ts-expect-error
+        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
         const isq: Square = `${x[j]}${i}`;
         HistoryArray.push({
           id: isq,
@@ -116,7 +116,7 @@ export function initializeHistory() {
         });
       } else {
         const ii = i + 4;
-        //@ts-expect-error
+        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
         const isq: Square = `${x[j]}${ii}`;
         HistoryArray.push({
           id: isq,
@@ -127,7 +127,7 @@ export function initializeHistory() {
   }
 }
 
-export function engineXCallback(){}
+export function engineXCallback() {}
 
 export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
   stockfishEngine.postMessage(`position fen ${fen}`);
@@ -144,7 +144,7 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
 
 export type engineX = {
   stockfishEngine: StockfishEngine | null;
-}
+};
 
 export type historyObject = {
   id: Square;
@@ -1093,14 +1093,13 @@ function useLatestStockfishResponse(
 function useEngine(workerRef: RefObject<Worker | null>) {
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if(EngineX.stockfishEngine){
+    if (EngineX.stockfishEngine) {
       const x = EngineX.stockfishEngine;
       x.addMessageListener((line: string) => {
         dispatch(pushResponse(line));
       });
       dispatch(setReady(x));
-    }
-    else{
+    } else {
       workerRef.current = new window.Worker("/lib/loadEngine.js");
       if (workerRef.current === null) throw new Error("worker is null");
       workerRef.current.onmessage = async (e) => {
@@ -1122,7 +1121,7 @@ function useEngine(workerRef: RefObject<Worker | null>) {
           dispatch(pushResponse(line));
         });
         // x.onmessage = (e: MessageEvent) => {
-  
+
         // }
         // console.log(x.onmessage);
         dispatch(setReady(x));
@@ -1141,11 +1140,13 @@ function useEngine(workerRef: RefObject<Worker | null>) {
       };
       workerRef.current.onerror = (e) => {
         console.log(e);
-        alert("Error while initiating the Engine, please refresh and try again");
+        alert(
+          "Error while initiating the Engine, please refresh and try again"
+        );
       };
       workerRef.current.postMessage("start");
       // console.log(workerRef.current);
-  
+
       return () => {
         workerRef.current?.terminate();
       };
@@ -1569,7 +1570,16 @@ export default function Page() {
                         className="col-span-4 grid grid-cols-4 grid-rows-1"
                       >
                         <div className="col-span-1 bg-slate-700 w-full flex justify-center">
-                          <div className="h-full flex flex-col justify-center" ref = {obj.moveNumber === parsedPGN[0].moves[parsedPGN[0].moves.length - 1].moveNumber ? parsedPGNRef : null}>
+                          <div
+                            className="h-full flex flex-col justify-center"
+                            ref={
+                              obj.moveNumber ===
+                              parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
+                                .moveNumber
+                                ? parsedPGNRef
+                                : null
+                            }
+                          >
                             {obj.moveNumber}
                           </div>
                         </div>
