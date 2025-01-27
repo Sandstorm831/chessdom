@@ -63,6 +63,7 @@ const FENHistory: FenObject[] = [
     pieceMovements: [],
   },
 ];
+export const EngineX: engineX = { stockfishEngine: null };
 let currentUIPosition = 0;
 export function applyInitialSettings(
   elo: string,
@@ -126,6 +127,8 @@ export function initializeHistory() {
   }
 }
 
+export function engineXCallback(){}
+
 export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
   stockfishEngine.postMessage(`position fen ${fen}`);
   stockfishEngine.postMessage("go depth 15");
@@ -138,6 +141,10 @@ export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
 //   }
 //   return stockfishOutputArray[stockfishOutputArray.length - 1];
 // }
+
+export type engineX = {
+  stockfishEngine: StockfishEngine | null;
+}
 
 export type historyObject = {
   id: Square;
@@ -641,7 +648,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -671,7 +678,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -702,7 +709,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -728,7 +735,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -761,7 +768,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -791,7 +798,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -822,7 +829,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -849,7 +856,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
-                <div className="z-10 absolute top-[45%] left-[45%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
             </SquareBlock>
           );
@@ -881,7 +888,7 @@ function setNewGame(
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     isDnD: false,
     pieceMovements: [],
-  },)
+  });
   currentUIPosition = 0;
   setFen({ fen: originalFEN, isDnD: false, pieceMovements: [] });
   setOpenSettings(true);
@@ -904,7 +911,7 @@ function startTheGame(
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     isDnD: false,
     pieceMovements: [],
-  },)
+  });
   currentUIPosition = 0;
   setOpenSettings(false);
   applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
@@ -1086,54 +1093,63 @@ function useLatestStockfishResponse(
 function useEngine(workerRef: RefObject<Worker | null>) {
   const dispatch = useAppDispatch();
   useEffect(() => {
-    workerRef.current = new window.Worker("/lib/loadEngine.js");
-    if (workerRef.current === null) throw new Error("worker is null");
-    workerRef.current.onmessage = async (e) => {
-      // alert("web worker responded");
-      // console.log(
-      //   e.data &&
-      //     e.data.buffer instanceof ArrayBuffer &&
-      //     e.data.byteLength !== undefined
-      // );
-      // console.log(e.data);
-      // console.log(ArrayBuffer.isView(e.data));
-      console.time("starting");
-      // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
-      const x: StockfishEngine = await Stockfish(e.data);
-      console.timeEnd("starting");
+    if(EngineX.stockfishEngine){
+      const x = EngineX.stockfishEngine;
       x.addMessageListener((line: string) => {
-        // console.log(`hello : ${line}`);
-        // setStockfishResponseArray(StockfishResponseArray.concat([line]));
         dispatch(pushResponse(line));
       });
-      // x.onmessage = (e: MessageEvent) => {
-
-      // }
-      // console.log(x.onmessage);
       dispatch(setReady(x));
-      console.log("arraybuffer view : ");
-      console.log(ArrayBuffer.isView(x));
-      // dispatch(setReady(x));
-      // console.log(typeof x);
-      // console.log(x);
-      // console.log(typeof x);
-      // console.log(JSON.stringify(x));
-      // console.log(x);
-      // const ax: string = JSON.stringify(x);
-      // const cx: object = JSON.parse(ax);
-      // console.log(cx === x);
-      // console.log(useAppSelector(getEngineState))
-    };
-    workerRef.current.onerror = (e) => {
-      console.log(e);
-      alert("Error while initiating the Engine, please refresh and try again");
-    };
-    workerRef.current.postMessage("start");
-    // console.log(workerRef.current);
-
-    return () => {
-      workerRef.current?.terminate();
-    };
+    }
+    else{
+      workerRef.current = new window.Worker("/lib/loadEngine.js");
+      if (workerRef.current === null) throw new Error("worker is null");
+      workerRef.current.onmessage = async (e) => {
+        // alert("web worker responded");
+        // console.log(
+        //   e.data &&
+        //     e.data.buffer instanceof ArrayBuffer &&
+        //     e.data.byteLength !== undefined
+        // );
+        // console.log(e.data);
+        // console.log(ArrayBuffer.isView(e.data));
+        console.time("starting");
+        // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
+        const x: StockfishEngine = await Stockfish(e.data);
+        console.timeEnd("starting");
+        x.addMessageListener((line: string) => {
+          // console.log(`hello : ${line}`);
+          // setStockfishResponseArray(StockfishResponseArray.concat([line]));
+          dispatch(pushResponse(line));
+        });
+        // x.onmessage = (e: MessageEvent) => {
+  
+        // }
+        // console.log(x.onmessage);
+        dispatch(setReady(x));
+        console.log("arraybuffer view : ");
+        console.log(ArrayBuffer.isView(x));
+        // dispatch(setReady(x));
+        // console.log(typeof x);
+        // console.log(x);
+        // console.log(typeof x);
+        // console.log(JSON.stringify(x));
+        // console.log(x);
+        // const ax: string = JSON.stringify(x);
+        // const cx: object = JSON.parse(ax);
+        // console.log(cx === x);
+        // console.log(useAppSelector(getEngineState))
+      };
+      workerRef.current.onerror = (e) => {
+        console.log(e);
+        alert("Error while initiating the Engine, please refresh and try again");
+      };
+      workerRef.current.postMessage("start");
+      // console.log(workerRef.current);
+  
+      return () => {
+        workerRef.current?.terminate();
+      };
+    }
   }, []);
 }
 
@@ -1393,10 +1409,10 @@ function useOnPieceDrop(
   }, []);
 }
 
-function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function){
+function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
   useEffect(() => {
     ScrollToBottom();
-  }, [parsedPGN])
+  }, [parsedPGN]);
 }
 
 export default function Page() {
@@ -1435,12 +1451,12 @@ export default function Page() {
   }
 
   const ScrollToBottom = () => {
-    parsedPGNRef.current?.scrollIntoView({behavior: 'smooth'});
-  }
+    parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // custom hook calls
 
-  useParsedPGNView(parsedPGN, ScrollToBottom)
+  useParsedPGNView(parsedPGN, ScrollToBottom);
 
   useLatestStockfishResponse(
     setParsedPGN,
