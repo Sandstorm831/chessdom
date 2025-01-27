@@ -1559,7 +1559,7 @@ export default function Page() {
               <div>PGN Table</div>
             </div>
           </div>
-          <div className="w-full h-full overflow-scroll bg-slate-600">
+          <div className="w-full h-full overflow-scroll bg-slate-600 relative">
             <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-white">
               {parsedPGN && parsedPGN.length
                 ? parsedPGN[0].moves.map((obj, id) => {
@@ -1569,7 +1569,7 @@ export default function Page() {
                         className="col-span-4 grid grid-cols-4 grid-rows-1"
                       >
                         <div className="col-span-1 bg-slate-700 w-full flex justify-center">
-                          <div className="h-full flex flex-col justify-center">
+                          <div className="h-full flex flex-col justify-center" ref = {obj.moveNumber === parsedPGN[0].moves[parsedPGN[0].moves.length - 1].moveNumber ? parsedPGNRef : null}>
                             {obj.moveNumber}
                           </div>
                         </div>
@@ -1609,7 +1609,7 @@ export default function Page() {
                 </div>
               ) : null}
             </div>
-            <div ref={parsedPGNRef}></div>
+            {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
           </div>
           <div className="bg-slate-500 w-full h-20 flex justify-around">
             <div className="h-full w-1/3 flex flex-col justify-center p-2">
