@@ -32,6 +32,7 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "serve": "^14.2.4",
+    "socket.io-client": "^4.8.1",
     "stockfish-nnue.wasm": "^1.0.0-1946a675.smolnet",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
