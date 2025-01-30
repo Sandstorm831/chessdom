@@ -2,12 +2,29 @@
 import { socket } from "@/app/socket";
 import { useEffect, useState } from "react";
 
+let storeCallback: Function;
+let ack: boolean = false;
+
 export default function Page() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [move, setMove] = useState("");
   const [recievedMoves, setRecievedMoves] = useState<string[]>([])
-  useEffect(() => {
+
+  function delay() {
+    return new Promise(resolve => setTimeout(resolve, 30000));
+  }
+ 
+  socket.on('connect', () => {
+    console.log(`recovered : ${socket.recovered}`);
+    setTimeout(() => {
+      if(socket.io.engine){
+        socket.io.engine.close();
+      }
+    }, 5000)
+  })
+
+useEffect(() => {
     socket.connect();
     if (socket.connected) {
       onConnect();
@@ -40,9 +57,22 @@ export default function Page() {
     socket.emit('move', move)
   }
 
-  socket.on('move', (chessMove, callback) => {
+  socket.on('move', async (chessMove: string, callback: Function) => {
     setRecievedMoves([...recievedMoves, chessMove]);
-    callback('ok');
+    storeCallback = callback;
+    console.log(`callback is undefined : ${callback === undefined}`);
+    if(ack) {
+      console.log("is someone here ?")
+      return;
+    }
+    console.log(`logging after ack returner & ack = ${ack}`);
+    ack = true;
+    await delay();
+    console.log("after 30 seconds, next log should be what time is it ...")
+    console.log(storeCallback);
+    console.log("what time is it")
+    storeCallback('ok');
+    ack=false;
   })
 
   return (
