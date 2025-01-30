@@ -14,15 +14,6 @@ export default function Page() {
   function delay() {
     return new Promise(resolve => setTimeout(resolve, 30000));
   }
- 
-  socket.on('connect', () => {
-    console.log(`recovered : ${socket.recovered}`);
-    setTimeout(() => {
-      if(socket.io.engine){
-        socket.io.engine.close();
-      }
-    }, 5000)
-  })
 
 useEffect(() => {
     socket.connect();
@@ -67,7 +58,7 @@ useEffect(() => {
     }
     console.log(`logging after ack returner & ack = ${ack}`);
     ack = true;
-    await delay();
+    // await delay();
     console.log("after 30 seconds, next log should be what time is it ...")
     console.log(storeCallback);
     console.log("what time is it")
