@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { SignIn, SignOut } from "@/components/auth_components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Link from "next/link";
 
 export default async function Navbar() {
   const session = await auth();
   return (
     <div className="w-full flex justify-between pt-3 px-3 text-[#323014]">
-      <div className=" text-3xl">Chessdom</div>
+      <div className=" text-3xl"><Link href="/"> Chessdom </Link></div>
       <div>
         {session?.user ? (
             <Popover >

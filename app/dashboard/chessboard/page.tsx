@@ -1554,133 +1554,165 @@ export default function Page() {
           ) : null}
         </div>
 
-        <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
-          <div className="bg-slate-500 w-full h-16 flex justify-center">
-            <div className="text-2xl font-mono flex flex-col justify-center">
-              <div>PGN Table</div>
-            </div>
-          </div>
-          <div className="w-full h-full overflow-scroll bg-slate-600 relative">
-            <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-white">
-              {parsedPGN && parsedPGN.length
-                ? parsedPGN[0].moves.map((obj, id) => {
-                    return obj.turn === "w" ? (
+        <PGNTable
+          parsedPGN={parsedPGN}
+          parsedPGNRef={parsedPGNRef}
+          setFen={setFen}
+          gameEnded={gameEnded}
+          setParsedPGN={setParsedPGN}
+          playColor={playColor}
+          TheStockfishEngine={TheStockfishEngine}
+          setGameEnded={setGameEnded}
+          setSoundTrigger={setSoundTrigger}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PGNTable({
+  parsedPGN,
+  parsedPGNRef,
+  setFen,
+  gameEnded,
+  setParsedPGN,
+  playColor,
+  TheStockfishEngine,
+  setGameEnded,
+  setSoundTrigger,
+}: {
+  parsedPGN: ParseTree[];
+  parsedPGNRef: RefObject<HTMLDivElement | null>;
+  setFen: Dispatch<SetStateAction<FenObject>>;
+  gameEnded: gameEndObject;
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
+  playColor: Color;
+  TheStockfishEngine: StockfishEngine;
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+  setSoundTrigger: Dispatch<SetStateAction<string>>;
+}) {
+  return (
+    <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
+      <div className="bg-slate-500 w-full h-16 flex justify-center">
+        <div className="text-2xl font-mono flex flex-col justify-center">
+          <div>PGN Table</div>
+        </div>
+      </div>
+      <div className="w-full h-full overflow-scroll bg-slate-600 relative">
+        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-white">
+          {parsedPGN && parsedPGN.length
+            ? parsedPGN[0].moves.map((obj, id) => {
+                return obj.turn === "w" ? (
+                  <div
+                    key={id}
+                    className="col-span-4 grid grid-cols-4 grid-rows-1"
+                  >
+                    <div className="col-span-1 bg-slate-700 w-full flex justify-center">
                       <div
-                        key={id}
-                        className="col-span-4 grid grid-cols-4 grid-rows-1"
-                      >
-                        <div className="col-span-1 bg-slate-700 w-full flex justify-center">
-                          <div
-                            className="h-full flex flex-col justify-center"
-                            ref={
-                              obj.moveNumber ===
-                              parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
-                                .moveNumber
-                                ? parsedPGNRef
-                                : null
-                            }
-                          >
-                            {obj.moveNumber}
-                          </div>
-                        </div>
-                        <div
-                          className="col-span-3 w-full flex justify-center cursor-pointer"
-                          onClick={() =>
-                            arbitraryTimeTravel(
-                              obj.moveNumber,
-                              obj.turn,
-                              setFen
-                            )
-                          }
-                        >
-                          <div className="h-full flex flex-col justify-center">
-                            {obj.notation.notation}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        key={id}
-                        className="col-span-3 w-full flex justify-center cursor-pointer"
-                        onClick={() =>
-                          arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
+                        className="h-full flex flex-col justify-center"
+                        ref={
+                          obj.moveNumber ===
+                          parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
+                            .moveNumber
+                            ? parsedPGNRef
+                            : null
                         }
                       >
-                        <div className="h-full flex flex-col justify-center">
-                          {obj.notation.notation}
-                        </div>
+                        {obj.moveNumber}
                       </div>
-                    );
-                  })
-                : null}
-              {gameEnded.gameEnded ? (
-                <div className="col-span-7 text-3xl w-full flex justify-center text-white">
-                  <div>{gameEnded.gameEndResult}</div>
-                </div>
-              ) : null}
-            </div>
-            {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
-          </div>
-          <div className="bg-slate-500 w-full h-20 flex justify-around">
-            <div className="h-full w-1/3 flex flex-col justify-center p-2">
-              <Button
-                variant="outline"
-                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
-                onClick={() => moveBackward(setFen)}
-              >
-                <ChevronLeft />
-              </Button>
-            </div>
-            <div className="h-full w-1/3 flex flex-col justify-center p-2">
-              <Button
-                variant="outline"
-                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
-                onClick={() => moveForward(setFen)}
-              >
-                <ChevronRight />
-              </Button>
-            </div>
-            <div className="h-full w-1/3 flex flex-col justify-center p-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
-                  >
-                    <Flag />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <div className=" text-xl flex justify-center">
-                    Are you sure you want to resign ?
-                  </div>
-                  <div className="w-full flex justify-center text-xl">
-                    <Button
-                      variant={"destructive"}
-                      className="w-full mt-2"
+                    </div>
+                    <div
+                      className="col-span-3 w-full flex justify-center cursor-pointer"
                       onClick={() =>
-                        handleResignation(
-                          setParsedPGN,
-                          playColor,
-                          TheStockfishEngine,
-                          setGameEnded,
-                          setSoundTrigger
-                        )
-                      }
-                      disabled={
-                        playColor === chess.turn() &&
-                        currentUIPosition === FENHistory.length - 1
-                          ? false
-                          : true
+                        arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                       }
                     >
-                      Yes
-                    </Button>
+                      <div className="h-full flex flex-col justify-center">
+                        {obj.notation.notation}
+                      </div>
+                    </div>
                   </div>
-                </PopoverContent>
-              </Popover>
+                ) : (
+                  <div
+                    key={id}
+                    className="col-span-3 w-full flex justify-center cursor-pointer"
+                    onClick={() =>
+                      arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
+                    }
+                  >
+                    <div className="h-full flex flex-col justify-center">
+                      {obj.notation.notation}
+                    </div>
+                  </div>
+                );
+              })
+            : null}
+          {gameEnded.gameEnded ? (
+            <div className="col-span-7 text-3xl w-full flex justify-center text-white">
+              <div>{gameEnded.gameEndResult}</div>
             </div>
-          </div>
+          ) : null}
+        </div>
+        {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
+      </div>
+      <div className="bg-slate-500 w-full h-20 flex justify-around">
+        <div className="h-full w-1/3 flex flex-col justify-center p-2">
+          <Button
+            variant="outline"
+            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+            onClick={() => moveBackward(setFen)}
+          >
+            <ChevronLeft />
+          </Button>
+        </div>
+        <div className="h-full w-1/3 flex flex-col justify-center p-2">
+          <Button
+            variant="outline"
+            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+            onClick={() => moveForward(setFen)}
+          >
+            <ChevronRight />
+          </Button>
+        </div>
+        <div className="h-full w-1/3 flex flex-col justify-center p-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+              >
+                <Flag />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className=" text-xl flex justify-center">
+                Are you sure you want to resign ?
+              </div>
+              <div className="w-full flex justify-center text-xl">
+                <Button
+                  variant={"destructive"}
+                  className="w-full mt-2"
+                  onClick={() =>
+                    handleResignation(
+                      setParsedPGN,
+                      playColor,
+                      TheStockfishEngine,
+                      setGameEnded,
+                      setSoundTrigger
+                    )
+                  }
+                  disabled={
+                    playColor === chess.turn() &&
+                    currentUIPosition === FENHistory.length - 1
+                      ? false
+                      : true
+                  }
+                >
+                  Yes
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </div>
