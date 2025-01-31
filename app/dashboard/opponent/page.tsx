@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 let storeCallback: Function;
 let ack: boolean = false;
+let reconciliation = false;
 
 export default function Page() {
   const [isConnected, setIsConnected] = useState(false);
@@ -49,6 +50,7 @@ useEffect(() => {
   }
 
   socket.on('move', async (chessMove: string, callback: Function) => {
+    if(reconciliation) return;
     setRecievedMoves([...recievedMoves, chessMove]);
     storeCallback = callback;
     console.log(`callback is undefined : ${callback === undefined}`);
@@ -64,6 +66,13 @@ useEffect(() => {
     console.log("what time is it")
     storeCallback('ok');
     ack=false;
+  })
+
+  socket.on('reconciliation', (historyX: string[], callback:Function) => {
+    reconciliation = true;
+    setRecievedMoves([...historyX]);
+    callback('reconciled');
+    reconciliation = false;
   })
 
   return (
