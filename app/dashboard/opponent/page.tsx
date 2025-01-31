@@ -49,6 +49,14 @@ useEffect(() => {
     socket.emit('move', move)
   }
 
+  const handleRematch = () =>{
+    socket.emit('rematch');
+  }
+  
+  const handleNewGame= () => {
+    socket.emit('newgame');
+  }
+
   socket.on('move', async (chessMove: string, callback: Function) => {
     if(reconciliation) return;
     setRecievedMoves([...recievedMoves, chessMove]);
@@ -101,6 +109,8 @@ useEffect(() => {
                 {recievedMoves && recievedMoves.length ? recievedMoves.map((obj, idx) => <li key={idx}>{obj}</li>) : null}
             </ul>
         </div>
+        <button onClick={() => handleRematch()}>rematch</button>
+        <button onClick={() => handleNewGame()}>New Game</button>
       </div>
     </div>
   );
