@@ -902,11 +902,16 @@ function handleGameOver(
   if (!gameOver) return false;
   const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
   updateHistory(pieceMovements);
-  nextMoveObject.fen = chess.fen();
-  nextMoveObject.isDnD = isDnD;
-  nextMoveObject.pieceMovements = pieceMovements;
-  setTimeout(() => FENCallback(setFen), 500);
-  // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+
+  if (!isDnD) {
+    nextMoveObject.fen = chess.fen();
+    nextMoveObject.isDnD = isDnD;
+    nextMoveObject.pieceMovements = pieceMovements;
+    setTimeout(() => FENCallback(setFen), 500);
+  } else {
+    setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+  }
+
   if (chess.isDraw()) {
     gameEndResult = "1/2 - 1/2";
     gameEndTitle = "Equally positioned";
@@ -1104,6 +1109,52 @@ function triggerOpponentTrigger(
   } else return;
 }
 
+function handleReconciliationGameOver(
+  playColor: Color,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+) {
+  let gameEndResult: string = "";
+  let gameEndTitle: string = "";
+  if (chess.isDraw()) {
+    gameEndResult = "1/2 - 1/2";
+    gameEndTitle = "Equally positioned";
+  } else if (chess.turn() === "w") {
+    gameEndResult = "0 - 1";
+    gameEndTitle = playColor === "w" ? "Better luck next time" : "You Won";
+  } else {
+    gameEndResult = "1 - 0";
+    gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
+  }
+  const resgString: string = chess.turn() === "w" ? "0-1" : "1-0";
+  if (playColor === "w") {
+    const pgnString: string = `${resgString} `;
+    PGN.pgn += pgnString;
+  } else {
+    const pgnString = `${resgString} `;
+    PGN.pgn += pgnString;
+  }
+  const parsed = parse(PGN.pgn, { startRule: "game" });
+  console.log(parsed);
+  console.log(PGN.pgn);
+  // Type Checking Code ------>
+  const isOfType = (z: any): z is ParseTree => "moves" in z;
+  if (!isOfType(parsed)) throw new Error("parsed output is not of type");
+  const x = [parsed];
+  // <-------- Type Checking Code
+  setParsedPGN(x);
+  setTimeout(() => {
+    setGameEnded({
+      gameEnded: true,
+      gameEndResult: gameEndResult,
+      gameEndTitle: gameEndTitle,
+    });
+  }, 1000);
+  setSoundTrigger("/sounds/game-end.mp3");
+  console.log(JSON.stringify(chess.pgn()));
+}
+
 function handleGameStartingForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
@@ -1125,6 +1176,56 @@ function handleOpponentMoveForSocket(
 
   // Calling the acknowledgement callback
   storeCallback("ok");
+}
+
+function handleReconciliationForSocket(
+  colorHeld: Color,
+  historyX: string[],
+  setFindingRoom: Dispatch<SetStateAction<boolean>>,
+  callback: Function,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
+  playColor: Color,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setPlayColor: Dispatch<SetStateAction<Color>>,
+) {
+  reconciliation = true;
+  storeCallback = callback;
+  // do whatever you want to do for reconciliation
+  setPlayColor(colorHeld);
+  while (chess.history().length < historyX.length) {
+    const index = chess.history().length;
+    const san = historyX[index];
+    const moveObj = chess.move(san);
+    updatePGN(moveObj, setParsedPGN);
+    const pieceMovements = getPieceMovements(moveObj);
+    updateHistory(pieceMovements);
+    FENHistory.push({
+      fen: chess.fen(),
+      isDnD: false,
+      pieceMovements: pieceMovements,
+    });
+    currentUIPosition += 1;
+    if (chess.history().length === historyX.length) {
+      setFen({
+        fen: chess.fen(),
+        isDnD: false,
+        pieceMovements: pieceMovements,
+      });
+      if (chess.isGameOver())
+        handleReconciliationGameOver(
+          playColor,
+          setParsedPGN,
+          setSoundTrigger,
+          setGameEnded,
+        );
+    }
+  }
+  //
+  storeCallback("reconciled");
+  setFindingRoom(false);
+  reconciliation = false;
 }
 
 function useSound(
@@ -1310,12 +1411,16 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
 
 /*  Variables relating to socket chess and online play */
 function useSocket(
+  playColor: Color,
   setOpponentMove: Dispatch<SetStateAction<string>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
   setIsConnected: Dispatch<SetStateAction<boolean>>,
   setTransport: Dispatch<SetStateAction<string>>,
   setPlayColor: Dispatch<SetStateAction<Color>>,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
 ) {
   useEffect(() => {
     socket.connect();
@@ -1332,12 +1437,22 @@ function useSocket(
     socket.on("move", async (chessMove: string, callback: Function) =>
       handleOpponentMoveForSocket(chessMove, callback, setOpponentMove),
     );
-    socket.on("reconciliation", (historyX: string[], callback: Function) => {
-      reconciliation = true;
-      // do whatever you want to do for reconciliation
-      callback("reconciled");
-      reconciliation = false;
-    });
+    socket.on(
+      "reconciliation",
+      (historyX: string[], colorHeld: Color, callback: Function) =>
+        handleReconciliationForSocket(
+          colorHeld,
+          historyX,
+          setFindingRoom,
+          callback,
+          setParsedPGN,
+          setFen,
+          playColor,
+          setSoundTrigger,
+          setGameEnded,
+          setPlayColor,
+        ),
+    );
 
     function onConnect() {
       setIsConnected(true);
@@ -1411,12 +1526,16 @@ export default function Page() {
 
   /*  Variables relating to socket chess and online play */
   useSocket(
+    playColor,
     setOpponentMove,
     setFindingRoom,
     setIsConnected,
     setTransport,
     setPlayColor,
     setParsedPGN,
+    setFen,
+    setSoundTrigger,
+    setGameEnded,
   );
   /*  Variables relating to socket chess and online play */
 
