@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { socket } from "@/app/socket";
+import { LoadingSpinner } from "@/app/ui/loadingSpinner";
 // import { getBestMove, startTheEngine } from "../../../opponent/opponent";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 // import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./opponentWasm";
@@ -38,6 +40,12 @@ import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+/*  Variables relating to socket chess and online play */
+let storeCallback: Function;
+let reconciliation = false;
+/*  Variables relating to socket chess and online play */
+
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -1278,6 +1286,66 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
   }, [parsedPGN]);
 }
 
+/*  Variables relating to socket chess and online play */
+function useSocket(
+  setFindingRoom: Dispatch<SetStateAction<boolean>>,
+  setIsConnected: Dispatch<SetStateAction<boolean>>,
+  setTransport: Dispatch<SetStateAction<string>>,
+) {
+  useEffect(() => {
+    socket.connect();
+    if (socket.connected) {
+      onConnect();
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("gameColor", (color: Color) => startTheGameLocal(color));
+    socket.on("startgame", () => {});
+    socket.on("move", async (chessMove: string, callback: Function) => {
+      // Next 2 lines are fundamental and should not be removed
+      if (reconciliation) return;
+      storeCallback = callback;
+      ///////////////////////////////////////////////////////////
+
+      // do whatever you want to do for a move
+
+      storeCallback("ok");
+    });
+
+    socket.on("reconciliation", (historyX: string[], callback: Function) => {
+      reconciliation = true;
+      // do whatever you want to do for reconciliation
+      callback("reconciled");
+      reconciliation = false;
+    });
+
+    function startTheGameLocal(color: Color) {
+      // set color of the game play
+      setFindingRoom(false);
+    }
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
+
+    return () => {
+      socket.removeAllListeners();
+      socket.disconnect();
+    };
+  }, []);
+}
+/*  Variables relating to socket chess and online play */
+
 export default function Page() {
   let gameEndResult = "";
   let gameEndTitle = "";
@@ -1306,6 +1374,13 @@ export default function Page() {
   // const TheOpponentEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
+
+  /*  Variables relating to socket chess and online play */
+  const [isConnected, setIsConnected] = useState(false);
+  const [transport, setTransport] = useState("N/A");
+  const [findingRoom, setFindingRoom] = useState(false);
+  /*  Variables relating to socket chess and online play */
+
   console.log("page rendering");
 
   chess.load(fen.fen);
@@ -1320,6 +1395,10 @@ export default function Page() {
 
   // custom hook calls
 
+  /*  Variables relating to socket chess and online play */
+  useSocket(setFindingRoom, setIsConnected, setTransport);
+  /*  Variables relating to socket chess and online play */
+  
   useParsedPGNView(parsedPGN, ScrollToBottom);
 
   useLatestOpponentResponse(
@@ -1370,7 +1449,16 @@ export default function Page() {
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
-  return (
+  return findingRoom ? (
+    <div className="w-full h-full flex flex-col justify-center ">
+      <div className="w-full flex justify-center">
+        <LoadingSpinner width="80px" height="80px" />
+      </div>
+      <div className="w-full flex justify-center font-bold text-xl mt-5">
+        Finding opponent, please wait ...
+      </div>
+    </div>
+  ) : (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
@@ -1876,3 +1964,72 @@ function SettingComponent({
     </Drawer>
   );
 }
+
+///////////////////////////
+
+// function OldBook({
+//   isConnected,
+//   transport,
+//   move,
+//   setMove,
+//   recievedMoves,
+//   handleSubmit,
+//   handleRematch,
+//   handleNewGame,
+// }: {
+//   isConnected: boolean;
+//   transport: string;
+//   move: string;
+//   setMove: Dispatch<SetStateAction<string>>;
+//   recievedMoves: string[];
+//   handleSubmit: (event: any) => void;
+//   handleRematch: Function;
+//   handleNewGame: Function;
+// }) {
+//   return (
+//     <div className="w-full h-full flex flex-col justify-center bg-[#FFFEFC] text-[#323014]">
+//       <div className="w-full flex justify-center">
+//         <div className="flex-col justify-center">
+//           <div className="text-3xl">Opponent player page</div>
+//           <div className="text-3xl mt-5">
+//             isConnected : {isConnected ? "connected" : "disconnected"}
+//           </div>
+//           <div className="text-3xl mt-5">Transport : {transport}</div>
+//           <form onSubmit={handleSubmit}>
+//             <label>
+//               Enter your name:
+//               <input
+//                 type="text"
+//                 value={move}
+//                 onChange={(e) => setMove(e.target.value)}
+//               />
+//             </label>
+//             <input type="submit" />
+//           </form>
+//         </div>
+//         <div className="text-3xl mt-5">
+//           <ul>
+//             {recievedMoves && recievedMoves.length
+//               ? recievedMoves.map((obj, idx) => <li key={idx}>{obj}</li>)
+//               : null}
+//           </ul>
+//         </div>
+//         <button onClick={() => handleRematch()}>rematch</button>
+//         <button onClick={() => handleNewGame()}>New Game</button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// <OldBook
+//   isConnected={isConnected}
+//   transport={transport}
+//   move={move}
+//   setMove={setMove}
+//   recievedMoves={recievedMoves}
+//   handleSubmit={handleSubmit}
+//   handleRematch={handleRematch}
+//   handleNewGame={handleNewGame}
+// />
+
+export function Paged() {}

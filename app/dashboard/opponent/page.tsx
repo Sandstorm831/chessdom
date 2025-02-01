@@ -17,15 +17,15 @@ function OldBook({
   handleSubmit,
   handleRematch,
   handleNewGame,
-} : {
-  isConnected : boolean,
-  transport : string,
-  move:string,
-  setMove : Dispatch<SetStateAction<string>>,
-  recievedMoves: string[],
-  handleSubmit: (event: any) => void,
-  handleRematch: Function,
-  handleNewGame: Function,
+}: {
+  isConnected: boolean;
+  transport: string;
+  move: string;
+  setMove: Dispatch<SetStateAction<string>>;
+  recievedMoves: string[];
+  handleSubmit: (event: any) => void;
+  handleRematch: Function;
+  handleNewGame: Function;
 }) {
   return (
     <div className="w-full h-full flex flex-col justify-center bg-[#FFFEFC] text-[#323014]">
@@ -79,6 +79,30 @@ export default function Page() {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("gameColor", (color: Color) => startTheGame(color));
+    socket.on("move", async (chessMove: string, callback: Function) => {
+      if (reconciliation) return;
+      setRecievedMoves([...recievedMoves, chessMove]);
+      storeCallback = callback;
+      console.log(`callback is undefined : ${callback === undefined}`);
+      if (ack) {
+        console.log("is someone here ?");
+        return;
+      }
+      console.log(`logging after ack returner & ack = ${ack}`);
+      ack = true;
+      console.log("after 30 seconds, next log should be what time is it ...");
+      console.log(storeCallback);
+      console.log("what time is it");
+      storeCallback("ok");
+      ack = false;
+    });
+
+    socket.on("reconciliation", (historyX: string[], callback: Function) => {
+      reconciliation = true;
+      setRecievedMoves([...historyX]);
+      callback("reconciled");
+      reconciliation = false;
+    });
 
     function startTheGame(color: Color) {
       setPlayColor(color);
@@ -116,31 +140,6 @@ export default function Page() {
   const handleNewGame = () => {
     socket.emit("newgame");
   };
-
-  socket.on("move", async (chessMove: string, callback: Function) => {
-    if (reconciliation) return;
-    setRecievedMoves([...recievedMoves, chessMove]);
-    storeCallback = callback;
-    console.log(`callback is undefined : ${callback === undefined}`);
-    if (ack) {
-      console.log("is someone here ?");
-      return;
-    }
-    console.log(`logging after ack returner & ack = ${ack}`);
-    ack = true;
-    console.log("after 30 seconds, next log should be what time is it ...");
-    console.log(storeCallback);
-    console.log("what time is it");
-    storeCallback("ok");
-    ack = false;
-  });
-
-  socket.on("reconciliation", (historyX: string[], callback: Function) => {
-    reconciliation = true;
-    setRecievedMoves([...historyX]);
-    callback("reconciled");
-    reconciliation = false;
-  });
 
   return findingRoom ? (
     <div className="w-full h-full flex flex-col justify-center ">
