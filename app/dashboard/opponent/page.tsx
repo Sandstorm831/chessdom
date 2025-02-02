@@ -993,7 +993,22 @@ function handlePromotion(
   }
   const moveObj = chess.move(promotionMove.move);
   // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-  if (chess.turn() !== playColor) socket.emit("move", moveObj.san);
+  function ackknowledgementCallback(err: Error, response: string) {
+    if (err) {
+      console.log("no acknowledgement");
+      socket
+        .timeout(5000)
+        .emit("move", moveObj.san, (err: Error, response: string) =>
+          ackknowledgementCallback(err, response),
+        );
+      return;
+    } else {
+      console.log(response);
+      return;
+    }
+    return;
+  }
+  if (chess.turn() !== playColor) socket.timeout(5000).emit("move", moveObj.san, (err: Error, response: string) => ackknowledgementCallback(err, response),);
   updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
@@ -1075,8 +1090,23 @@ function triggerOpponentTrigger(
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
+    function ackknowledgementCallback(err: Error, response: string) {
+      if (err) {
+        console.log("no acknowledgement");
+        socket
+          .timeout(5000)
+          .emit("move", x.san, (err: Error, response: string) =>
+            ackknowledgementCallback(err, response),
+          );
+        return;
+      } else {
+        console.log(response);
+        return;
+      }
+      return;
+    }
     // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-    if (chess.turn() !== playColor) socket.emit("move", x.san);
+    if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
@@ -1217,7 +1247,6 @@ function handleReconciliationForSocket(
   callback: Function,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
-  playColor: Color,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setPlayColor: Dispatch<SetStateAction<Color>>,
@@ -1247,7 +1276,7 @@ function handleReconciliationForSocket(
       });
       if (chess.isGameOver())
         handleReconciliationGameOver(
-          playColor,
+          colorHeld,
           setParsedPGN,
           setSoundTrigger,
           setGameEnded,
@@ -1262,16 +1291,16 @@ function handleReconciliationForSocket(
 
 function handleOpponentResignationForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
-  playColor: Color,
+  opponentColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
-  const resgString: string = playColor === "w" ? "1-0" : "0-1";
-  if (playColor === "w") {
-    const pgnString: string = `{ Black Resigns. } ${resgString} `;
+  const resgString: string = opponentColor === "w" ? "0-1" : "1-0";
+  if (opponentColor === "w") {
+    const pgnString: string = `{ White Resigns. } ${resgString} `;
     PGN.pgn += pgnString;
   } else {
-    const pgnString = `{ White Resigns. } ${resgString} `;
+    const pgnString = `{ Black Resigns. } ${resgString} `;
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
@@ -1291,7 +1320,7 @@ function handleOpponentResignationForSocket(
   //
   setGameEnded({
     gameEnded: true,
-    gameEndResult: playColor === "w" ? "1 - 0" : "0 - 1",
+    gameEndResult: opponentColor === "w" ? "0 - 1" : "1 - 0",
     gameEndTitle: "Congratulations, You Won",
   });
   setSoundTrigger("/sounds/game-end.mp3");
@@ -1358,8 +1387,23 @@ function useClickAndMove(
     } else {
       const move: string = clickAndMoveTrigger[0].move;
       const x = chess.move(move);
+      function ackknowledgementCallback(err: Error, response: string) {
+        if (err) {
+          console.log("no acknowledgement");
+          socket
+            .timeout(5000)
+            .emit("move", x.san, (err: Error, response: string) =>
+              ackknowledgementCallback(err, response),
+            );
+          return;
+        } else {
+          console.log(response);
+          return;
+        }
+        return;
+      }
       // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-      if (chess.turn() !== playColor) socket.emit("move", x.san);
+      if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
@@ -1447,8 +1491,23 @@ function useOnPieceDrop(
         } else {
           const move: string = tempObj[0].move;
           const x = chess.move(move);
+          function ackknowledgementCallback(err: Error, response: string) {
+            if (err) {
+              console.log("no acknowledgement");
+              socket
+                .timeout(5000)
+                .emit("move", x.san, (err: Error, response: string) =>
+                  ackknowledgementCallback(err, response),
+                );
+              return;
+            } else {
+              console.log(response);
+              return;
+            }
+            return;
+          }
           // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-          if (chess.turn() !== playColor) socket.emit("move", x.san);
+          if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
@@ -1502,7 +1561,6 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
 
 /*  Variables relating to socket chess and online play */
 function useSocket(
-  playColor: Color,
   setOpponentMove: Dispatch<SetStateAction<string>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
   setIsConnected: Dispatch<SetStateAction<boolean>>,
@@ -1545,17 +1603,16 @@ function useSocket(
           callback,
           setParsedPGN,
           setFen,
-          playColor,
           setSoundTrigger,
           setGameEnded,
           setPlayColor,
         ),
     );
 
-    socket.on("resigned", () =>
+    socket.on("resigned", (opponentColor: Color) =>
       handleOpponentResignationForSocket(
         setParsedPGN,
-        playColor,
+        opponentColor,
         setGameEnded,
         setSoundTrigger,
       ),
@@ -1647,7 +1704,6 @@ export default function Page() {
 
   /*  Variables relating to socket chess and online play */
   useSocket(
-    playColor,
     setOpponentMove,
     setFindingRoom,
     setIsConnected,
