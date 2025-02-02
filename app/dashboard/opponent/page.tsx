@@ -12,7 +12,14 @@ import {
 import invariant from "tiny-invariant";
 import { useState } from "react";
 import { ComponentPropsWithoutRef } from "react";
-import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
+import {
+  Chess,
+  Color,
+  DEFAULT_POSITION,
+  Move,
+  PieceSymbol,
+  Square,
+} from "chess.js";
 import {
   Drawer,
   DrawerContent,
@@ -40,6 +47,9 @@ import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { setReady } from "@/lib/features/engine/engineSlice";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
 
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
@@ -402,6 +412,7 @@ function handleResignation(
     gameEndTitle: "Better luck next time",
   });
   setSoundTrigger("/sounds/game-end.mp3");
+  socket.emit("resigned", playColor);
   return;
 }
 
@@ -1155,10 +1166,31 @@ function handleReconciliationGameOver(
   console.log(JSON.stringify(chess.pgn()));
 }
 
+function handleResetBoardForSocket(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+) {
+  PGN.pgn = "";
+  PGN.moveNumber = 0;
+  setParsedPGN([]);
+  FENHistory.length = 0;
+  FENHistory.push({
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  });
+  currentUIPosition = 0;
+  setFen({ fen: DEFAULT_POSITION, isDnD: false, pieceMovements: [] });
+  setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
+}
+
 function handleGameStartingForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>,
 ) {
+  setRematchD(false);
   startTheGame(setParsedPGN, setFindingRoom);
 }
 
@@ -1226,6 +1258,65 @@ function handleReconciliationForSocket(
   storeCallback("reconciled");
   setFindingRoom(false);
   reconciliation = false;
+}
+
+function handleOpponentResignationForSocket(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  playColor: Color,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
+) {
+  const resgString: string = playColor === "w" ? "1-0" : "0-1";
+  if (playColor === "w") {
+    const pgnString: string = `{ Black Resigns. } ${resgString} `;
+    PGN.pgn += pgnString;
+  } else {
+    const pgnString = `{ White Resigns. } ${resgString} `;
+    PGN.pgn += pgnString;
+  }
+  const parsed = parse(PGN.pgn, { startRule: "game" });
+  console.log(parsed);
+  console.log(PGN.pgn);
+  // Type Checking Code ------>
+  const isOfType = (z: any): z is ParseTree => "moves" in z;
+  if (!isOfType(parsed)) throw new Error("parsed output is not of type");
+  const x = [parsed];
+  // <-------- Type Checking Code
+  setParsedPGN(x);
+
+  // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
+  // do something on resignatino, I haven't thought about it till now.
+  // TheOpponentEngine.postMessage("ucinewgame");
+  // TheOpponentEngine.postMessage("isready");
+  //
+  setGameEnded({
+    gameEnded: true,
+    gameEndResult: playColor === "w" ? "1 - 0" : "0 - 1",
+    gameEndTitle: "Congratulations, You Won",
+  });
+  setSoundTrigger("/sounds/game-end.mp3");
+  return;
+}
+
+function handleRematchForSocket(
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setFen: Dispatch<SetStateAction<FenObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>,
+) {
+  PGN.pgn = "";
+  PGN.moveNumber = 0;
+  setParsedPGN([]);
+  FENHistory.length = 0;
+  FENHistory.push({
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    isDnD: false,
+    pieceMovements: [],
+  });
+  currentUIPosition = 0;
+  setFen({ fen: DEFAULT_POSITION, isDnD: false, pieceMovements: [] });
+  setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
+  setRematchD(false);
 }
 
 function useSound(
@@ -1421,7 +1512,9 @@ function useSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>,
 ) {
+  const { toast } = useToast();
   useEffect(() => {
     socket.connect();
     if (socket.connected) {
@@ -1429,14 +1522,19 @@ function useSocket(
     }
 
     socket.on("connect", onConnect);
+
     socket.on("disconnect", onDisconnect);
+
     socket.on("gamecolor", (color: Color) => setPlayColor(color));
+
     socket.on("startgame", () =>
-      handleGameStartingForSocket(setParsedPGN, setFindingRoom),
+      handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
     );
+
     socket.on("move", async (chessMove: string, callback: Function) =>
       handleOpponentMoveForSocket(chessMove, callback, setOpponentMove),
     );
+
     socket.on(
       "reconciliation",
       (historyX: string[], colorHeld: Color, callback: Function) =>
@@ -1453,6 +1551,28 @@ function useSocket(
           setPlayColor,
         ),
     );
+
+    socket.on("resigned", () =>
+      handleOpponentResignationForSocket(
+        setParsedPGN,
+        playColor,
+        setGameEnded,
+        setSoundTrigger,
+      ),
+    );
+
+    socket.on("rematchconfirmed", () =>
+      handleRematchForSocket(setParsedPGN, setFen, setGameEnded, setRematchD),
+    );
+
+    socket.on("playeroptednewgame", () => {
+      toast({
+        title: "Opponent left the room",
+        description:
+          "the opponent player left the room and opted for a new game",
+      });
+      setRematchD(true);
+    });
 
     function onConnect() {
       setIsConnected(true);
@@ -1508,6 +1628,7 @@ export default function Page() {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
   const [findingRoom, setFindingRoom] = useState(true);
+  const [rematchD, setRematchD] = useState(false);
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
@@ -1536,6 +1657,7 @@ export default function Page() {
     setFen,
     setSoundTrigger,
     setGameEnded,
+    setRematchD,
   );
   /*  Variables relating to socket chess and online play */
 
@@ -1618,6 +1740,9 @@ export default function Page() {
             originalFEN={originalFEN}
             setOpenSettings={setOpenSettings}
             setGameEnded={setGameEnded}
+            setFindingRoom={setFindingRoom}
+            rematchD={rematchD}
+            setRematchD={setRematchD}
           />
 
           {chessBoardArray && chessBoardArray.length
@@ -1651,6 +1776,8 @@ export default function Page() {
           setGameEnded={setGameEnded}
           setSoundTrigger={setSoundTrigger}
         />
+
+        <Toaster />
       </div>
     </div>
   );
@@ -1809,6 +1936,9 @@ function GameEndDialogue({
   originalFEN,
   setOpenSettings,
   setGameEnded,
+  setFindingRoom,
+  rematchD,
+  setRematchD,
 }: {
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   gameEnded: gameEndObject;
@@ -1816,6 +1946,9 @@ function GameEndDialogue({
   originalFEN: string;
   setOpenSettings: Dispatch<SetStateAction<boolean>>;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+  setFindingRoom: Dispatch<SetStateAction<boolean>>;
+  rematchD: boolean;
+  setRematchD: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
     <Dialog
@@ -1837,23 +1970,35 @@ function GameEndDialogue({
             <Button
               variant={"default"}
               className="flex justify-center mx-2 text-xl w-56"
+              onClick={() => {
+                socket.emit("gameleave");
+              }}
             >
               <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
             </Button>
             <Button
               variant={"default"}
               className="flex justify-center mx-2 text-xl w-56"
-              onClick={() =>
-                setNewGame(
-                  setParsedPGN,
-                  setFen,
-                  originalFEN,
-                  setOpenSettings,
-                  setGameEnded,
-                )
-              }
+              disabled={rematchD}
+              onClick={() => {
+                socket.emit("rematch");
+                setRematchD(true);
+              }}
             >
-              New game
+              Rematch
+            </Button>
+          </DialogDescription>
+          <DialogDescription className="flex justify-center pt-3">
+            <Button
+              variant={"default"}
+              className="flex justify-center mx-2 text-xl w-full"
+              onClick={() => {
+                socket.emit("newgame");
+                setFindingRoom(true);
+                handleResetBoardForSocket(setParsedPGN, setFen, setGameEnded);
+              }}
+            >
+              New Game
             </Button>
           </DialogDescription>
         </DialogHeader>
