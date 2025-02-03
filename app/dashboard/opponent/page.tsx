@@ -34,6 +34,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -1008,7 +1009,12 @@ function handlePromotion(
     }
     return;
   }
-  if (chess.turn() !== playColor) socket.timeout(5000).emit("move", moveObj.san, (err: Error, response: string) => ackknowledgementCallback(err, response),);
+  if (chess.turn() !== playColor)
+    socket
+      .timeout(5000)
+      .emit("move", moveObj.san, (err: Error, response: string) =>
+        ackknowledgementCallback(err, response),
+      );
   updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
@@ -1106,7 +1112,12 @@ function triggerOpponentTrigger(
       return;
     }
     // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-    if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
+    if (chess.turn() !== playColor)
+      socket
+        .timeout(5000)
+        .emit("move", x.san, (err: Error, response: string) =>
+          ackknowledgementCallback(err, response),
+        );
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
     updateHistory(pieceMovements);
@@ -1403,7 +1414,12 @@ function useClickAndMove(
         return;
       }
       // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-      if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
+      if (chess.turn() !== playColor)
+        socket
+          .timeout(5000)
+          .emit("move", x.san, (err: Error, response: string) =>
+            ackknowledgementCallback(err, response),
+          );
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
       updateHistory(pieceMovements);
@@ -1507,7 +1523,12 @@ function useOnPieceDrop(
             return;
           }
           // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-          if (chess.turn() !== playColor) socket.timeout(5000).emit("move", x.san, (err: Error, response: string) => ackknowledgementCallback(err, response));
+          if (chess.turn() !== playColor)
+            socket
+              .timeout(5000)
+              .emit("move", x.san, (err: Error, response: string) =>
+                ackknowledgementCallback(err, response),
+              );
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
           updateHistory(pieceMovements);
@@ -1561,6 +1582,8 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
 
 /*  Variables relating to socket chess and online play */
 function useSocket(
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>,
+  setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>,
   setOpponentMove: Dispatch<SetStateAction<string>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
   setIsConnected: Dispatch<SetStateAction<boolean>>,
@@ -1631,6 +1654,18 @@ function useSocket(
       setRematchD(true);
     });
 
+    socket.on("opponentdisconnected", () => {
+      setIsDisconnectedFromGame(true);
+    });
+
+    socket.on("opponentreconnected", () => {
+      setIsDisconnectedFromGame(false);
+    });
+
+    socket.on("opponentleftgame", () => {
+      setIsDisconnectedFromGame(true);
+      setOpponentLeftTheGame(true);
+    });
     function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
@@ -1686,6 +1721,8 @@ export default function Page() {
   const [transport, setTransport] = useState("N/A");
   const [findingRoom, setFindingRoom] = useState(true);
   const [rematchD, setRematchD] = useState(false);
+  const [isDisconnected, setIsDisconnectedFromGame] = useState(false);
+  const [opponentLeftTheGame, setOpponentLeftTheGame] = useState(false);
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
@@ -1704,6 +1741,8 @@ export default function Page() {
 
   /*  Variables relating to socket chess and online play */
   useSocket(
+    setOpponentLeftTheGame,
+    setIsDisconnectedFromGame,
     setOpponentMove,
     setFindingRoom,
     setIsConnected,
@@ -1801,6 +1840,17 @@ export default function Page() {
             setRematchD={setRematchD}
           />
 
+          {isDisconnected ? (
+            <DisconnectionDialogue
+              isDisconnected={isDisconnected}
+              opponentLeftTheGame={opponentLeftTheGame}
+              setFindingRoom={setFindingRoom}
+              setParsedPGN={setParsedPGN}
+              setFen={setFen}
+              setGameEnded={setGameEnded}
+            />
+          ) : null}
+
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
@@ -1836,6 +1886,67 @@ export default function Page() {
         <Toaster />
       </div>
     </div>
+  );
+}
+
+function DisconnectionDialogue({
+  isDisconnected,
+  opponentLeftTheGame,
+  setFindingRoom,
+  setParsedPGN,
+  setFen,
+  setGameEnded,
+}: {
+  isDisconnected: boolean;
+  opponentLeftTheGame: boolean;
+  setFindingRoom: Dispatch<SetStateAction<boolean>>;
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
+  setFen: Dispatch<SetStateAction<FenObject>>;
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+}) {
+  return (
+    <Dialog open={isDisconnected} modal={true}>
+      <DialogContent>
+        <DialogHeader>
+          {opponentLeftTheGame ? (
+            <DialogTitle>Opponent Left The Game</DialogTitle>
+          ) : (
+            <DialogTitle>
+              <LoadingSpinner width="80px" height="80px" />
+            </DialogTitle>
+          )}
+          {opponentLeftTheGame ? (
+            <DialogDescription className="flex justify-center pt-3">
+              <Button
+                variant={"default"}
+                className="flex justify-center mx-2 text-xl w-56"
+                onClick={() => {
+                  socket.emit("gameleave");
+                }}
+              >
+                <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
+              </Button>
+              <Button
+                variant={"default"}
+                className="flex justify-center mx-2 text-xl w-56"
+                onClick={() => {
+                  socket.emit("newgame");
+                  setFindingRoom(true);
+                  handleResetBoardForSocket(setParsedPGN, setFen, setGameEnded);
+                }}
+              >
+                New Game
+              </Button>
+            </DialogDescription>
+          ) : (
+            <DialogDescription>
+              Opponent is disconnected, trying to reconnect ...
+            </DialogDescription>
+          )}
+        </DialogHeader>
+      </DialogContent>
+      <DialogClose asChild={true}></DialogClose>
+    </Dialog>
   );
 }
 
