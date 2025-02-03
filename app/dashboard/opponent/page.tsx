@@ -51,7 +51,7 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { setReady } from "@/lib/features/engine/engineSlice";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -1594,6 +1594,8 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
 
 /*  Variables relating to socket chess and online play */
 function useSocket(
+  setIsBanned: Dispatch<SetStateAction<boolean>>,
+  setBannedTimer: Dispatch<SetStateAction<number>>,
   setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>,
   setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>,
   setOpponentMove: Dispatch<SetStateAction<string>>,
@@ -1682,6 +1684,16 @@ function useSocket(
       setIsDisconnectedFromGame(true);
       setOpponentLeftTheGame(true);
     });
+
+    socket.on("banned", (time: number) => {
+      setIsBanned(true);
+      setBannedTimer(time);
+    });
+
+    socket.on("banlifted", () => {
+      setIsBanned(false);
+    });
+
     function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
@@ -1739,6 +1751,8 @@ export default function Page() {
   const [rematchD, setRematchD] = useState(false);
   const [isDisconnected, setIsDisconnectedFromGame] = useState(false);
   const [opponentLeftTheGame, setOpponentLeftTheGame] = useState(false);
+  const [isBanned, setIsBanned] = useState(true);
+  const [bannedTimer, setBannedTimer] = useState(900);
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
@@ -1757,6 +1771,8 @@ export default function Page() {
 
   /*  Variables relating to socket chess and online play */
   useSocket(
+    setIsBanned,
+    setBannedTimer,
     setOpponentLeftTheGame,
     setIsDisconnectedFromGame,
     setOpponentMove,
@@ -1822,7 +1838,9 @@ export default function Page() {
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
-  return findingRoom ? (
+  return isBanned ? (
+    <BannedPage BannedTimer={bannedTimer} />
+  ) : findingRoom ? (
     <div className="w-full h-full flex flex-col justify-center ">
       <div className="w-full flex justify-center">
         <LoadingSpinner width="80px" height="80px" />
@@ -1904,6 +1922,35 @@ export default function Page() {
         />
 
         <Toaster />
+      </div>
+    </div>
+  );
+}
+
+function BannedPage({ BannedTimer }: { BannedTimer: number }) {
+  return (
+    <div className="w-full h-full flex flex-col justify-center">
+      <div className="w-full flex justify-center">
+        <div className="text-3xl font-bold flex flex-col justify-center mx-12">
+          You Are Banned For ...{" "}
+        </div>
+        <CountdownCircleTimer
+          isPlaying
+          size={500}
+          duration={BannedTimer}
+          strokeWidth={10}
+          colors="#004777"
+        >
+          {({ remainingTime }) => {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            return (
+              <div role="timer" aria-live="assertive" className="font-mono">
+                {minutes}:{seconds}
+              </div>
+            );
+          }}
+        </CountdownCircleTimer>
       </div>
     </div>
   );
