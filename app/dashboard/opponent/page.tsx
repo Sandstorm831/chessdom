@@ -99,7 +99,7 @@ function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
 function arbitraryTimeTravel(
   moveNumber: number,
   turn: string,
-  setFen: Dispatch<SetStateAction<FenObject>>,
+  setFen: Dispatch<SetStateAction<FenObject>>
 ) {
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
@@ -193,7 +193,7 @@ type PGNObject = {
 
 export function updatePGN(
   moveObj: Move,
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>
 ) {
   if (moveObj.color === "w") {
     const x = PGN.moveNumber + 1;
@@ -370,7 +370,7 @@ function updateHistory(pieceMovement: MoveLAN[]) {
     }
     for (let j = 0; j < upd.length; j++) {
       console.log(
-        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`,
+        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`
       );
       HistoryArray[upd[j]].to = pieceMovement[i].to;
     }
@@ -387,7 +387,7 @@ function handleResignation(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   playColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
@@ -427,7 +427,7 @@ function getPieceId(
   pieceMovements: MoveLAN[],
   i: number,
   j: number,
-  playColor: Color,
+  playColor: Color
 ) {
   let IJsquare = IJToSquare(i, j, playColor);
   if (!chessBoardIJ) return IJsquare;
@@ -578,7 +578,7 @@ function Peice({
 function RenderSquare(
   fen: FenObject,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
   chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -638,11 +638,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -668,11 +668,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -699,11 +699,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -725,11 +725,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -758,11 +758,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -788,11 +788,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -819,11 +819,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -846,11 +846,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       }
     }
@@ -870,7 +870,7 @@ function setNewGame(
   setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -889,7 +889,7 @@ function setNewGame(
 
 function startTheGame(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
-  setFindingRoom: Dispatch<SetStateAction<boolean>>,
+  setFindingRoom: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -913,7 +913,7 @@ function handleGameOver(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const playColorAct: Color =
     playColor !== NonStatePlaycolor ? NonStatePlaycolor : playColor; // to avoid conflict of some edge cases.
@@ -982,7 +982,7 @@ function handlePromotion(
   setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -1007,7 +1007,7 @@ function handlePromotion(
       socket
         .timeout(5000)
         .emit("move", moveObj.san, (err: Error, response: string) =>
-          ackknowledgementCallback(err, response),
+          ackknowledgementCallback(err, response)
         );
       return;
     } else {
@@ -1020,7 +1020,7 @@ function handlePromotion(
     socket
       .timeout(5000)
       .emit("move", moveObj.san, (err: Error, response: string) =>
-        ackknowledgementCallback(err, response),
+        ackknowledgementCallback(err, response)
       );
   updatePGN(moveObj, setParsedPGN);
   console.log(moveObj);
@@ -1045,7 +1045,7 @@ function handlePromotion(
       gameEndResult,
       gameEndTitle,
       setGameEnded,
-      setSoundTrigger,
+      setSoundTrigger
     )
   )
     return;
@@ -1066,7 +1066,7 @@ function useLatestOpponentResponse(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  opponentMove: string,
+  opponentMove: string
 ) {
   useEffect(() => {
     // console.log(`engine on message : ${TheOpponentEngine.onmessage}`);
@@ -1081,7 +1081,7 @@ function useLatestOpponentResponse(
         gameEndResult,
         gameEndTitle,
         setGameEnded,
-        setSoundTrigger,
+        setSoundTrigger
       );
     } else {
       // if game is in time travel get to the current FEN and the animate the move
@@ -1099,7 +1099,7 @@ function triggerOpponentTrigger(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
@@ -1109,7 +1109,7 @@ function triggerOpponentTrigger(
         socket
           .timeout(5000)
           .emit("move", x.san, (err: Error, response: string) =>
-            ackknowledgementCallback(err, response),
+            ackknowledgementCallback(err, response)
           );
         return;
       } else {
@@ -1123,7 +1123,7 @@ function triggerOpponentTrigger(
       socket
         .timeout(5000)
         .emit("move", x.san, (err: Error, response: string) =>
-          ackknowledgementCallback(err, response),
+          ackknowledgementCallback(err, response)
         );
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
@@ -1146,7 +1146,7 @@ function triggerOpponentTrigger(
         gameEndResult,
         gameEndTitle,
         setGameEnded,
-        setSoundTrigger,
+        setSoundTrigger
       )
     )
       return;
@@ -1172,7 +1172,7 @@ function handleReconciliationGameOver(
   playColor: Color,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   let gameEndResult: string = "";
   let gameEndTitle: string = "";
@@ -1219,7 +1219,7 @@ function handleResetBoardForSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>,
-  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>,
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -1240,7 +1240,7 @@ function handleResetBoardForSocket(
 function handleGameStartingForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
-  setRematchD: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>
 ) {
   setRematchD(false);
   startTheGame(setParsedPGN, setFindingRoom);
@@ -1249,7 +1249,7 @@ function handleGameStartingForSocket(
 function handleOpponentMoveForSocket(
   chessMove: string,
   callback: Function,
-  setOpponentMove: Dispatch<SetStateAction<string>>,
+  setOpponentMove: Dispatch<SetStateAction<string>>
 ) {
   // Next 2 lines are fundamental and should not be removed
   if (reconciliation) return;
@@ -1271,7 +1271,7 @@ function handleReconciliationForSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setPlayColor: Dispatch<SetStateAction<Color>>,
+  setPlayColor: Dispatch<SetStateAction<Color>>
 ) {
   reconciliation = true;
   storeCallback = callback;
@@ -1302,7 +1302,7 @@ function handleReconciliationForSocket(
           colorHeld,
           setParsedPGN,
           setSoundTrigger,
-          setGameEnded,
+          setGameEnded
         );
     }
   }
@@ -1316,7 +1316,7 @@ function handleOpponentResignationForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   opponentColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const resgString: string = opponentColor === "w" ? "0-1" : "1-0";
   if (opponentColor === "w") {
@@ -1354,7 +1354,7 @@ function handleRematchForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setRematchD: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -1373,7 +1373,7 @@ function handleRematchForSocket(
 
 function useSound(
   soundTrigger: string,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     if (soundTrigger.length === 0) return;
@@ -1399,7 +1399,7 @@ function useClickAndMove(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     console.log("clickAndMoveTriggerred");
@@ -1416,7 +1416,7 @@ function useClickAndMove(
           socket
             .timeout(5000)
             .emit("move", x.san, (err: Error, response: string) =>
-              ackknowledgementCallback(err, response),
+              ackknowledgementCallback(err, response)
             );
           return;
         } else {
@@ -1430,7 +1430,7 @@ function useClickAndMove(
         socket
           .timeout(5000)
           .emit("move", x.san, (err: Error, response: string) =>
-            ackknowledgementCallback(err, response),
+            ackknowledgementCallback(err, response)
           );
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
@@ -1453,7 +1453,7 @@ function useClickAndMove(
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger,
+          setSoundTrigger
         )
       )
         return;
@@ -1490,7 +1490,7 @@ function useOnPieceDrop(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -1508,7 +1508,7 @@ function useOnPieceDrop(
         ///////////////////////////////////////////////////////////////////////
 
         const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates,
+          (obj) => obj.square === destSquareCoordinates
         );
         if (tempObj.length === 0) {
           throw new Error("Some Error occured, can not find the right move");
@@ -1525,7 +1525,7 @@ function useOnPieceDrop(
               socket
                 .timeout(5000)
                 .emit("move", x.san, (err: Error, response: string) =>
-                  ackknowledgementCallback(err, response),
+                  ackknowledgementCallback(err, response)
                 );
               return;
             } else {
@@ -1539,7 +1539,7 @@ function useOnPieceDrop(
             socket
               .timeout(5000)
               .emit("move", x.san, (err: Error, response: string) =>
-                ackknowledgementCallback(err, response),
+                ackknowledgementCallback(err, response)
               );
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
@@ -1562,7 +1562,7 @@ function useOnPieceDrop(
               gameEndResult,
               gameEndTitle,
               setGameEnded,
-              setSoundTrigger,
+              setSoundTrigger
             )
           )
             return;
@@ -1607,7 +1607,7 @@ function useSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setRematchD: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>
 ) {
   const { toast } = useToast();
   useEffect(() => {
@@ -1626,11 +1626,11 @@ function useSocket(
     });
 
     socket.on("startgame", () =>
-      handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
+      handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD)
     );
 
     socket.on("move", async (chessMove: string, callback: Function) =>
-      handleOpponentMoveForSocket(chessMove, callback, setOpponentMove),
+      handleOpponentMoveForSocket(chessMove, callback, setOpponentMove)
     );
 
     socket.on(
@@ -1645,8 +1645,8 @@ function useSocket(
           setFen,
           setSoundTrigger,
           setGameEnded,
-          setPlayColor,
-        ),
+          setPlayColor
+        )
     );
 
     socket.on("resigned", (opponentColor: Color) =>
@@ -1654,12 +1654,12 @@ function useSocket(
         setParsedPGN,
         opponentColor,
         setGameEnded,
-        setSoundTrigger,
-      ),
+        setSoundTrigger
+      )
     );
 
     socket.on("rematchconfirmed", () =>
-      handleRematchForSocket(setParsedPGN, setFen, setGameEnded, setRematchD),
+      handleRematchForSocket(setParsedPGN, setFen, setGameEnded, setRematchD)
     );
 
     socket.on("playeroptednewgame", () => {
@@ -1751,7 +1751,7 @@ export default function Page() {
   const [rematchD, setRematchD] = useState(false);
   const [isDisconnected, setIsDisconnectedFromGame] = useState(false);
   const [opponentLeftTheGame, setOpponentLeftTheGame] = useState(false);
-  const [isBanned, setIsBanned] = useState(true);
+  const [isBanned, setIsBanned] = useState(false);
   const [bannedTimer, setBannedTimer] = useState(900);
   /*  Variables relating to socket chess and online play */
 
@@ -1784,7 +1784,7 @@ export default function Page() {
     setFen,
     setSoundTrigger,
     setGameEnded,
-    setRematchD,
+    setRematchD
   );
   /*  Variables relating to socket chess and online play */
 
@@ -1799,7 +1799,7 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    opponentMove,
+    opponentMove
   );
 
   // useEngine(workerRef);
@@ -1819,7 +1819,7 @@ export default function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   useOnPieceDrop(
@@ -1833,7 +1833,7 @@ export default function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
@@ -2008,7 +2008,7 @@ function DisconnectionDialogue({
                     setFen,
                     setGameEnded,
                     setIsDisconnectedFromGame,
-                    setOpponentLeftTheGame,
+                    setOpponentLeftTheGame
                   );
                 }}
               >
@@ -2151,7 +2151,7 @@ function PGNTable({
                       setParsedPGN,
                       playColor,
                       setGameEnded,
-                      setSoundTrigger,
+                      setSoundTrigger
                     )
                   }
                   disabled={
@@ -2247,7 +2247,7 @@ function GameEndDialogue({
                   setFen,
                   setGameEnded,
                   setIsDisconnectedFromGame,
-                  setOpponentLeftTheGame,
+                  setOpponentLeftTheGame
                 );
               }}
             >
@@ -2314,7 +2314,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2340,7 +2340,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2366,7 +2366,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2392,7 +2392,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
