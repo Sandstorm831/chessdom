@@ -1211,6 +1211,8 @@ function handleResetBoardForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>,
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>,
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -1224,6 +1226,8 @@ function handleResetBoardForSocket(
   currentUIPosition = 0;
   setFen({ fen: DEFAULT_POSITION, isDnD: false, pieceMovements: [] });
   setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
+  setIsDisconnectedFromGame(false);
+  setOpponentLeftTheGame(false);
 }
 
 function handleGameStartingForSocket(
@@ -1663,6 +1667,7 @@ function useSocket(
     });
 
     socket.on("opponentleftgame", () => {
+      console.log("recieved the event opponentleftgame");
       setIsDisconnectedFromGame(true);
       setOpponentLeftTheGame(true);
     });
@@ -1829,6 +1834,8 @@ export default function Page() {
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
           <GameEndDialogue
+            setOpponentLeftTheGame={setOpponentLeftTheGame}
+            setIsDisconnectedFromGame={setIsDisconnectedFromGame}
             setParsedPGN={setParsedPGN}
             gameEnded={gameEnded}
             setFen={setFen}
@@ -1842,6 +1849,8 @@ export default function Page() {
 
           {isDisconnected ? (
             <DisconnectionDialogue
+              setOpponentLeftTheGame={setOpponentLeftTheGame}
+              setIsDisconnectedFromGame={setIsDisconnectedFromGame}
               isDisconnected={isDisconnected}
               opponentLeftTheGame={opponentLeftTheGame}
               setFindingRoom={setFindingRoom}
@@ -1890,6 +1899,8 @@ export default function Page() {
 }
 
 function DisconnectionDialogue({
+  setOpponentLeftTheGame,
+  setIsDisconnectedFromGame,
   isDisconnected,
   opponentLeftTheGame,
   setFindingRoom,
@@ -1897,6 +1908,8 @@ function DisconnectionDialogue({
   setFen,
   setGameEnded,
 }: {
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>;
+  setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>;
   isDisconnected: boolean;
   opponentLeftTheGame: boolean;
   setFindingRoom: Dispatch<SetStateAction<boolean>>;
@@ -1932,7 +1945,13 @@ function DisconnectionDialogue({
                 onClick={() => {
                   socket.emit("newgame");
                   setFindingRoom(true);
-                  handleResetBoardForSocket(setParsedPGN, setFen, setGameEnded);
+                  handleResetBoardForSocket(
+                    setParsedPGN,
+                    setFen,
+                    setGameEnded,
+                    setIsDisconnectedFromGame,
+                    setOpponentLeftTheGame,
+                  );
                 }}
               >
                 New Game
@@ -2097,6 +2116,8 @@ function PGNTable({
 }
 
 function GameEndDialogue({
+  setOpponentLeftTheGame,
+  setIsDisconnectedFromGame,
   setParsedPGN,
   gameEnded,
   setFen,
@@ -2107,6 +2128,8 @@ function GameEndDialogue({
   rematchD,
   setRematchD,
 }: {
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>;
+  setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>;
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   gameEnded: gameEndObject;
   setFen: Dispatch<SetStateAction<FenObject>>;
@@ -2162,7 +2185,13 @@ function GameEndDialogue({
               onClick={() => {
                 socket.emit("newgame");
                 setFindingRoom(true);
-                handleResetBoardForSocket(setParsedPGN, setFen, setGameEnded);
+                handleResetBoardForSocket(
+                  setParsedPGN,
+                  setFen,
+                  setGameEnded,
+                  setIsDisconnectedFromGame,
+                  setOpponentLeftTheGame,
+                );
               }}
             >
               New Game
