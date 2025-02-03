@@ -55,6 +55,11 @@ import { useToast } from "@/hooks/use-toast";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
+let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
+// dependency array, state variables that
+// are set afterward the first render, doesn't
+// get reflected, at those places, this variable
+// can be used
 /*  Variables relating to socket chess and online play */
 
 const chess = new Chess();
@@ -910,6 +915,8 @@ function handleGameOver(
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
+  const playColorAct: Color =
+    playColor !== NonStatePlaycolor ? NonStatePlaycolor : playColor; // to avoid conflict of some edge cases.
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
   const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
@@ -929,13 +936,13 @@ function handleGameOver(
     gameEndTitle = "Equally positioned";
   } else if (chess.turn() === "w") {
     gameEndResult = "0 - 1";
-    gameEndTitle = playColor === "w" ? "Better luck next time" : "You Won";
+    gameEndTitle = playColorAct === "w" ? "Better luck next time" : "You Won";
   } else {
     gameEndResult = "1 - 0";
-    gameEndTitle = playColor === "w" ? "You Won" : "Better luck next time";
+    gameEndTitle = playColorAct === "w" ? "You Won" : "Better luck next time";
   }
   const resgString: string = chess.turn() === "w" ? "0-1" : "1-0";
-  if (playColor === "w") {
+  if (playColorAct === "w") {
     const pgnString: string = `${resgString} `;
     PGN.pgn += pgnString;
   } else {
@@ -1270,6 +1277,7 @@ function handleReconciliationForSocket(
   storeCallback = callback;
   // do whatever you want to do for reconciliation
   setPlayColor(colorHeld);
+  NonStatePlaycolor = colorHeld;
   while (chess.history().length < historyX.length) {
     const index = chess.history().length;
     const san = historyX[index];
@@ -1527,7 +1535,7 @@ function useOnPieceDrop(
             return;
           }
           // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
-          if (chess.turn() !== playColor)
+          if (chess.turn() !== NonStatePlaycolor)
             socket
               .timeout(5000)
               .emit("move", x.san, (err: Error, response: string) =>
@@ -1610,7 +1618,10 @@ function useSocket(
 
     socket.on("disconnect", onDisconnect);
 
-    socket.on("gamecolor", (color: Color) => setPlayColor(color));
+    socket.on("gamecolor", (color: Color) => {
+      setPlayColor(color);
+      NonStatePlaycolor = color;
+    });
 
     socket.on("startgame", () =>
       handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
@@ -1964,7 +1975,6 @@ function DisconnectionDialogue({
           )}
         </DialogHeader>
       </DialogContent>
-      <DialogClose asChild={true}></DialogClose>
     </Dialog>
   );
 }
