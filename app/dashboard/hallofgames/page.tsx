@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Game } from "@prisma/client";
 import { getAllGames } from "./dbqueries";
 import Link from "next/link";
+import { TheParentPGN } from "../reviewgame/page";
 
 export default function Page() {
   const [page, setPage] = useState(1);
@@ -32,7 +33,10 @@ export default function Page() {
                 >
                   <Link
                     className="flex justify-center w-44 h-min bg-blue-950 rounded-lg text-white hover:cursor-pointer"
-                    href={"/dashboard"}
+                    href={"/dashboard/reviewgame"}
+                    onClick={() => {
+                      TheParentPGN.PGN = obj.PGN;
+                    }}
                   >
                     Review the game
                   </Link>

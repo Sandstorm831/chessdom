@@ -48,6 +48,11 @@ export default function Page() {
           <Link href="/dashboard/opponent"> Play Online </Link>
         </Button>
       </div>
+      <div className="w-full flex justify-center mt-5">
+        <Button className="text-3xl bg-[#323014] text-[#fffefc] py-6">
+          <Link href="/dashboard/hallofgames"> Hall of Games </Link>
+        </Button>
+      </div>
     </div>
   );
 }
