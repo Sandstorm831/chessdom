@@ -1090,9 +1090,16 @@ function useLatestStockfishResponse(
   }, [latestStockfishResponse]);
 }
 
-function useEngine(workerRef: RefObject<Worker | null>) {
+function useEngine(
+  workerRef: RefObject<Worker | null>,
+  setEngineOperable: Dispatch<SetStateAction<boolean>>,
+) {
   const dispatch = useAppDispatch();
   useEffect(() => {
+    if (!wasmThreadsSupported()) {
+      setEngineOperable(false);
+      return;
+    }
     if (EngineX.stockfishEngine) {
       const x = EngineX.stockfishEngine;
       x.addMessageListener((line: string) => {
@@ -1443,6 +1450,7 @@ export default function Page() {
   const TheStockfishEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
+  const [engineOperable, setEngineOperable] = useState<boolean>(true);
   console.log("page rendering");
 
   chess.load(fen.fen);
@@ -1471,7 +1479,7 @@ export default function Page() {
     TheStockfishEngine,
   );
 
-  useEngine(workerRef);
+  useEngine(workerRef, setEngineOperable);
 
   useUpdateBoardFEN(playColor, fen, TheStockfishEngine, openSettings);
 
@@ -1513,15 +1521,19 @@ export default function Page() {
     <div className="w-full h-full flex flex-col justify-center">
       <div className="flex w-full justify-center">
         <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
-          <SettingComponent
-            setParsedPGN={setParsedPGN}
-            openSettings={openSettings}
-            playColor={playColor}
-            setPlayColor={setPlayColor}
-            setOpenSettings={setOpenSettings}
-            TheStockfishEngine={TheStockfishEngine}
-            originalFEN={originalFEN}
-          />
+          {engineOperable ? (
+            <SettingComponent
+              setParsedPGN={setParsedPGN}
+              openSettings={openSettings}
+              playColor={playColor}
+              setPlayColor={setPlayColor}
+              setOpenSettings={setOpenSettings}
+              TheStockfishEngine={TheStockfishEngine}
+              originalFEN={originalFEN}
+            />
+          ) : null}
+
+          <WASMThreadsNotSupportedDialog engineOperable={engineOperable} />
 
           <GameEndDialogue
             setParsedPGN={setParsedPGN}
@@ -1719,19 +1731,26 @@ function PGNTable({
   );
 }
 
-function wasmThreadsNotSupportedDialog() {
+function WASMThreadsNotSupportedDialog({
+  engineOperable,
+}: {
+  engineOperable: boolean;
+}) {
+  if (!engineOperable)
+    setTimeout(() => {
+      redirect("/dashboard");
+    }, 5000);
   return (
-    <Dialog open={true} modal={true}>
+    <Dialog open={!engineOperable} modal={true}>
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
           <DialogTitle className="text-3xl flex justify-center">
             Borwser not supported
           </DialogTitle>
-          <DialogDescription className="text-5xl flex justify-center">
-            Your browser does not supports Shared Web Workers, please update or
-            switch your browser
+          <DialogDescription className="text-xl flex justify-center">
+            Please update or switch your browser to continue.
           </DialogDescription>
-          <DialogDescription className="text-5xl flex justify-center">
+          <DialogDescription className="text-xl flex justify-center">
             redirecting back to dashboard ...
           </DialogDescription>
         </DialogHeader>
