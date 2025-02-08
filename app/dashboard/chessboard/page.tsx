@@ -48,6 +48,7 @@ import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { TheParentPGN } from "../reviewgame/page";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -1811,6 +1812,18 @@ function GameEndDialogue({
               }
             >
               New game
+            </Button>
+          </DialogDescription>
+          <DialogDescription className="flex justify-center pt-3">
+            <Button
+              variant={"default"}
+              className="flex justify-center mx-2 text-xl w-full"
+              onClick={() => {
+                TheParentPGN.PGN = PGN.pgn;
+                redirect("/dashboard/reviewgame");
+              }}
+            >
+              review game
             </Button>
           </DialogDescription>
         </DialogHeader>
