@@ -67,7 +67,7 @@ export const EngineX: engineX = { stockfishEngine: null };
 let currentUIPosition = 0;
 export function applyInitialSettings(
   elo: string,
-  stockfishEngine: StockfishEngine
+  stockfishEngine: StockfishEngine,
 ) {
   stockfishEngine.postMessage("ucinewgame");
   stockfishEngine.postMessage("setoption name Threads value 2"); // setting option
@@ -97,7 +97,7 @@ function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
 function arbitraryTimeTravel(
   moveNumber: number,
   turn: string,
-  setFen: Dispatch<SetStateAction<FenObject>>
+  setFen: Dispatch<SetStateAction<FenObject>>,
 ) {
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
@@ -203,7 +203,7 @@ type PGNObject = {
 
 export function updatePGN(
   moveObj: Move,
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
 ) {
   if (moveObj.color === "w") {
     const x = PGN.moveNumber + 1;
@@ -380,7 +380,7 @@ function updateHistory(pieceMovement: MoveLAN[]) {
     }
     for (let j = 0; j < upd.length; j++) {
       console.log(
-        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`
+        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`,
       );
       HistoryArray[upd[j]].to = pieceMovement[i].to;
     }
@@ -398,7 +398,7 @@ function handleResignation(
   playColor: Color,
   TheStockfishEngine: StockfishEngine,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
@@ -435,7 +435,7 @@ function getPieceId(
   pieceMovements: MoveLAN[],
   i: number,
   j: number,
-  playColor: Color
+  playColor: Color,
 ) {
   let IJsquare = IJToSquare(i, j, playColor);
   if (!chessBoardIJ) return IJsquare;
@@ -586,7 +586,7 @@ function Peice({
 function RenderSquare(
   fen: FenObject,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
 ) {
   chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -646,11 +646,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -676,11 +676,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -707,11 +707,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else
           chessBoardArray.push(
@@ -733,11 +733,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
       } else {
         if (j === 0 && i === 7) {
@@ -766,11 +766,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -796,11 +796,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -827,11 +827,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
         } else
           chessBoardArray.push(
@@ -854,11 +854,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color)
+                (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
                 <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
               ) : null}
-            </SquareBlock>
+            </SquareBlock>,
           );
       }
     }
@@ -878,7 +878,7 @@ function setNewGame(
   setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -901,7 +901,7 @@ function startTheGame(
   stockfishElo: number,
   TheStockfishEngine: StockfishEngine,
   playColor: Color,
-  originalFEN: string
+  originalFEN: string,
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -932,7 +932,7 @@ function handleGameOver(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
@@ -997,7 +997,7 @@ function handlePromotion(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -1039,7 +1039,7 @@ function handlePromotion(
       gameEndTitle,
       setGameEnded,
       setSoundTrigger,
-      TheStockfishEngine
+      TheStockfishEngine,
     )
   )
     return;
@@ -1060,7 +1060,7 @@ function useLatestStockfishResponse(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   const latestStockfishResponse = useAppSelector(getLatestResponse);
   useEffect(() => {
@@ -1082,7 +1082,7 @@ function useLatestStockfishResponse(
           gameEndTitle,
           setGameEnded,
           setSoundTrigger,
-          TheStockfishEngine
+          TheStockfishEngine,
         );
       }
       // console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
@@ -1141,7 +1141,7 @@ function useEngine(workerRef: RefObject<Worker | null>) {
       workerRef.current.onerror = (e) => {
         console.log(e);
         alert(
-          "Error while initiating the Engine, please refresh and try again"
+          "Error while initiating the Engine, please refresh and try again",
         );
       };
       workerRef.current.postMessage("start");
@@ -1158,7 +1158,7 @@ function useUpdateBoardFEN(
   playColor: Color,
   fen: FenObject,
   TheStockfishEngine: StockfishEngine,
-  openSettings: boolean
+  openSettings: boolean,
 ) {
   useEffect(() => {
     console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
@@ -1187,7 +1187,7 @@ function triggerStockfishTrigger(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
@@ -1213,7 +1213,7 @@ function triggerStockfishTrigger(
         gameEndTitle,
         setGameEnded,
         setSoundTrigger,
-        TheStockfishEngine
+        TheStockfishEngine,
       )
     )
       return;
@@ -1237,7 +1237,7 @@ function triggerStockfishTrigger(
 
 function useSound(
   soundTrigger: string,
-  setSoundTrigger: Dispatch<SetStateAction<string>>
+  setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   useEffect(() => {
     if (soundTrigger.length === 0) return;
@@ -1264,7 +1264,7 @@ function useClickAndMove(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   useEffect(() => {
     console.log("clickAndMoveTriggerred");
@@ -1297,7 +1297,7 @@ function useClickAndMove(
           gameEndTitle,
           setGameEnded,
           setSoundTrigger,
-          TheStockfishEngine
+          TheStockfishEngine,
         )
       )
         return;
@@ -1335,7 +1335,7 @@ function useOnPieceDrop(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine
+  TheStockfishEngine: StockfishEngine,
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -1353,7 +1353,7 @@ function useOnPieceDrop(
         ///////////////////////////////////////////////////////////////////////
 
         const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates
+          (obj) => obj.square === destSquareCoordinates,
         );
         if (tempObj.length === 0) {
           throw new Error("Some Error occured, can not find the right move");
@@ -1386,7 +1386,7 @@ function useOnPieceDrop(
               gameEndTitle,
               setGameEnded,
               setSoundTrigger,
-              TheStockfishEngine
+              TheStockfishEngine,
             )
           )
             return;
@@ -1468,7 +1468,7 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine
+    TheStockfishEngine,
   );
 
   useEngine(workerRef);
@@ -1489,7 +1489,7 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine
+    TheStockfishEngine,
   );
 
   useOnPieceDrop(
@@ -1504,7 +1504,7 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine
+    TheStockfishEngine,
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
@@ -1698,7 +1698,7 @@ function PGNTable({
                       playColor,
                       TheStockfishEngine,
                       setGameEnded,
-                      setSoundTrigger
+                      setSoundTrigger,
                     )
                   }
                   disabled={
@@ -1716,6 +1716,27 @@ function PGNTable({
         </div>
       </div>
     </div>
+  );
+}
+
+function wasmThreadsNotSupportedDialog() {
+  return (
+    <Dialog open={true} modal={true}>
+      <DialogContent className="flex flex-col justify-center">
+        <DialogHeader>
+          <DialogTitle className="text-3xl flex justify-center">
+            Borwser not supported
+          </DialogTitle>
+          <DialogDescription className="text-5xl flex justify-center">
+            Your browser does not supports Shared Web Workers, please update or
+            switch your browser
+          </DialogDescription>
+          <DialogDescription className="text-5xl flex justify-center">
+            redirecting back to dashboard ...
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1766,7 +1787,7 @@ function GameEndDialogue({
                   setFen,
                   originalFEN,
                   setOpenSettings,
-                  setGameEnded
+                  setGameEnded,
                 )
               }
             >
@@ -1836,7 +1857,7 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine
+                TheStockfishEngine,
               )
             }
           />
@@ -1863,7 +1884,7 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine
+                TheStockfishEngine,
               )
             }
           />
@@ -1890,7 +1911,7 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine
+                TheStockfishEngine,
               )
             }
           />
@@ -1917,7 +1938,7 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine
+                TheStockfishEngine,
               )
             }
           />
@@ -2009,7 +2030,7 @@ function SettingComponent({
                 stockfishElo,
                 TheStockfishEngine,
                 playColor,
-                originalFEN
+                originalFEN,
               )
             }
             // onClick={() => {
