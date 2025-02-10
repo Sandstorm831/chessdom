@@ -1,25 +1,46 @@
 import { auth } from "@/auth";
 import { SignIn, SignOut } from "@/components/auth_components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import Link from "next/link";
 
 export default async function Navbar() {
   const session = await auth();
+  if (session?.user) {
+    console.log("logging session.user");
+    console.log(session.user);
+  }
   return (
     <div className="w-full flex justify-between pt-3 px-3 text-[#323014]">
-      <div className=" text-3xl"><Link href="/"> Chessdom </Link></div>
+      <div className=" text-3xl">
+        <Link href="/"> Chessdom </Link>
+      </div>
       <div>
         {session?.user ? (
-            <Popover >
-                <PopoverTrigger asChild>
-          <Avatar className="cursor-pointer">
-            {session.user.image !== null ? <AvatarImage src={session.user.image} /> : <AvatarImage src="default_avatar.svg" />}
-            <AvatarFallback>CP</AvatarFallback>
-          </Avatar></PopoverTrigger>
-          <PopoverContent className="w-max">
-            <SignOut variant="default" className="text-xl bg-[#323014] text-[#FFFEFC]" />
-          </PopoverContent>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Avatar className="cursor-pointer">
+                {session.user.image !== null ? (
+                  <AvatarImage
+                    src={session.user.image}
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <AvatarImage src="default_avatar.svg" />
+                )}
+                <AvatarFallback>CP</AvatarFallback>
+              </Avatar>
+            </PopoverTrigger>
+            <PopoverContent className="w-max">
+              <SignOut
+                variant="default"
+                className="text-xl bg-[#323014] text-[#FFFEFC]"
+              />
+            </PopoverContent>
           </Popover>
         ) : (
           <SignIn variant="link" className="text-3xl text-[#323014]" />
