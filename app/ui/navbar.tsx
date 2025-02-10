@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import Link from "next/link";
-import { FaChess } from "react-icons/fa";
+import { GiMountedKnight } from "react-icons/gi";
 
 export default async function Navbar() {
   const session = await auth();
@@ -21,7 +21,7 @@ export default async function Navbar() {
         {session?.user ? (
           <Popover>
             <PopoverTrigger asChild>
-              <FaChess className="cursor-pointer text-4xl" />
+              <GiMountedKnight className="cursor-pointer text-5xl" />
               {/* <Image
                 src="/knight_mirror.png"
                 alt="The Knight"
