@@ -53,6 +53,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { TheParentPGN } from "@/app/engineAndPGN";
+import isAuth from "@/components/auth_HOC";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -658,7 +659,7 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
   }, [parsedPGN]);
 }
 
-export default function Page() {
+export function Page() {
   const [fen, setFen] = useState<FenObject>({
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     isDnD: false,
@@ -884,3 +885,4 @@ function PGNTable({
     </div>
   );
 }
+export default isAuth(Page);

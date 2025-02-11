@@ -46,6 +46,7 @@ import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TheParentPGN } from "@/app/engineAndPGN";
 import { EngineX } from "@/app/engineAndPGN";
+import isAuth from "@/components/auth_HOC";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -1412,7 +1413,7 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
   }, [parsedPGN]);
 }
 
-export default function Page() {
+export function Page() {
   let gameEndResult = "";
   let gameEndTitle = "";
   const originalFEN =
@@ -2051,3 +2052,5 @@ function SettingComponent({
     </Drawer>
   );
 }
+
+export default isAuth(Page);

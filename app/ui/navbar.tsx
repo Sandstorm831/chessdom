@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { SignIn, SignOut } from "@/components/auth_components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -15,7 +16,7 @@ export default async function Navbar() {
   return (
     <div className="w-full flex justify-between pt-3 px-3 text-[#323014]">
       <div className=" text-3xl">
-        <Link href="/"> Chessdom </Link>
+        <Link href={session ? "/dashboard" : "/"}> Chessdom </Link>
       </div>
       <div>
         {session?.user ? (
@@ -31,6 +32,11 @@ export default async function Navbar() {
               /> */}
             </PopoverTrigger>
             <PopoverContent className="w-max">
+              {session ? (
+                <Button variant={"outline"}>
+                  <Link href={"/dashboard"}>go to dashboard</Link>
+                </Button>
+              ) : null}
               <SignOut
                 variant="default"
                 className="text-xl bg-[#323014] text-[#FFFEFC]"

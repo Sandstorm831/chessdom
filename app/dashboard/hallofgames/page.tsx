@@ -5,8 +5,9 @@ import { Game } from "@prisma/client";
 import { getAllGames } from "./dbqueries";
 import Link from "next/link";
 import { TheParentPGN } from "@/app/engineAndPGN";
+import isAuth from "@/components/auth_HOC";
 
-export default function Page() {
+export function Page() {
   const [page, setPage] = useState(1);
   const [gameArray, setGameArray] = useState<Game[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,3 +49,4 @@ export default function Page() {
     </div>
   );
 }
+export default isAuth(Page);

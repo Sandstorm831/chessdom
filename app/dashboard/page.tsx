@@ -4,8 +4,9 @@ import Link from "next/link";
 import { EngineX } from "../engineAndPGN";
 import { useEffect } from "react";
 import initialisingEngineWorker from "../startEngine";
+import isAuth from "@/components/auth_HOC";
 
-export default function Page() {
+export function Page() {
   // The code will run only when present on the client, and not on pre-rendering on server.
   useEffect(() => {
     if (EngineX.stockfishEngine === null) initialisingEngineWorker();
@@ -32,3 +33,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default isAuth(Page);

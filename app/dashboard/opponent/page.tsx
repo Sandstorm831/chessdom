@@ -53,6 +53,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { useSession } from "next-auth/react";
+import isAuth from "@/components/auth_HOC";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -1735,7 +1736,7 @@ function useSocket(
 }
 /*  Variables relating to socket chess and online play */
 
-export default function Page() {
+export function Page() {
   let gameEndResult = "";
   let gameEndTitle = "";
   const originalFEN =
@@ -2514,3 +2515,5 @@ function SettingComponent({
 // />
 //
 export function Paged() {}
+
+export default isAuth(Page);
