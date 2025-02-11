@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Game } from "@prisma/client";
 import { getAllGames } from "./dbqueries";
 import Link from "next/link";
-import { TheParentPGN } from "../reviewgame/page";
+import { TheParentPGN } from "@/app/engineAndPGN";
 
 export default function Page() {
   const [page, setPage] = useState(1);

@@ -52,6 +52,7 @@ import { setReady } from "@/lib/features/engine/engineSlice";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { TheParentPGN } from "@/app/engineAndPGN";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -60,7 +61,6 @@ let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
 // are set afterward the first render, doesn't
 // get reflected, at those places, this variable
 // can be used
-export const TheParentPGN: parentPGN = { PGN: "" };
 const chess = new Chess();
 const nextMoveObject: FenObject = {
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",

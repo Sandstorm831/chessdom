@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { playfair_display } from "./ui/fonts";
-import { EngineX } from "./dashboard/chessboard/page";
+import { EngineX } from "./engineAndPGN";
 import { useEffect } from "react";
 import initialisingEngineWorker from "./startEngine";
 

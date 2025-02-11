@@ -48,7 +48,8 @@ import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { TheParentPGN } from "../reviewgame/page";
+import { TheParentPGN } from "@/app/engineAndPGN";
+import { EngineX } from "@/app/engineAndPGN";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -64,7 +65,6 @@ const FENHistory: FenObject[] = [
     pieceMovements: [],
   },
 ];
-export const EngineX: engineX = { stockfishEngine: null };
 let currentUIPosition = 0;
 export function applyInitialSettings(
   elo: string,

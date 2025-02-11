@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { EngineX } from "./chessboard/page";
+import { EngineX } from "../engineAndPGN";
 import { useEffect } from "react";
 import initialisingEngineWorker from "../startEngine";
 

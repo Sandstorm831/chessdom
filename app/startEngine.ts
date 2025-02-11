@@ -1,4 +1,4 @@
-import { EngineX } from "./dashboard/chessboard/page";
+import { EngineX } from "./engineAndPGN";
 
 export default function initialisingEngineWorker() {
   console.log("am I coming here");
