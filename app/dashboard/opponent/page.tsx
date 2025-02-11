@@ -52,6 +52,7 @@ import { setReady } from "@/lib/features/engine/engineSlice";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { useSession } from "next-auth/react";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -1616,8 +1617,21 @@ function useSocket(
   setRematchD: Dispatch<SetStateAction<boolean>>,
 ) {
   const { toast } = useToast();
+  const { data: session } = useSession();
   useEffect(() => {
-    socket.connect();
+    async function authSetter() {
+      if (session && session.user && session.user.email && session.user.name) {
+        console.log("inside the important stuff");
+        console.log(session.user.email);
+        socket.auth = {
+          username: session.user.email,
+        };
+      }
+      console.log("just before connectin");
+      console.log(socket.auth);
+      socket.connect();
+    }
+    authSetter();
     if (socket.connected) {
       onConnect();
     }
@@ -1762,7 +1776,6 @@ export default function Page() {
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
-
   chess.load(fen.fen);
 
   if (HistoryArray.length === 0) {
