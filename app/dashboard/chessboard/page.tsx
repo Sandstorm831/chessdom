@@ -31,11 +31,7 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
-import {
-  getEngine,
-  getEngineState,
-  setReady,
-} from "@/lib/features/engine/engineSlice";
+import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 // import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./stockfishWasm";
 import {
@@ -66,17 +62,18 @@ const FENHistory: FenObject[] = [
   },
 ];
 let currentUIPosition = 0;
-export function applyInitialSettings(
-  elo: string,
-  stockfishEngine: StockfishEngine,
-) {
-  stockfishEngine.postMessage("ucinewgame");
-  stockfishEngine.postMessage("setoption name Threads value 2"); // setting option
-  stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
-  stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
-  stockfishEngine.postMessage("setoption name UCI_LimitStrength value true"); // setting option
-  stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
-  stockfishEngine.postMessage("isready");
+export function applyInitialSettings(elo: string) {
+  if (EngineX.stockfishEngine === null)
+    throw new Error("stockfishEngine of EngineX is null");
+  EngineX.stockfishEngine.postMessage("ucinewgame");
+  EngineX.stockfishEngine.postMessage("setoption name Threads value 2"); // setting option
+  EngineX.stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
+  EngineX.stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
+  EngineX.stockfishEngine.postMessage(
+    "setoption name UCI_LimitStrength value true",
+  ); // setting option
+  EngineX.stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
+  EngineX.stockfishEngine.postMessage("isready");
 }
 
 function moveForward(setFen: Dispatch<SetStateAction<FenObject>>) {
@@ -130,9 +127,11 @@ export function initializeHistory() {
 
 export function engineXCallback() {}
 
-export function getBestMove(fen: string, stockfishEngine: StockfishEngine) {
-  stockfishEngine.postMessage(`position fen ${fen}`);
-  stockfishEngine.postMessage("go depth 15");
+export function getBestMove(fen: string) {
+  if (EngineX.stockfishEngine === null)
+    throw new Error("stockfishEngine of EngineX is null");
+  EngineX.stockfishEngine.postMessage(`position fen ${fen}`);
+  EngineX.stockfishEngine.postMessage("go depth 15");
 }
 
 // export function captureBestMoves(){
@@ -397,7 +396,6 @@ function updateHistory(pieceMovement: MoveLAN[]) {
 function handleResignation(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   playColor: Color,
-  TheStockfishEngine: StockfishEngine,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
@@ -420,8 +418,10 @@ function handleResignation(
   setParsedPGN(x);
 
   // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
-  TheStockfishEngine.postMessage("ucinewgame");
-  TheStockfishEngine.postMessage("isready");
+  if (EngineX.stockfishEngine === null)
+    throw new Error("stockfish engine of EngineX is null");
+  EngineX.stockfishEngine.postMessage("ucinewgame");
+  EngineX.stockfishEngine.postMessage("isready");
   setGameEnded({
     gameEnded: true,
     gameEndResult: playColor === "w" ? "0 - 1" : "1 - 0",
@@ -900,7 +900,6 @@ function startTheGame(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
   stockfishElo: number,
-  TheStockfishEngine: StockfishEngine,
   playColor: Color,
   originalFEN: string,
 ) {
@@ -915,9 +914,9 @@ function startTheGame(
   });
   currentUIPosition = 0;
   setOpenSettings(false);
-  applyInitialSettings(stockfishElo.toString(), TheStockfishEngine);
+  applyInitialSettings(stockfishElo.toString());
   if (playColor === "b") {
-    getBestMove(originalFEN, TheStockfishEngine);
+    getBestMove(originalFEN);
     // const bestMoveString = useCaptureBestMoves();
     // console.log(`latest response = ${latestStockfishResponse}`);
   }
@@ -933,7 +932,6 @@ function handleGameOver(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
@@ -944,8 +942,10 @@ function handleGameOver(
   nextMoveObject.pieceMovements = pieceMovements;
   setTimeout(() => FENCallback(setFen), 500);
   // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
-  TheStockfishEngine.postMessage("ucinewgame");
-  TheStockfishEngine.postMessage("isready");
+  if (EngineX.stockfishEngine === null)
+    throw new Error("stockfishEngine of EngineX is null");
+  EngineX.stockfishEngine.postMessage("ucinewgame");
+  EngineX.stockfishEngine.postMessage("isready");
   if (chess.isDraw()) {
     gameEndResult = "1/2 - 1/2";
     gameEndTitle = "Equally positioned";
@@ -998,7 +998,6 @@ function handlePromotion(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -1040,7 +1039,6 @@ function handlePromotion(
       gameEndTitle,
       setGameEnded,
       setSoundTrigger,
-      TheStockfishEngine,
     )
   )
     return;
@@ -1061,11 +1059,10 @@ function useLatestStockfishResponse(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   const latestStockfishResponse = useAppSelector(getLatestResponse);
   useEffect(() => {
-    // console.log(`engine on message : ${TheStockfishEngine.onmessage}`);
+    // console.log(`engine on message : ${EngineX.stockfishEngine.onmessage}`);
     // console.log("am in the latest response" + latestStockfishResponse)
     if (
       latestStockfishResponse &&
@@ -1083,7 +1080,6 @@ function useLatestStockfishResponse(
           gameEndTitle,
           setGameEnded,
           setSoundTrigger,
-          TheStockfishEngine,
         );
       }
       // console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
@@ -1102,11 +1098,10 @@ function useEngine(
       return;
     }
     if (EngineX.stockfishEngine) {
-      const x = EngineX.stockfishEngine;
-      x.addMessageListener((line: string) => {
+      EngineX.stockfishEngine.addMessageListener((line: string) => {
         dispatch(pushResponse(line));
       });
-      dispatch(setReady(x));
+      dispatch(setReady());
     } else {
       workerRef.current = new window.Worker("/lib/loadEngine.js");
       if (workerRef.current === null) throw new Error("worker is null");
@@ -1129,10 +1124,10 @@ function useEngine(
           dispatch(pushResponse(line));
         });
         // x.onmessage = (e: MessageEvent) => {
-
+        EngineX.stockfishEngine = x;
         // }
         // console.log(x.onmessage);
-        dispatch(setReady(x));
+        dispatch(setReady());
         console.log("arraybuffer view : ");
         console.log(ArrayBuffer.isView(x));
         // dispatch(setReady(x));
@@ -1165,7 +1160,6 @@ function useEngine(
 function useUpdateBoardFEN(
   playColor: Color,
   fen: FenObject,
-  TheStockfishEngine: StockfishEngine,
   openSettings: boolean,
 ) {
   useEffect(() => {
@@ -1176,7 +1170,7 @@ function useUpdateBoardFEN(
         !openSettings &&
         FENHistory.length - 1 === currentUIPosition
       )
-        getBestMove(fen.fen, TheStockfishEngine);
+        getBestMove(fen.fen);
       // const bestMoveString = useCaptureBestMoves();
       // console.log(bestMoveString);
     } else {
@@ -1195,7 +1189,6 @@ function triggerStockfishTrigger(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
@@ -1221,7 +1214,6 @@ function triggerStockfishTrigger(
         gameEndTitle,
         setGameEnded,
         setSoundTrigger,
-        TheStockfishEngine,
       )
     )
       return;
@@ -1272,7 +1264,6 @@ function useClickAndMove(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   useEffect(() => {
     console.log("clickAndMoveTriggerred");
@@ -1305,7 +1296,6 @@ function useClickAndMove(
           gameEndTitle,
           setGameEnded,
           setSoundTrigger,
-          TheStockfishEngine,
         )
       )
         return;
@@ -1343,7 +1333,6 @@ function useOnPieceDrop(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  TheStockfishEngine: StockfishEngine,
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -1394,7 +1383,6 @@ function useOnPieceDrop(
               gameEndTitle,
               setGameEnded,
               setSoundTrigger,
-              TheStockfishEngine,
             )
           )
             return;
@@ -1448,7 +1436,6 @@ export default function Page() {
   const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
   const workerRef = useRef<Worker>(null);
-  const TheStockfishEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
   const [engineOperable, setEngineOperable] = useState<boolean>(true);
@@ -1477,12 +1464,11 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine,
   );
 
   useEngine(workerRef, setEngineOperable);
 
-  useUpdateBoardFEN(playColor, fen, TheStockfishEngine, openSettings);
+  useUpdateBoardFEN(playColor, fen, openSettings);
 
   useSound(soundTrigger, setSoundTrigger);
 
@@ -1498,7 +1484,6 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine,
   );
 
   useOnPieceDrop(
@@ -1513,7 +1498,6 @@ export default function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    TheStockfishEngine,
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
@@ -1529,7 +1513,6 @@ export default function Page() {
               playColor={playColor}
               setPlayColor={setPlayColor}
               setOpenSettings={setOpenSettings}
-              TheStockfishEngine={TheStockfishEngine}
               originalFEN={originalFEN}
             />
           ) : null}
@@ -1562,7 +1545,6 @@ export default function Page() {
               gameEndResult={gameEndResult}
               gameEndTitle={gameEndTitle}
               setGameEnded={setGameEnded}
-              TheStockfishEngine={TheStockfishEngine}
             />
           ) : null}
         </div>
@@ -1574,7 +1556,6 @@ export default function Page() {
           gameEnded={gameEnded}
           setParsedPGN={setParsedPGN}
           playColor={playColor}
-          TheStockfishEngine={TheStockfishEngine}
           setGameEnded={setGameEnded}
           setSoundTrigger={setSoundTrigger}
         />
@@ -1590,7 +1571,6 @@ function PGNTable({
   gameEnded,
   setParsedPGN,
   playColor,
-  TheStockfishEngine,
   setGameEnded,
   setSoundTrigger,
 }: {
@@ -1600,7 +1580,6 @@ function PGNTable({
   gameEnded: gameEndObject;
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   playColor: Color;
-  TheStockfishEngine: StockfishEngine;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
   setSoundTrigger: Dispatch<SetStateAction<string>>;
 }) {
@@ -1709,7 +1688,6 @@ function PGNTable({
                     handleResignation(
                       setParsedPGN,
                       playColor,
-                      TheStockfishEngine,
                       setGameEnded,
                       setSoundTrigger,
                     )
@@ -1844,7 +1822,6 @@ function PromotionDrawer({
   gameEndResult,
   gameEndTitle,
   setGameEnded,
-  TheStockfishEngine,
 }: {
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   openDrawer: boolean;
@@ -1857,7 +1834,6 @@ function PromotionDrawer({
   gameEndResult: string;
   gameEndTitle: string;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
-  TheStockfishEngine: StockfishEngine;
 }) {
   return (
     <Drawer open={openDrawer} modal={true} dismissible={false}>
@@ -1889,7 +1865,6 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine,
               )
             }
           />
@@ -1916,7 +1891,6 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine,
               )
             }
           />
@@ -1943,7 +1917,6 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine,
               )
             }
           />
@@ -1970,7 +1943,6 @@ function PromotionDrawer({
                 gameEndResult,
                 gameEndTitle,
                 setGameEnded,
-                TheStockfishEngine,
               )
             }
           />
@@ -1986,7 +1958,6 @@ function SettingComponent({
   playColor,
   setPlayColor,
   setOpenSettings,
-  TheStockfishEngine,
   originalFEN,
 }: {
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
@@ -1994,7 +1965,6 @@ function SettingComponent({
   playColor: Color;
   setPlayColor: Dispatch<SetStateAction<Color>>;
   setOpenSettings: Dispatch<SetStateAction<boolean>>;
-  TheStockfishEngine: StockfishEngine;
   originalFEN: string;
 }) {
   const [stockfishElo, setStockfishElo] = useState<number>(1350);
@@ -2060,7 +2030,6 @@ function SettingComponent({
                 setParsedPGN,
                 setOpenSettings,
                 stockfishElo,
-                TheStockfishEngine,
                 playColor,
                 originalFEN,
               )

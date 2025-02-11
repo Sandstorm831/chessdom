@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import EngineReducer from "./features/engine/engineSlice";
-import outputArrayReducer  from "./features/engine/outputArraySlice";
+import outputArrayReducer from "./features/engine/outputArraySlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -8,11 +8,6 @@ export const makeStore = () => {
       engine: EngineReducer,
       outputArray: outputArrayReducer,
     },
-    middleware: (getDefaultMiddleware) => {
-      return getDefaultMiddleware({
-        serializableCheck: false,
-      })
-    }
   });
 };
 
