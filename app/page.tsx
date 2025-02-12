@@ -4,8 +4,14 @@ import { playfair_display } from "./ui/fonts";
 import { EngineX } from "./engineAndPGN";
 import { useEffect } from "react";
 import initialisingEngineWorker from "./startEngine";
-import { GiOrbitalRays } from "react-icons/gi";
-import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
+import { GiOrbitalRays, GiMountedKnight } from "react-icons/gi";
+import {
+  FaQuoteLeft,
+  FaQuoteRight,
+  FaChess,
+  FaChessBoard,
+} from "react-icons/fa";
+import { FaPersonWalkingArrowRight, FaArrowTrendDown } from "react-icons/fa6";
 
 export default function Home() {
   // The code will run only when present on the client, and not on pre-rendering on server.
@@ -35,26 +41,44 @@ export default function Home() {
           </div>
           <div className="text-[200px] flex ml-12">of CHESS</div>
         </div>
-        <div className="flex w-full h-96">
+        <div className="flex w-full">
           <div className="border-r-2 border-[#fffefc] w-1/3 flex flex-col">
-            <div className="text-4xl flex justify-end mr-8 font-extrabold">
-              <p>
+            <div className="text-4xl flex justify-between mr-8 ">
+              <div>Timeline</div>
+              <p className="font-extrabold">
                 6<sup>th</sup> Century - Eternity
               </p>
             </div>
-            <div className="text-3xl flex justify-end mr-8 mt-5 italic font-serif font-light">
-              Earth
+            <div className="text-3xl flex justify-end mr-8 mt-5">
+              <div className="italic font-serif font-light">Earth</div>
+            </div>
+            <div className="text-3xl text-center mt-5 mr-8">
+              Chess was never just a game, but a journey for anyone who masters
+              it and becomes a knight
+            </div>
+            {/* <div className="flex justify-center"><FaArrowTrendDown /></div> */}
+            <div className="flex justify-center mr-8 mt-5">
+              {/* <FaPersonWalkingArrowRight className="text-[200px] text-[#fffefc]" /> */}
+              <GiMountedKnight className="text-[200px] text-[#fffefc]" />
             </div>
           </div>
           <div className="w-2/3 flex flex-col">
             <div className="flex ms-8 h-full">
-              <div>
-                <GiOrbitalRays className="text-[100px]" />
+              <div className="flex flex-col justify-around">
+                <div className="flex justify-center">
+                  <GiOrbitalRays className="text-[150px]" />
+                </div>
+                <FaChessBoard className="text-[200px] text-[#fffefc]" />
               </div>
-              <div className="flex justify-around">
+              <div className="flex justify-center">
                 <Quote />
               </div>
             </div>
+          </div>
+        </div>
+        <div className="flex justify-center w-full">
+          <div className="cursor-pointer shadow-lg bg-[#fffefc] text-[#323014] font-extrabold text-4xl p-5 mb-12 rounded-full mt-12 duration-200 hover:shadow-[#24230e] active:shadow-none active:duration-75">
+            Proclaim Your Knighthood
           </div>
         </div>
       </div>
@@ -65,11 +89,11 @@ export default function Home() {
 function Quote() {
   return (
     <div className="ml-12 flex flex-col h-full text-5xl w-1/2">
-      <FaQuoteLeft />
+      <FaQuoteLeft className="mb-5" />
       Of chess, it has been said that life is not long enough for it, but that
       is the fault of life, not chess.
-      <div>- William Napier</div>
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-5">- William Napier</div>
+      <div className="flex justify-end mt-5">
         <FaQuoteRight />
       </div>
     </div>
@@ -87,11 +111,10 @@ function TheGrid() {
     >
       {x.map((num, idx) => (
         <div
-          className={`bg-[${num % 2 === 1 ? "#323014" : "#fffefc"}]`}
+          className={num % 2 === 1 ? "bg-[#323014]" : "bg-[#fffefc]"}
           key={idx}
         ></div>
       ))}
     </div>
   );
 }
-// grid-auto-flow-row auto-rows-[100px]
