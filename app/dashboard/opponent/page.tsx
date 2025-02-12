@@ -1616,6 +1616,7 @@ function useSocket(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setRematchD: Dispatch<SetStateAction<boolean>>,
+  setSameUser: Dispatch<SetStateAction<boolean>>,
 ) {
   const { toast } = useToast();
   const { data: session } = useSession();
@@ -1715,6 +1716,10 @@ function useSocket(
       setIsBanned(false);
     });
 
+    socket.on("sameuser", () => {
+      setSameUser(true);
+    });
+
     function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
@@ -1774,6 +1779,7 @@ export function Page() {
   const [opponentLeftTheGame, setOpponentLeftTheGame] = useState(false);
   const [isBanned, setIsBanned] = useState(false);
   const [bannedTimer, setBannedTimer] = useState(900);
+  const [sameUser, setSameUser] = useState(false);
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
@@ -1805,6 +1811,7 @@ export function Page() {
     setSoundTrigger,
     setGameEnded,
     setRematchD,
+    setSameUser,
   );
   /*  Variables relating to socket chess and online play */
 
@@ -1860,6 +1867,8 @@ export function Page() {
 
   return isBanned ? (
     <BannedPage BannedTimer={bannedTimer} />
+  ) : sameUser ? (
+    <SameUserPage />
   ) : findingRoom ? (
     <div className="w-full h-full flex flex-col justify-center ">
       <div className="w-full flex justify-center">
@@ -1942,6 +1951,21 @@ export function Page() {
         />
 
         <Toaster />
+      </div>
+    </div>
+  );
+}
+
+function SameUserPage() {
+  setTimeout(() => redirect("/dashboard"), 4000);
+  return (
+    <div className="w-full h-full flex flex-col justify-center">
+      <div className="w-full flex justify-center text-3xl">
+        A User with the same email id already exists, please login to a
+        different account to play
+      </div>
+      <div className="w-full flex justify-center text-3xl text-gray-500">
+        Redirecting back to dashboard ...
       </div>
     </div>
   );
