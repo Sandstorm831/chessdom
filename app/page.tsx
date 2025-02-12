@@ -76,11 +76,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex justify-center w-full">
-          <div className="cursor-pointer shadow-lg bg-[#fffefc] text-[#323014] font-extrabold text-4xl p-5 mb-12 rounded-full mt-12 duration-200 hover:shadow-[#24230e] active:shadow-none active:duration-75">
-            Proclaim Your Knighthood
-          </div>
-        </div>
       </div>
     </div>
   );
