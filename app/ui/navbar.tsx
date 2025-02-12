@@ -14,7 +14,7 @@ import { GiMountedKnight } from "react-icons/gi";
 export default async function Navbar() {
   const session = await auth();
   return (
-    <div className="w-full flex justify-between pt-3 px-3 text-[#323014]">
+    <div className="w-full flex justify-between pt-3 px-3 text-[#323014] bg-[#323014]">
       <div className=" text-3xl">
         <Link href={session ? "/dashboard" : "/"}> Chessdom </Link>
       </div>
