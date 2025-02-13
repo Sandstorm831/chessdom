@@ -43,8 +43,7 @@ export default function Home() {
         </div>
         <div className="flex w-full">
           <div className="border-r-2 border-[#fffefc] w-1/3 flex flex-col">
-            <div className="text-4xl flex justify-between mr-8 ">
-              <div>Timeline</div>
+            <div className="text-4xl flex justify-end mr-8 ">
               <p className="font-extrabold">
                 6<sup>th</sup> Century - Eternity
               </p>
@@ -97,12 +96,12 @@ function Quote() {
 
 function TheGrid() {
   const x: number[] = [];
-  for (let i = 0; i < 51; i++) {
+  for (let i = 0; i < 45; i++) {
     x.push(i);
   }
   return (
     <div
-      className={`grid grid-cols-[repeat(17,50px)] grid-rows-[repeat(3,50px)] w-full`}
+      className={`grid grid-cols-[repeat(15,50px)] grid-rows-[repeat(3,50px)] w-full`}
     >
       {x.map((num, idx) => (
         <div
