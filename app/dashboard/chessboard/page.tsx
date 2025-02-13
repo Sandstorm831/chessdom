@@ -29,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 // import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
@@ -519,12 +520,12 @@ function SquareBlock({
   function getColor() {
     if (isDraggedOver) {
       return isDark
-        ? "border-2 border-gray-500 bg-[#769656] text-[#eeeed2]"
-        : "border-2 border-gray-500 bg-[#eeeed2] text-[#769656]";
+        ? "border-2 border-gray-500 bg-[#b58863] text-[#f0d9b5]"
+        : "border-2 border-gray-500 bg-[#f0d9b5] text-[#b58863]";
     }
     return isDark
-      ? "bg-[#769656] text-[#eeeed2]"
-      : "bg-[#eeeed2] text-[#769656]";
+      ? "bg-[#b58863] text-[#eeeed2]"
+      : "bg-[#f0d9b5] text-[#b58863]";
   }
   return (
     <div
@@ -1440,6 +1441,7 @@ export function Page() {
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
   const [engineOperable, setEngineOperable] = useState<boolean>(true);
+  const { data: session, status } = useSession();
   console.log("page rendering");
 
   chess.load(fen.fen);
@@ -1504,9 +1506,33 @@ export function Page() {
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center bg-[#323014]">
-      <div className="flex w-full justify-center">
-        <div className="aspect-square w-2/5 grid grid-rows-[50px_repeat(8,1fr)_50px] grid-cols-8">
+    <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
+      <div className="flex w-full h-full justify-center">
+        <div className="h-full flex flex-col justify-between">
+          <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
+            <Image
+              src={"/images/stockfish.png"}
+              width={67}
+              height={67}
+              alt="stokfish"
+              className="border border-[#f0d9b5] rounded-lg mr-5"
+            />
+            Stockfish
+          </div>
+          <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
+            <Image
+              src={"/knight_mirror.png"}
+              width={60}
+              height={60}
+              alt="default avatar"
+              className="border border-[#b58863] mr-5 rounded-lg"
+            />
+            {session && session.user && session.user.name
+              ? session.user.name
+              : "The Knight"}
+          </div>
+        </div>
+        <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
           {engineOperable ? (
             <SettingComponent
               setParsedPGN={setParsedPGN}
@@ -1528,11 +1554,11 @@ export function Page() {
             setOpenSettings={setOpenSettings}
             setGameEnded={setGameEnded}
           />
-          <div className="col-span-8 bg-blue-400"></div>
+          {/* <div className="col-span-8 bg-blue-400"></div> */}
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
-          <div className="col-span-8 bg-blue-800"></div>
+          {/* <div className="col-span-8 bg-blue-800"></div> */}
           {openDrawer ? (
             <PromotionDrawer
               setParsedPGN={setParsedPGN}
@@ -1585,14 +1611,14 @@ function PGNTable({
   setSoundTrigger: Dispatch<SetStateAction<string>>;
 }) {
   return (
-    <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
-      <div className="bg-slate-500 w-full h-16 flex justify-center">
-        <div className="text-2xl font-mono flex flex-col justify-center">
+    <div className="w-1/5 h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
+      <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
+        <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
           <div>PGN Table</div>
         </div>
       </div>
-      <div className="w-full h-full overflow-scroll bg-slate-600 relative">
-        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-white">
+      <div className="w-full h-full overflow-scroll bg-[#fffefc] relative font-mono">
+        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
           {parsedPGN && parsedPGN.length
             ? parsedPGN[0].moves.map((obj, id) => {
                 return obj.turn === "w" ? (
@@ -1600,7 +1626,7 @@ function PGNTable({
                     key={id}
                     className="col-span-4 grid grid-cols-4 grid-rows-1"
                   >
-                    <div className="col-span-1 bg-slate-700 w-full flex justify-center">
+                    <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
                       <div
                         className="h-full flex flex-col justify-center"
                         ref={
@@ -1615,7 +1641,7 @@ function PGNTable({
                       </div>
                     </div>
                     <div
-                      className="col-span-3 w-full flex justify-center cursor-pointer"
+                      className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                       onClick={() =>
                         arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                       }
@@ -1628,7 +1654,7 @@ function PGNTable({
                 ) : (
                   <div
                     key={id}
-                    className="col-span-3 w-full flex justify-center cursor-pointer"
+                    className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                     onClick={() =>
                       arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                     }
@@ -1648,34 +1674,35 @@ function PGNTable({
         </div>
         {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
       </div>
-      <div className="bg-slate-500 w-full h-20 flex justify-around">
+      <div className="bg-[#fffefc] w-full h-20 flex justify-around">
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Button
-            variant="outline"
-            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+          <div
+            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
             onClick={() => moveBackward(setFen)}
           >
-            <ChevronLeft />
-          </Button>
+            <div className="flex flex-col justify-center h-full">
+              <ChevronLeft className="text-[#fffefc]" size={25} />
+            </div>
+          </div>
         </div>
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Button
-            variant="outline"
-            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+          <div
+            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
             onClick={() => moveForward(setFen)}
           >
-            <ChevronRight />
-          </Button>
+            <div className="flex flex-col justify-center h-full">
+              <ChevronRight className="text-[#fffefc]" size={25} />
+            </div>
+          </div>
         </div>
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
-              >
-                <Flag />
-              </Button>
+              <div className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100">
+                <div className="flex flex-col justify-center">
+                  <Flag className="text-[#fffefc]" size={25} />
+                </div>
+              </div>
             </PopoverTrigger>
             <PopoverContent>
               <div className=" text-xl flex justify-center">
