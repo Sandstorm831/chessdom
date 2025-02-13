@@ -16,7 +16,7 @@ export default async function Navbar() {
   return (
     <div className="w-full flex justify-between pt-3 px-3 text-[#fffefc] bg-[#323014]">
       <div className=" text-3xl">
-        <Link href={session ? "/dashboard" : "/"}> Chessdom </Link>
+        <Link href={"/"}> Chessdom </Link>
       </div>
       <div>
         {session?.user ? (
