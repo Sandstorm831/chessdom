@@ -578,7 +578,7 @@ function Peice({
       ref={ref}
       height={0}
       width={0}
-      className="w-11/12 h-11/12 absolute left-[5%] top-[5%] z-10"
+      className="w-10/12 h-10/12 absolute 2xl:left-[8%] max-2xl:left-[9%] bottom-[3%] z-10"
       style={dragging ? { opacity: 0 } : {}}
       draggable="false"
     />
@@ -633,10 +633,10 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="absolute -top-[2px] left-2 z-10 text-lg">
+              <div className="absolute -top-[1px] left-1 z-10 text-sm font-bold">
                 {color === "w" ? 1 : 8}
               </div>
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? (
@@ -650,7 +650,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -666,7 +666,7 @@ function RenderSquare(
               id={IJToSquare(i, j, color)}
             >
               {" "}
-              <div className="z-10 absolute -top-[2px] left-2 text-lg">
+              <div className="z-10 absolute -top-[1px] left-1 text-sm font-bold">
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? (
@@ -680,7 +680,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -695,7 +695,7 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w"
                   ? String.fromCharCode(j + 97)
                   : String.fromCharCode(96 + 8 - j)}
@@ -711,7 +711,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -737,7 +737,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -753,10 +753,10 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="absolute -top-[2px] left-2 z-10 text-lg">
+              <div className="absolute -top-[1px] left-1 z-10 text-sm font-bold">
                 {color === "w" ? 1 : 8}
               </div>
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? (
@@ -770,7 +770,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -786,7 +786,7 @@ function RenderSquare(
               id={IJToSquare(i, j, color)}
             >
               {" "}
-              <div className="z-10 absolute -top-[2px] left-2 text-lg">
+              <div className="z-10 absolute -top-[1px] left-1 text-sm font-bold">
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? (
@@ -800,7 +800,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -815,7 +815,7 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w"
                   ? String.fromCharCode(j + 97)
                   : String.fromCharCode(96 + 8 - j)}
@@ -831,7 +831,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -858,7 +858,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -1504,9 +1504,9 @@ export function Page() {
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center">
+    <div className="w-full h-full flex flex-col justify-center bg-[#323014]">
       <div className="flex w-full justify-center">
-        <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
+        <div className="aspect-square w-2/5 grid grid-rows-[50px_repeat(8,1fr)_50px] grid-cols-8">
           {engineOperable ? (
             <SettingComponent
               setParsedPGN={setParsedPGN}
@@ -1528,11 +1528,11 @@ export function Page() {
             setOpenSettings={setOpenSettings}
             setGameEnded={setGameEnded}
           />
-
+          <div className="col-span-8 bg-blue-400"></div>
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
-
+          <div className="col-span-8 bg-blue-800"></div>
           {openDrawer ? (
             <PromotionDrawer
               setParsedPGN={setParsedPGN}

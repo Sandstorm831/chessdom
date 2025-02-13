@@ -94,3 +94,5 @@ interface UciDetails {
 https://gist.github.com/aliostad/f4470274f39d29b788c1b09519e67372
 https://github.com/fitztrev/lichess-tauri/tree/main
 https://blog.logrocket.com/using-stdout-stdin-stderr-node-js/
+https://www.behance.net/gallery/110228391/Illustrations-chess?l=16# 
+https://dribbble.com/shots/16086042-Match-Point-Kasparov

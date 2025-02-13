@@ -97,17 +97,3 @@ export function Page() {
 }
 
 export default isAuth(Page);
-
-// https://www.behance.net/gallery/208985531/shahmatnyjpavilon-imeni-vja-dvorkovicha?tracking_source=search_projects|chess+website+web+design&l=3#
-
-// https://www.behance.net/gallery/110228391/Illustrations-chess?tracking_source=search_projects|chess+website&l=16#
-
-// https://www.behance.net/gallery/197310563/Chess-Interface?tracking_source=search_projects|chess+website&l=6#
-
-// https://www.behance.net/gallery/207748933/Summer-chess-camp?tracking_source=search_projects%7Cchess+website#
-
-// https://preview.themeforest.net/item/checkmate-chess-club-tournaments-elementor-template-kit/full_screen_preview/29880542
-
-// https://dribbble.com/shots/16086042-Match-Point-Kasparov
-
-// https://www.behance.net/search/projects/chess%20website%20web%20design
