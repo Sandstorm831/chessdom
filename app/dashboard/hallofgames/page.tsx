@@ -1,25 +1,38 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Game } from "@prisma/client";
 import { getAllGames } from "./dbqueries";
 import { TheParentPGN } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
 import { GiMountedKnight } from "react-icons/gi";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FaEllipsisH } from "react-icons/fa";
+import { totalmem } from "node:os";
+
+function getPageArray(totalPages: number) {
+  const x = [];
+  for (let i = 0; i < Math.ceil(totalPages / 20); i++) {
+    x.push(i + 1);
+  }
+  return x;
+}
 
 export function Page() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(3);
   const [gameArray, setGameArray] = useState<Game[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [totalGames, setTotalGames] = useState(79);
   useEffect(() => {
     async function allGames() {
-      const x = await getAllGames(page);
-      setGameArray(x);
+      // const x = await getAllGames(1); // set page here instead of number in getAllGames
+      // setGameArray(x);
       setLoading(false);
     }
     allGames();
-  }, [page]);
+  }, []); // add page in the dependency array
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex w-full justify-center text-5xl my-12">
@@ -130,28 +143,172 @@ export function Page() {
             : null}
         </div>
       </div>
+      <div className="flex justify-center w-full mt-5">
+        {totalGames <= 80 ? (
+          <div className="flex justify-center">
+            <Mover
+              numCheck={1}
+              direction="left"
+              setPage={setPage}
+              currentPage={page}
+            />
+            {getPageArray(totalGames).map((num, idx) => (
+              <NumberButton
+                numDisplay={num}
+                numCheck={page}
+                setPage={setPage}
+              />
+            ))}
+            <Mover
+              numCheck={Math.ceil(totalGames / 20)}
+              direction="right"
+              setPage={setPage}
+              currentPage={page}
+            />
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Mover
+              numCheck={1}
+              direction="left"
+              setPage={setPage}
+              currentPage={page}
+            />
+            {page === 1 || page === 2 ? (
+              <div className="flex">
+                <NumberButton
+                  numDisplay={1}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <NumberButton
+                  numDisplay={2}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <Ellipses />
+                <NumberButton
+                  numDisplay={Math.ceil(totalGames / 20)}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+              </div>
+            ) : page === Math.ceil(totalGames / 20) ||
+              page === Math.ceil(totalGames / 20) - 1 ? (
+              <div className="flex">
+                <NumberButton
+                  numDisplay={1}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <Ellipses />
+                <NumberButton
+                  numDisplay={Math.ceil(totalGames / 20) - 1}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <NumberButton
+                  numDisplay={Math.ceil(totalGames / 20)}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+              </div>
+            ) : (
+              <div className="flex">
+                <NumberButton
+                  numDisplay={1}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <Ellipses />
+                <NumberButton
+                  numDisplay={page}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+                <Ellipses />
+                <NumberButton
+                  numDisplay={Math.ceil(totalGames / 20)}
+                  numCheck={page}
+                  setPage={setPage}
+                />
+              </div>
+            )}
+            <Mover
+              numCheck={Math.ceil(totalGames / 20)}
+              direction="right"
+              setPage={setPage}
+              currentPage={page}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+function NumberButton({
+  numDisplay,
+  numCheck,
+  setPage,
+}: {
+  numDisplay: number;
+  numCheck: number;
+  setPage: Dispatch<SetStateAction<number>>;
+}) {
+  return (
+    <div
+      className={
+        numCheck !== numDisplay
+          ? "bg-[#fffefec] text-[#323014] hover:bg-[#323014] hover:bg-opacity-10 mx-2 w-12 text-xl cursor-pointer border-[#fffefc] rounded-md flex justify-center"
+          : "bg-[#fffefec] text-[#323014] mx-2 w-12 text-xl cursor-pointer border-[#fffefc] rounded-md flex justify-center bg-[#323014] bg-opacity-40"
+      }
+      onClick={() => setPage(numDisplay)}
+    >
+      <div className="flex flex-col justify-center font-mono">{numDisplay}</div>
+    </div>
+  );
+}
+
+function Mover({
+  currentPage,
+  numCheck,
+  direction,
+  setPage,
+}: {
+  currentPage: number;
+  numCheck: number;
+  direction: string;
+  setPage: Dispatch<SetStateAction<number>>;
+}) {
+  return (
+    <div
+      className="bg-[#323014] text-[#fffefc] hover:bg-opacity-90 mx-2 w-12 h-12 rounded-md cursor-pointer border-[#323014] flex justify-center"
+      onClick={() => {
+        return currentPage !== numCheck
+          ? direction === "right"
+            ? setPage((page) => page + 1)
+            : setPage((page) => page - 1)
+          : null;
+      }}
+    >
+      <div className="flex flex-col justify-center h-full">
+        {direction === "right" ? <ChevronRight /> : <ChevronLeft />}
+      </div>
+    </div>
+  );
+}
+
+function Ellipses() {
+  return (
+    <div
+      className={
+        "bg-[#fffefec] text-[#323014] mx-2 w-12 text-xl border-[#fffefc] rounded-md flex justify-center"
+      }
+    >
+      <div className="flex flex-col justify-center">...</div>
+    </div>
+  );
+}
+
 export default isAuth(Page);
-// {gameArray && gameArray.length
-//   ? gameArray.map((obj, idx) => (
-//       <div
-//         key={idx}
-//         className="bg-gray-400 overflow-scroll flex justify-center"
-//       >
-//         <Link
-//           className="flex justify-center w-44 h-min bg-blue-950 rounded-lg text-white hover:cursor-pointer"
-//           href={"/dashboard/reviewgame"}
-// onClick={() => {
-//   TheParentPGN.PGN = obj.PGN;
-//   TheParentPGN.white = obj.white;
-//   TheParentPGN.black = obj.black;
-//   TheParentPGN.stockfishGame = false;
-// }}
-//         >
-//           Review the game
-//         </Link>
-//       </div>
-//     ))
-//   : null}
