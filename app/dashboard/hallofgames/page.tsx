@@ -27,12 +27,16 @@ export function Page() {
   const [totalGames, setTotalGames] = useState(20);
   useEffect(() => {
     async function allGames() {
+      const y = await getGamesCount();
+      setTotalGames(y);
       const x = await getAllGames(page); // set page here instead of number in getAllGames
-      setTotalGames(x.length);
       setGameArray(x);
       setLoading(false);
     }
-    allGames();
+    const timer = setTimeout(allGames, 250);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [page]); // add page in the dependency array
   return (
     <div className="w-full h-full flex flex-col">
@@ -41,19 +45,19 @@ export function Page() {
       </div>
       <div className="flex justify-center w-full">
         <div className="w-4/5 grid grid-cols-5 grid-auto-flow-row auto-rows-[50px] bg-[#323014] border rounded-lg">
-          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full">
+          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
             <div className="flex flex-col h-full justify-center">GameId </div>
           </div>
-          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full">
+          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
             <div className="flex flex-col h-full justify-center">White </div>
           </div>
-          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full">
+          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
             <div className="flex flex-col h-full justify-center">Black </div>
           </div>
-          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full">
+          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
             <div className="flex flex-col h-full justify-center">Result </div>
           </div>
-          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full">
+          <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
             <div className="flex flex-col h-full justify-center">View Game</div>
           </div>
           {gameArray && gameArray.length
