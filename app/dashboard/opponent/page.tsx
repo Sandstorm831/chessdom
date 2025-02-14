@@ -81,10 +81,12 @@ const FENHistory: FenObject[] = [
 ];
 
 let currentUIPosition = 0;
+let blueDotArrayClearIntimator: boolean = false;
 
 function moveForward(setFen: Dispatch<SetStateAction<FenObject>>) {
   if (currentUIPosition === FENHistory.length - 1) return;
   else {
+    blueDotArrayClearIntimator = true;
     setFen(FENHistory[currentUIPosition + 1]);
     currentUIPosition += 1;
   }
@@ -93,12 +95,14 @@ function moveForward(setFen: Dispatch<SetStateAction<FenObject>>) {
 function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
   if (currentUIPosition === 0) return;
   else {
+    blueDotArrayClearIntimator = true;
     setFen(FENHistory[currentUIPosition - 1]);
     currentUIPosition -= 1;
   }
 }
 
 function presentTimeTravel(setFen: Dispatch<SetStateAction<FenObject>>) {
+  blueDotArrayClearIntimator = true;
   setFen(FENHistory[FENHistory.length - 1]);
   currentUIPosition = FENHistory.length - 1;
 }
@@ -108,6 +112,7 @@ function arbitraryTimeTravel(
   turn: string,
   setFen: Dispatch<SetStateAction<FenObject>>,
 ) {
+  blueDotArrayClearIntimator = true;
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
@@ -597,6 +602,10 @@ function RenderSquare(
   }
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
+  if (blueDotArrayClearIntimator) {
+    setBlueDotArray([]);
+    blueDotArrayClearIntimator = false;
+  }
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {
     if (
       toBeCleared ||

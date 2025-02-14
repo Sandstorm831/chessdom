@@ -60,7 +60,6 @@ let storeCallback: Function;
 let reconciliation = false;
 let stockfishColor: Color = "w";
 let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
-let blueDotArrayClearIntimator: boolean = false;
 // dependency array, state variables that
 // are set afterward the first render, doesn't
 // get reflected, at those places, this variable
@@ -401,10 +400,6 @@ function RenderSquare(
   }
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
-  if (blueDotArrayClearIntimator) {
-    setBlueDotArray([]);
-    blueDotArrayClearIntimator = false;
-  }
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {}
   console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
