@@ -127,6 +127,7 @@ export function Page() {
                       <GiMountedKnight
                         className="h-full w-full cursor-pointer"
                         onClick={() => {
+                          history.pushState(null, "", "/dashboard/hallofgames"); // it will redirect back to hall of games if clickd on back button, otherwise it was redirecting to dashbaord
                           TheParentPGN.PGN = obj.PGN;
                           TheParentPGN.white = obj.white;
                           TheParentPGN.black = obj.black;
