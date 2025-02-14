@@ -48,6 +48,7 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TheParentPGN } from "@/app/engineAndPGN";
 import { EngineX } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
+import { Session } from "next-auth";
 const chess = new Chess();
 const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
@@ -1553,6 +1554,8 @@ export function Page() {
             originalFEN={originalFEN}
             setOpenSettings={setOpenSettings}
             setGameEnded={setGameEnded}
+            playColor={playColor}
+            session={session}
           />
           {/* <div className="col-span-8 bg-blue-400"></div> */}
           {chessBoardArray && chessBoardArray.length
@@ -1773,6 +1776,8 @@ function GameEndDialogue({
   originalFEN,
   setOpenSettings,
   setGameEnded,
+  playColor,
+  session,
 }: {
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   gameEnded: gameEndObject;
@@ -1780,6 +1785,8 @@ function GameEndDialogue({
   originalFEN: string;
   setOpenSettings: Dispatch<SetStateAction<boolean>>;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
+  playColor: Color;
+  session: Session | null;
 }) {
   return (
     <Dialog
@@ -1826,6 +1833,21 @@ function GameEndDialogue({
               className="flex justify-center mx-2 text-xl w-full"
               onClick={() => {
                 TheParentPGN.PGN = PGN.pgn;
+                TheParentPGN.stockfishGame = true;
+                TheParentPGN.white =
+                  playColor === "w" &&
+                  session &&
+                  session.user &&
+                  session.user.email
+                    ? session.user.email
+                    : "Stockfisha5b6-c1e9@topchessengine.com";
+                TheParentPGN.black =
+                  playColor === "b" &&
+                  session &&
+                  session.user &&
+                  session.user.email
+                    ? session.user.email
+                    : "Stockfisha5b6-c1e9@topchessengine.com";
                 redirect("/dashboard/reviewgame");
               }}
             >

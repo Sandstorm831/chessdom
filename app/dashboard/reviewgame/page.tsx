@@ -58,7 +58,9 @@ import isAuth from "@/components/auth_HOC";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
+let stockfishColor: Color = "w";
 let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
+let blueDotArrayClearIntimator: boolean = false;
 // dependency array, state variables that
 // are set afterward the first render, doesn't
 // get reflected, at those places, this variable
@@ -77,7 +79,7 @@ const FENHistory: FenObject[] = [
     pieceMovements: [],
   },
 ];
-
+const gameInitials: gameEst = { white: "", black: "", stockfishGame: false };
 let currentUIPosition = 0;
 
 function moveForward(setFen: Dispatch<SetStateAction<FenObject>>) {
@@ -123,8 +125,17 @@ function arbitraryTimeTravel(
 //   return opponentOutputArray[opponentOutputArray.length - 1];
 // }
 
+export type gameEst = {
+  white: string;
+  black: string;
+  stockfishGame: boolean;
+};
+
 export type parentPGN = {
   PGN: string;
+  white: string;
+  black: string;
+  stockfishGame: boolean;
 };
 
 export type historyObject = {
@@ -390,6 +401,10 @@ function RenderSquare(
   }
   const chessBoardArray: ReactElement[] = [];
   const [blueDotArray, setBlueDotArray] = useState<SquareAndMove[]>([]);
+  if (blueDotArrayClearIntimator) {
+    setBlueDotArray([]);
+    blueDotArrayClearIntimator = false;
+  }
   function setBlueDotArrayFunc(square: Square, toBeCleared: boolean) {}
   console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
@@ -703,6 +718,14 @@ export function Page() {
         pieceMovements: [],
       });
       currentUIPosition = 0;
+      gameInitials.black = TheParentPGN.black;
+      gameInitials.white = TheParentPGN.white;
+      gameInitials.stockfishGame = TheParentPGN.stockfishGame;
+      if (gameInitials.stockfishGame) {
+        if (gameInitials.white.split("@")[0] === "Stockfisha5b6-c1e9")
+          stockfishColor = "w";
+        else stockfishColor = "b";
+      }
       const OG: string = TheParentPGN.PGN;
       const parsed = parse(OG, { startRule: "game" });
       console.log(parsed);
@@ -753,24 +776,48 @@ export function Page() {
       <div className="flex w-full h-full justify-center">
         <div className="h-full flex flex-col justify-between">
           <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/images/stockfish.png"}
-              width={67}
-              height={67}
-              alt="stokfish"
-              className="border border-[#f0d9b5] rounded-lg mr-5"
-            />
-            Stockfish
+            {gameInitials.stockfishGame && playColor !== stockfishColor ? (
+              <Image
+                src={"/images/stockfish.png"}
+                width={67}
+                height={67}
+                alt="stokfish"
+                className="border border-[#f0d9b5] rounded-lg mr-5"
+              />
+            ) : (
+              <Image
+                src={"/knight_mirror.png"}
+                width={60}
+                height={60}
+                alt="default avatar"
+                className="border border-[#f0d9b5] mr-5 rounded-lg"
+              />
+            )}
+            {playColor === "w"
+              ? gameInitials.black.split("@")[0]
+              : gameInitials.white.split("@")[0]}
           </div>
           <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/knight_mirror.png"}
-              width={60}
-              height={60}
-              alt="default avatar"
-              className="border border-[#b58863] mr-5 rounded-lg"
-            />
-            {"The Knight"}
+            {gameInitials.stockfishGame && playColor === stockfishColor ? (
+              <Image
+                src={"/images/stockfish.png"}
+                width={67}
+                height={67}
+                alt="stokfish"
+                className="border border-[#b58863] rounded-lg mr-5"
+              />
+            ) : (
+              <Image
+                src={"/knight_mirror.png"}
+                width={60}
+                height={60}
+                alt="default avatar"
+                className="border border-[#b58863] mr-5 rounded-lg"
+              />
+            )}
+            {playColor === "b"
+              ? gameInitials.black.split("@")[0]
+              : gameInitials.white.split("@")[0]}
           </div>
         </div>
         <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">

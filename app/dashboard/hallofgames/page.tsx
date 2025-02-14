@@ -37,6 +37,9 @@ export function Page() {
                     href={"/dashboard/reviewgame"}
                     onClick={() => {
                       TheParentPGN.PGN = obj.PGN;
+                      TheParentPGN.white = obj.white;
+                      TheParentPGN.black = obj.black;
+                      TheParentPGN.stockfishGame = false;
                     }}
                   >
                     Review the game

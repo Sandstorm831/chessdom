@@ -6,4 +6,9 @@ export type engineX = {
 };
 
 export const EngineX: engineX = { stockfishEngine: null };
-export const TheParentPGN: parentPGN = { PGN: "" };
+export const TheParentPGN: parentPGN = {
+  PGN: "",
+  white: "",
+  black: "",
+  stockfishGame: false,
+};
