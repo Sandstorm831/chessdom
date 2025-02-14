@@ -1527,8 +1527,8 @@ export function Page() {
               alt="default avatar"
               className="border border-[#b58863] mr-5 rounded-lg"
             />
-            {session && session.user && session.user.name
-              ? session.user.name
+            {session && session.user && session.user.email
+              ? session.user.email.split('@')[0]
               : "The Knight"}
           </div>
         </div>

@@ -1617,6 +1617,7 @@ function useSocket(
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setRematchD: Dispatch<SetStateAction<boolean>>,
   setSameUser: Dispatch<SetStateAction<boolean>>,
+  setOpponentName: Dispatch<SetStateAction<string>>,
 ) {
   const { toast } = useToast();
   const { data: session } = useSession();
@@ -1642,9 +1643,10 @@ function useSocket(
 
     socket.on("disconnect", onDisconnect);
 
-    socket.on("gamecolor", (color: Color) => {
+    socket.on("gamecolor", (color: Color, opponent: String) => {
       setPlayColor(color);
       NonStatePlaycolor = color;
+      setOpponentName(opponent.split("@")[0]);
     });
 
     socket.on("startgame", () =>
@@ -1781,6 +1783,7 @@ export function Page() {
   const [isBanned, setIsBanned] = useState(false);
   const [bannedTimer, setBannedTimer] = useState(900);
   const [sameUser, setSameUser] = useState(false);
+  const [opponentName, setOpponentName] = useState("A knight");
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
@@ -1813,6 +1816,7 @@ export function Page() {
     setGameEnded,
     setRematchD,
     setSameUser,
+    setOpponentName,
   );
   /*  Variables relating to socket chess and online play */
 
@@ -1885,13 +1889,13 @@ export function Page() {
         <div className="h-full flex flex-col justify-between">
           <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
             <Image
-              src={"/images/stockfish.png"}
-              width={67}
-              height={67}
-              alt="stokfish"
-              className="border border-[#f0d9b5] rounded-lg mr-5"
+              src={"/knight_mirror.png"}
+              width={60}
+              height={60}
+              alt="default avatar"
+              className="border border-[#f0d9b5] mr-5 rounded-lg"
             />
-            Stockfish
+            {opponentName}
           </div>
           <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
             <Image
@@ -1901,8 +1905,8 @@ export function Page() {
               alt="default avatar"
               className="border border-[#b58863] mr-5 rounded-lg"
             />
-            {session && session.user && session.user.name
-              ? session.user.name
+            {session && session.user && session.user.email
+              ? session.user.email.split("@")[0]
               : "The Knight"}
           </div>
         </div>
