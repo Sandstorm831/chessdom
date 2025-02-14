@@ -1528,7 +1528,7 @@ export function Page() {
               className="border border-[#b58863] mr-5 rounded-lg"
             />
             {session && session.user && session.user.email
-              ? session.user.email.split('@')[0]
+              ? session.user.email.split("@")[0]
               : "The Knight"}
           </div>
         </div>
@@ -1667,7 +1667,7 @@ function PGNTable({
               })
             : null}
           {gameEnded.gameEnded ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-white">
+            <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
               <div>{gameEnded.gameEndResult}</div>
             </div>
           ) : null}

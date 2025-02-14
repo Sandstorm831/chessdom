@@ -2166,7 +2166,7 @@ function PGNTable({
               })
             : null}
           {gameEnded.gameEnded ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-white">
+            <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
               <div>{gameEnded.gameEndResult}</div>
             </div>
           ) : null}

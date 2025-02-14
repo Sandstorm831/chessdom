@@ -53,6 +53,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { TheParentPGN } from "@/app/engineAndPGN";
+import { useSession } from "next-auth/react";
 import isAuth from "@/components/auth_HOC";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
@@ -308,12 +309,12 @@ function SquareBlock({
   function getColor() {
     if (isDraggedOver) {
       return isDark
-        ? "border-2 border-gray-500 bg-[#769656] text-[#eeeed2]"
-        : "border-2 border-gray-500 bg-[#eeeed2] text-[#769656]";
+        ? "border-2 border-gray-500 bg-[#b58863] text-[#f0d9b5]"
+        : "border-2 border-gray-500 bg-[#f0d9b5] text-[#b58863]";
     }
     return isDark
-      ? "bg-[#769656] text-[#eeeed2]"
-      : "bg-[#eeeed2] text-[#769656]";
+      ? "bg-[#b58863] text-[#f0d9b5]"
+      : "bg-[#f0d9b5] text-[#b58863]";
   }
   return (
     <div
@@ -367,7 +368,7 @@ function Peice({
       ref={ref}
       height={0}
       width={0}
-      className="w-11/12 h-11/12 absolute left-[5%] top-[5%] z-10"
+      className="w-10/12 h-10/12 absolute 2xl:left-[8%] max-2xl:left-[9%] bottom-[3%] z-10"
       style={dragging ? { opacity: 0 } : {}}
       draggable="false"
     />
@@ -407,10 +408,10 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="absolute -top-[2px] left-2 z-10 text-lg">
+              <div className="absolute -top-[1px] left-1 z-10 text-sm font-bold">
                 {color === "w" ? 1 : 8}
               </div>
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? (
@@ -424,7 +425,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -440,7 +441,7 @@ function RenderSquare(
               id={IJToSquare(i, j, color)}
             >
               {" "}
-              <div className="z-10 absolute -top-[2px] left-2 text-lg">
+              <div className="z-10 absolute -top-[1px] left-1 text-sm font-bold">
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? (
@@ -454,7 +455,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -469,7 +470,7 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w"
                   ? String.fromCharCode(j + 97)
                   : String.fromCharCode(96 + 8 - j)}
@@ -485,7 +486,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -511,7 +512,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -527,10 +528,10 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="absolute -top-[2px] left-2 z-10 text-lg">
+              <div className="absolute -top-[1px] left-1 z-10 text-sm font-bold">
                 {color === "w" ? 1 : 8}
               </div>
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? (
@@ -544,7 +545,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -560,7 +561,7 @@ function RenderSquare(
               id={IJToSquare(i, j, color)}
             >
               {" "}
-              <div className="z-10 absolute -top-[2px] left-2 text-lg">
+              <div className="z-10 absolute -top-[1px] left-1 text-sm font-bold">
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? (
@@ -574,7 +575,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -589,7 +590,7 @@ function RenderSquare(
               key={IJToSquare(i, j, color)}
               id={IJToSquare(i, j, color)}
             >
-              <div className="z-10 absolute top-[70%] left-[80%] text-lg">
+              <div className="z-10 absolute bottom-[3%] right-[5%] text-sm font-bold">
                 {color === "w"
                   ? String.fromCharCode(j + 97)
                   : String.fromCharCode(96 + 8 - j)}
@@ -605,7 +606,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -632,7 +633,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute top-[43%] left-[42%] bg-[#0077CC] rounded-full w-5 h-5"></div>
+                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -739,11 +740,40 @@ export function Page() {
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
   return loading ? (
-    <div>Loading please wait ...</div>
+    <div className="w-full h-full flex flex-col justify-center ">
+      <div className="w-full flex justify-center">
+        <LoadingSpinner width="80px" height="80px" />
+      </div>
+      <div className="w-full flex justify-center font-bold text-xl mt-5">
+        Loading, please wait ...
+      </div>
+    </div>
   ) : (
-    <div className="w-full h-full flex flex-col justify-center">
-      <div className="flex w-full justify-center">
-        <div className="aspect-square w-2/5 grid grid-rows-8 grid-cols-8">
+    <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
+      <div className="flex w-full h-full justify-center">
+        <div className="h-full flex flex-col justify-between">
+          <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
+            <Image
+              src={"/images/stockfish.png"}
+              width={67}
+              height={67}
+              alt="stokfish"
+              className="border border-[#f0d9b5] rounded-lg mr-5"
+            />
+            Stockfish
+          </div>
+          <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
+            <Image
+              src={"/knight_mirror.png"}
+              width={60}
+              height={60}
+              alt="default avatar"
+              className="border border-[#b58863] mr-5 rounded-lg"
+            />
+            {"The Knight"}
+          </div>
+        </div>
+        <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
@@ -786,14 +816,14 @@ function PGNTable({
   setPlayColor: Dispatch<SetStateAction<Color>>;
 }) {
   return (
-    <div className="w-1/5 h-[480px] border rouned-md bg-slate-300 flex flex-col mx-5">
-      <div className="bg-slate-500 w-full h-16 flex justify-center">
-        <div className="text-2xl font-mono flex flex-col justify-center">
+    <div className="w-1/5 h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
+      <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
+        <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
           <div>PGN Table</div>
         </div>
       </div>
-      <div className="w-full h-full overflow-scroll bg-slate-600 relative">
-        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-white">
+      <div className="w-full h-full overflow-scroll bg-[#fffefc] relative font-mono">
+        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
           {parsedPGN && parsedPGN.length
             ? parsedPGN[0].moves.map((obj, id) => {
                 return obj.turn === "w" ? (
@@ -801,7 +831,7 @@ function PGNTable({
                     key={id}
                     className="col-span-4 grid grid-cols-4 grid-rows-1"
                   >
-                    <div className="col-span-1 bg-slate-700 w-full flex justify-center">
+                    <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
                       <div
                         className="h-full flex flex-col justify-center"
                         ref={
@@ -816,7 +846,7 @@ function PGNTable({
                       </div>
                     </div>
                     <div
-                      className="col-span-3 w-full flex justify-center cursor-pointer"
+                      className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                       onClick={() =>
                         arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                       }
@@ -829,7 +859,7 @@ function PGNTable({
                 ) : (
                   <div
                     key={id}
-                    className="col-span-3 w-full flex justify-center cursor-pointer"
+                    className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                     onClick={() =>
                       arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                     }
@@ -842,43 +872,46 @@ function PGNTable({
               })
             : null}
           {parsedPGN[0].tags?.Result ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-white">
+            <div className="col-span-7 text-3xl w-full flex justify-center text-[#323014] mt-3">
               <div>{parsedPGN[0].tags.Result}</div>
             </div>
           ) : null}
         </div>
         {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
       </div>
-      <div className="bg-slate-500 w-full h-20 flex justify-around">
+      <div className="bg-[#fffefc] w-full h-20 flex justify-around">
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Button
-            variant="outline"
-            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+          <div
+            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
             onClick={() => moveBackward(setFen)}
           >
-            <ChevronLeft />
-          </Button>
+            <div className="flex flex-col justify-center h-full">
+              <ChevronLeft className="text-[#fffefc]" size={25} />
+            </div>
+          </div>
         </div>
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Button
-            variant="outline"
-            className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+          <div
+            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
             onClick={() => moveForward(setFen)}
           >
-            <ChevronRight />
-          </Button>
+            <div className="flex flex-col justify-center h-full">
+              <ChevronRight className="text-[#fffefc]" size={25} />
+            </div>
+          </div>
         </div>
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
           <Popover>
-            <Button
-              variant="outline"
-              className="bg-slate-600 border-slate-600 hover:bg-slate-600 hover:text-white h-full"
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
               onClick={() =>
                 setPlayColor((x: Color) => (x === "w" ? "b" : "w"))
               }
             >
-              <RefreshCw />
-            </Button>
+              <div className="flex flex-col justify-center">
+                <RefreshCw className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
           </Popover>
         </div>
       </div>
