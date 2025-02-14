@@ -10,6 +10,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { GiMountedKnight } from "react-icons/gi";
+import { MdDashboard } from "react-icons/md";
+import { FaHome } from "react-icons/fa";
 
 export default async function Navbar() {
   const session = await auth();
@@ -23,24 +25,39 @@ export default async function Navbar() {
           <Popover>
             <PopoverTrigger asChild>
               <GiMountedKnight className="cursor-pointer text-5xl" />
-              {/* <Image
-                src="/knight_mirror.png"
-                alt="The Knight"
-                height={40}
-                width={40}
-                className="cursor-pointer"
-              /> */}
             </PopoverTrigger>
-            <PopoverContent className="w-max">
+            <PopoverContent className="w-max flex flex-col p-2">
+              {session.user.email ? (
+                <div className="text-3xl text-[#323014] my-2 mx-5">{`Hello ${session.user.email.split("@")[0]}`}</div>
+              ) : (
+                "Hello Knight"
+              )}
               {session ? (
-                <Button variant={"outline"}>
-                  <Link href={"/dashboard"}>go to dashboard</Link>
-                </Button>
+                <div className="bg-[#fffefec] text-[#323014] hover:bg-[#323014] hover:bg-opacity-10 text-lg cursor-pointer border-[#fffefc] rounded-md flex">
+                  <div className="flex flex-col justify-center ms-5 mr-2">
+                    <FaHome />
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <Link href={"/"}>Home</Link>
+                  </div>
+                </div>
               ) : null}
-              <SignOut
-                variant="default"
-                className="text-xl bg-[#323014] text-[#FFFEFC]"
-              />
+              {session ? (
+                <div className="bg-[#fffefec] text-[#323014] hover:bg-[#323014] hover:bg-opacity-10 text-lg cursor-pointer border-[#fffefc] rounded-md flex">
+                  <div className="flex flex-col justify-center ms-5 mr-2">
+                    <MdDashboard />
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <Link href={"/dashboard"}>Dashboard</Link>
+                  </div>
+                </div>
+              ) : null}
+              <div className="w-full px-5 mt-2">
+                <SignOut
+                  variant="default"
+                  className="text-xl bg-[#323014] text-[#FFFEFC] w-full"
+                />
+              </div>
             </PopoverContent>
           </Popover>
         ) : (
