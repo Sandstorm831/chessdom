@@ -2,7 +2,7 @@
 
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Game } from "@prisma/client";
-import { getAllGames } from "./dbqueries";
+import { getAllGames, getGamesCount } from "./dbqueries";
 import { TheParentPGN } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
 import { GiMountedKnight } from "react-icons/gi";
@@ -21,18 +21,19 @@ function getPageArray(totalPages: number) {
 }
 
 export function Page() {
-  const [page, setPage] = useState(3);
+  const [page, setPage] = useState(1);
   const [gameArray, setGameArray] = useState<Game[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [totalGames, setTotalGames] = useState(79);
+  const [totalGames, setTotalGames] = useState(20);
   useEffect(() => {
     async function allGames() {
-      // const x = await getAllGames(1); // set page here instead of number in getAllGames
-      // setGameArray(x);
+      const x = await getAllGames(page); // set page here instead of number in getAllGames
+      setTotalGames(x.length);
+      setGameArray(x);
       setLoading(false);
     }
     allGames();
-  }, []); // add page in the dependency array
+  }, [page]); // add page in the dependency array
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex w-full justify-center text-5xl my-12">
@@ -154,6 +155,7 @@ export function Page() {
             />
             {getPageArray(totalGames).map((num, idx) => (
               <NumberButton
+                key={idx}
                 numDisplay={num}
                 numCheck={page}
                 setPage={setPage}

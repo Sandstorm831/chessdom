@@ -10,3 +10,8 @@ export async function getAllGames(page: number) {
   });
   return games;
 }
+
+export async function getGamesCount() {
+  const gamesCount = await prisma.game.count();
+  return gamesCount;
+}
