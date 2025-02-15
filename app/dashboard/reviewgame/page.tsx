@@ -758,63 +758,11 @@ export function Page() {
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
   return loading ? (
-    <div className="w-full h-full flex flex-col justify-center ">
-      <div className="w-full flex justify-center">
-        <LoadingSpinner width="80px" height="80px" />
-      </div>
-      <div className="w-full flex justify-center font-bold text-xl mt-5">
-        Loading, please wait ...
-      </div>
-    </div>
+    <LoadingComponent />
   ) : (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
       <div className="flex w-full h-full justify-center">
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
-            {gameInitials.stockfishGame && playColor !== stockfishColor ? (
-              <Image
-                src={"/images/stockfish.png"}
-                width={67}
-                height={67}
-                alt="stokfish"
-                className="border border-[#f0d9b5] rounded-lg mr-5"
-              />
-            ) : (
-              <Image
-                src={"/knight_mirror.png"}
-                width={60}
-                height={60}
-                alt="default avatar"
-                className="border border-[#f0d9b5] mr-5 rounded-lg"
-              />
-            )}
-            {playColor === "w"
-              ? gameInitials.black.split("@")[0]
-              : gameInitials.white.split("@")[0]}
-          </div>
-          <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
-            {gameInitials.stockfishGame && playColor === stockfishColor ? (
-              <Image
-                src={"/images/stockfish.png"}
-                width={67}
-                height={67}
-                alt="stokfish"
-                className="border border-[#b58863] rounded-lg mr-5"
-              />
-            ) : (
-              <Image
-                src={"/knight_mirror.png"}
-                width={60}
-                height={60}
-                alt="default avatar"
-                className="border border-[#b58863] mr-5 rounded-lg"
-              />
-            )}
-            {playColor === "b"
-              ? gameInitials.black.split("@")[0]
-              : gameInitials.white.split("@")[0]}
-          </div>
-        </div>
+        <PlayersInfo playColor={playColor} />
         <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
@@ -833,6 +781,70 @@ export function Page() {
         />
 
         <Toaster />
+      </div>
+    </div>
+  );
+}
+
+function PlayersInfo({ playColor }: { playColor: Color }) {
+  return (
+    <div className="h-full flex flex-col justify-between">
+      <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
+        {gameInitials.stockfishGame && playColor !== stockfishColor ? (
+          <Image
+            src={"/images/stockfish.png"}
+            width={67}
+            height={67}
+            alt="stokfish"
+            className="border border-[#f0d9b5] rounded-lg mr-5"
+          />
+        ) : (
+          <Image
+            src={"/knight_mirror.png"}
+            width={60}
+            height={60}
+            alt="default avatar"
+            className="border border-[#f0d9b5] mr-5 rounded-lg"
+          />
+        )}
+        {playColor === "w"
+          ? gameInitials.black.split("@")[0]
+          : gameInitials.white.split("@")[0]}
+      </div>
+      <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
+        {gameInitials.stockfishGame && playColor === stockfishColor ? (
+          <Image
+            src={"/images/stockfish.png"}
+            width={67}
+            height={67}
+            alt="stokfish"
+            className="border border-[#b58863] rounded-lg mr-5"
+          />
+        ) : (
+          <Image
+            src={"/knight_mirror.png"}
+            width={60}
+            height={60}
+            alt="default avatar"
+            className="border border-[#b58863] mr-5 rounded-lg"
+          />
+        )}
+        {playColor === "b"
+          ? gameInitials.black.split("@")[0]
+          : gameInitials.white.split("@")[0]}
+      </div>
+    </div>
+  );
+}
+
+function LoadingComponent() {
+  return (
+    <div className="w-full h-full flex flex-col justify-center ">
+      <div className="w-full flex justify-center">
+        <LoadingSpinner width="80px" height="80px" className="text-[#323014]" />
+      </div>
+      <div className="w-full flex justify-center font-bold text-3xl mt-5 text-[#323014]">
+        Loading, please wait ...
       </div>
     </div>
   );
