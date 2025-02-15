@@ -2033,41 +2033,38 @@ function SettingComponent({
       dismissible={false}
       direction="left"
     >
-      <DrawerContent className="w-[500px] h-full rounded-lg">
-        <DrawerTitle className="flex justify-center text-3xl mb-16">
+      <DrawerContent className="w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc]">
+        <DrawerTitle className="flex justify-center text-5xl mb-16">
           Settings
         </DrawerTitle>
-        <DrawerTitle className="flex justify-center text-xl mb-2">
+        <DrawerTitle className="flex justify-center text-3xl mb-2">
           Play as : {playColor === "w" ? "White" : "Black"}
         </DrawerTitle>
-        <DrawerDescription className="flex justify-center mt-2 mb-5">
-          <Button
-            variant={"secondary"}
-            className="mx-2 hover:bg-gray-5"
+        <div className="flex justify-center mt-2 mb-5">
+          <div
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => setPlayColor("w")}
           >
-            White
-          </Button>
-          <Button
-            variant={"secondary"}
-            className="mx-2 hover:bg-gray-5"
+            <div className="flex flex-col justify-center h-full">White</div>
+          </div>
+          <div
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => setPlayColor("b")}
           >
-            Black
-          </Button>
-          <Button
-            variant={"secondary"}
-            className="mx-2 hover:bg-gray-5"
+            <div className="flex flex-col justify-center h-full">Black</div>
+          </div>
+          <div
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => {
               return Math.round(Math.random()) === 1
                 ? setPlayColor("b")
                 : setPlayColor("w");
             }}
           >
-            Random
-          </Button>
-        </DrawerDescription>
-        <DrawerDescription className="flex justify-center font-bold text-xl mb-3 text-black">
+            <div className="flex flex-col justify-center h-full">Random</div>
+          </div>
+        </div>
+        <DrawerDescription className="flex justify-center font-bold text-3xl mb-3 text-[#323014] mt-12">
           Stockfish Elo : {stockfishElo}
         </DrawerDescription>
         <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
@@ -2077,11 +2074,12 @@ function SettingComponent({
             min={1350}
             step={50}
             onValueChange={(value) => setStockfishElo(value[0])}
+            color="#323014"
           />
         </DrawerDescription>
-        <DrawerDescription className="flex justify-center w-full px-12">
+        <div className="flex flex-col justify-end py-12 w-full px-12 h-full">
           <Button
-            className="w-full"
+            className="w-full bg-[#323014] text-[#fffefc] text-xl"
             variant={"default"}
             onClick={() =>
               startTheGame(
@@ -2104,7 +2102,7 @@ function SettingComponent({
           >
             Apply and Play
           </Button>
-        </DrawerDescription>
+        </div>
       </DrawerContent>
     </Drawer>
   );
