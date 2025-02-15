@@ -1886,9 +1886,9 @@ export function Page() {
   ) : findingRoom ? (
     <div className="w-full h-full flex flex-col justify-center ">
       <div className="w-full flex justify-center">
-        <LoadingSpinner width="80px" height="80px" />
+        <LoadingSpinner width="80px" height="80px" className="text-[#323014]" />
       </div>
-      <div className="w-full flex justify-center font-bold text-xl mt-5">
+      <div className="w-full flex justify-center font-bold text-3xl mt-5 text-[#323014]">
         Finding opponent, please wait ...
       </div>
     </div>
@@ -1989,7 +1989,7 @@ function SameUserPage() {
   setTimeout(() => redirect("/dashboard"), 4000);
   return (
     <div className="w-full h-full flex flex-col justify-center">
-      <div className="w-full flex justify-center text-3xl">
+      <div className="w-full flex justify-center text-3xl text-center mb-12">
         A User with the same email id already exists, please login to a
         different account to play
       </div>
@@ -2004,7 +2004,7 @@ function BannedPage({ BannedTimer }: { BannedTimer: number }) {
   return (
     <div className="w-full h-full flex flex-col justify-center">
       <div className="w-full flex justify-center">
-        <div className="text-3xl font-bold flex flex-col justify-center mx-12">
+        <div className="text-3xl font-bold flex flex-col justify-center mx-12 text-[#323014]">
           You Are Banned For ...{" "}
         </div>
         <CountdownCircleTimer
@@ -2012,13 +2012,17 @@ function BannedPage({ BannedTimer }: { BannedTimer: number }) {
           size={500}
           duration={BannedTimer}
           strokeWidth={10}
-          colors="#004777"
+          colors="#323014"
         >
           {({ remainingTime }) => {
             const minutes = Math.floor(remainingTime / 60);
             const seconds = remainingTime % 60;
             return (
-              <div role="timer" aria-live="assertive" className="font-mono">
+              <div
+                role="timer"
+                aria-live="assertive"
+                className="font-mono text-xl text-[#323014]"
+              >
                 {minutes}:{seconds}
               </div>
             );
@@ -2281,25 +2285,26 @@ function GameEndDialogue({
     >
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
-          <DialogTitle className="text-3xl flex justify-center">
+          <DialogTitle className="text-3xl flex justify-center text-[#323014]">
             {gameEnded.gameEndTitle}
           </DialogTitle>
           <DialogDescription className="text-5xl flex justify-center">
             {gameEnded.gameEndResult}
           </DialogDescription>
-          <DialogDescription className="flex justify-center pt-3">
-            <Button
-              variant={"default"}
-              className="flex justify-center mx-2 text-xl w-56"
+          <div className="flex justify-center pt-3">
+            <div
+              className="flex justify-center mx-2 text-xl w-56 bg-[#323014] text-[#fffefc] hover:bg-opacity-90 transition duration-150 py-1 rounded-lg cursor-pointer"
               onClick={() => {
                 socket.emit("gameleave");
               }}
             >
-              <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
-            </Button>
+              <div className="flex flex-col justify-center h-full">
+                <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
+              </div>
+            </div>
             <Button
               variant={"default"}
-              className="flex justify-center mx-2 text-xl w-56"
+              className="flex justify-center mx-2 text-xl w-56 bg-[#323014] text-[#fffefc]"
               disabled={rematchD}
               onClick={() => {
                 socket.emit("rematch");
@@ -2308,11 +2313,11 @@ function GameEndDialogue({
             >
               Rematch
             </Button>
-          </DialogDescription>
+          </div>
           <DialogDescription className="flex justify-center pt-3">
             <Button
               variant={"default"}
-              className="flex justify-center mx-2 text-xl w-full"
+              className="flex justify-center mx-2 text-xl w-full bg-[#323014] text-[#fffefc]"
               onClick={() => {
                 socket.emit("newgame");
                 setFindingRoom(true);
@@ -2362,7 +2367,7 @@ function PromotionDrawer({
   return (
     <Drawer open={openDrawer} modal={true} dismissible={false}>
       <DrawerContent>
-        <DrawerTitle className="flex justify-center text-3xl mb-5">
+        <DrawerTitle className="flex justify-center text-3xl mb-5 text-[#323014]">
           Select your piece
         </DrawerTitle>
         <DrawerDescription className="flex justify-center">

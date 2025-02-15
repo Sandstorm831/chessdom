@@ -1762,7 +1762,7 @@ function WASMThreadsNotSupportedDialog({
     <Dialog open={!engineOperable} modal={true}>
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
-          <DialogTitle className="text-3xl flex justify-center">
+          <DialogTitle className="text-3xl flex justify-center text-[#323014]">
             Borwser not supported
           </DialogTitle>
           <DialogDescription className="text-xl flex justify-center">
@@ -1806,39 +1806,20 @@ function GameEndDialogue({
     >
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
-          <DialogTitle className="text-3xl flex justify-center">
+          <DialogTitle className="text-3xl flex justify-center text-[#323014]">
             {gameEnded.gameEndTitle}
           </DialogTitle>
           <DialogDescription className="text-5xl flex justify-center">
             {gameEnded.gameEndResult}
           </DialogDescription>
-          <DialogDescription className="flex justify-center pt-3">
-            <Button
-              variant={"default"}
-              className="flex justify-center mx-2 text-xl w-56"
-            >
-              <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
-            </Button>
-            <Button
-              variant={"default"}
-              className="flex justify-center mx-2 text-xl w-56"
-              onClick={() =>
-                setNewGame(
-                  setParsedPGN,
-                  setFen,
-                  originalFEN,
-                  setOpenSettings,
-                  setGameEnded,
-                )
-              }
-            >
-              New game
-            </Button>
-          </DialogDescription>
-          <DialogDescription className="flex justify-center pt-3">
-            <Button
-              variant={"default"}
-              className="flex justify-center mx-2 text-xl w-full"
+          <div className="flex justify-center pt-3">
+            <div className="flex justify-center mx-2 text-xl w-56 bg-[#323014] text-[#fffefc] hover:bg-opacity-90 transition duration-150 py-1 rounded-lg cursor-pointer">
+              <div className="flex flex-col justify-center h-full">
+                <Link href={"/dashboard"}> Return to dashboard </Link>{" "}
+              </div>
+            </div>
+            <div
+              className="flex justify-center mx-2 text-xl w-56 bg-[#323014] text-[#fffefc] hover:bg-opacity-90 transition duration-150 py-1 rounded-lg cursor-pointer"
               onClick={() => {
                 TheParentPGN.PGN = PGN.pgn;
                 TheParentPGN.stockfishGame = true;
@@ -1859,9 +1840,29 @@ function GameEndDialogue({
                 redirect("/dashboard/reviewgame");
               }}
             >
-              review game
-            </Button>
-          </DialogDescription>
+              <div className="flex flex-col justify-center h-full">
+                Review game
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-center pt-3">
+            <div
+              className="flex justify-center mx-2 text-xl w-full bg-[#323014] text-[#fffefc] hover:bg-opacity-90 transition duration-150 py-1 rounded-lg cursor-pointer"
+              onClick={() =>
+                setNewGame(
+                  setParsedPGN,
+                  setFen,
+                  originalFEN,
+                  setOpenSettings,
+                  setGameEnded,
+                )
+              }
+            >
+              <div className="flex flex-col justify-center h-full">
+                New Game
+              </div>
+            </div>
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>
@@ -1896,7 +1897,7 @@ function PromotionDrawer({
   return (
     <Drawer open={openDrawer} modal={true} dismissible={false}>
       <DrawerContent>
-        <DrawerTitle className="flex justify-center text-3xl mb-5">
+        <DrawerTitle className="flex justify-center text-3xl mb-5 text-[#323014]">
           Select your piece
         </DrawerTitle>
         <DrawerDescription className="flex justify-center">
@@ -2042,19 +2043,19 @@ function SettingComponent({
         </DrawerTitle>
         <div className="flex justify-center mt-2 mb-5">
           <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => setPlayColor("w")}
           >
             <div className="flex flex-col justify-center h-full">White</div>
           </div>
           <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => setPlayColor("b")}
           >
             <div className="flex flex-col justify-center h-full">Black</div>
           </div>
           <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-2 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
             onClick={() => {
               return Math.round(Math.random()) === 1
                 ? setPlayColor("b")
