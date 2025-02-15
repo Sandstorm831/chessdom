@@ -54,6 +54,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import isAuth from "@/components/auth_HOC";
+import { Session } from "next-auth";
 /*  Variables relating to socket chess and online play */
 let storeCallback: Function;
 let reconciliation = false;
@@ -1884,41 +1885,11 @@ export function Page() {
   ) : sameUser ? (
     <SameUserPage />
   ) : findingRoom ? (
-    <div className="w-full h-full flex flex-col justify-center ">
-      <div className="w-full flex justify-center">
-        <LoadingSpinner width="80px" height="80px" className="text-[#323014]" />
-      </div>
-      <div className="w-full flex justify-center font-bold text-3xl mt-5 text-[#323014]">
-        Finding opponent, please wait ...
-      </div>
-    </div>
+    <FindingRoom />
   ) : (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
       <div className="flex w-full h-full justify-center">
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/knight_mirror.png"}
-              width={60}
-              height={60}
-              alt="default avatar"
-              className="border border-[#f0d9b5] mr-5 rounded-lg"
-            />
-            {opponentName}
-          </div>
-          <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/knight_mirror.png"}
-              width={60}
-              height={60}
-              alt="default avatar"
-              className="border border-[#b58863] mr-5 rounded-lg"
-            />
-            {session && session.user && session.user.email
-              ? session.user.email.split("@")[0]
-              : "The Knight"}
-          </div>
-        </div>
+        <PlayersInfo session={session} opponentName={opponentName} />
         <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
           <GameEndDialogue
             setOpponentLeftTheGame={setOpponentLeftTheGame}
@@ -1980,6 +1951,54 @@ export function Page() {
         />
 
         <Toaster />
+      </div>
+    </div>
+  );
+}
+
+function PlayersInfo({
+  opponentName,
+  session,
+}: {
+  opponentName: string;
+  session: Session | null;
+}) {
+  return (
+    <div className="h-full flex flex-col justify-between">
+      <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
+        <Image
+          src={"/knight_mirror.png"}
+          width={60}
+          height={60}
+          alt="default avatar"
+          className="border border-[#f0d9b5] mr-5 rounded-lg"
+        />
+        {opponentName}
+      </div>
+      <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
+        <Image
+          src={"/knight_mirror.png"}
+          width={60}
+          height={60}
+          alt="default avatar"
+          className="border border-[#b58863] mr-5 rounded-lg"
+        />
+        {session && session.user && session.user.email
+          ? session.user.email.split("@")[0]
+          : "The Knight"}
+      </div>
+    </div>
+  );
+}
+
+function FindingRoom() {
+  return (
+    <div className="w-full h-full flex flex-col justify-center ">
+      <div className="w-full flex justify-center">
+        <LoadingSpinner width="80px" height="80px" className="text-[#323014]" />
+      </div>
+      <div className="w-full flex justify-center font-bold text-3xl mt-5 text-[#323014]">
+        Finding opponent, please wait ...
       </div>
     </div>
   );
@@ -2054,20 +2073,26 @@ function DisconnectionDialogue({
 }) {
   return (
     <Dialog open={isDisconnected} modal={true}>
-      <DialogContent>
+      <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
           {opponentLeftTheGame ? (
-            <DialogTitle>Opponent Left The Game</DialogTitle>
+            <DialogTitle className="w-full flex justify-center text-3xl text-[#323014]">
+              Opponent Left The Game
+            </DialogTitle>
           ) : (
-            <DialogTitle>
-              <LoadingSpinner width="80px" height="80px" />
+            <DialogTitle className="w-full flex justify-center">
+              <LoadingSpinner
+                width="80px"
+                height="80px"
+                className="text-[#323014]"
+              />
             </DialogTitle>
           )}
           {opponentLeftTheGame ? (
             <DialogDescription className="flex justify-center pt-3">
               <Button
                 variant={"default"}
-                className="flex justify-center mx-2 text-xl w-56"
+                className="flex justify-center mx-2 text-xl w-56 bg-[#323014]"
                 onClick={() => {
                   socket.emit("gameleave");
                 }}
@@ -2076,7 +2101,7 @@ function DisconnectionDialogue({
               </Button>
               <Button
                 variant={"default"}
-                className="flex justify-center mx-2 text-xl w-56"
+                className="flex justify-center mx-2 text-xl w-56 bg-[#323014]"
                 onClick={() => {
                   socket.emit("newgame");
                   setFindingRoom(true);
@@ -2093,7 +2118,7 @@ function DisconnectionDialogue({
               </Button>
             </DialogDescription>
           ) : (
-            <DialogDescription>
+            <DialogDescription className="flex justify-center pt-3 text-xl">
               Opponent is disconnected, trying to reconnect ...
             </DialogDescription>
           )}

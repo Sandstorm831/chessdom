@@ -1517,30 +1517,7 @@ export function Page() {
   return (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
       <div className="flex w-full h-full justify-center">
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/images/stockfish.png"}
-              width={67}
-              height={67}
-              alt="stokfish"
-              className="border border-[#f0d9b5] rounded-lg mr-5"
-            />
-            Stockfish
-          </div>
-          <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
-            <Image
-              src={"/knight_mirror.png"}
-              width={60}
-              height={60}
-              alt="default avatar"
-              className="border border-[#b58863] mr-5 rounded-lg"
-            />
-            {session && session.user && session.user.email
-              ? session.user.email.split("@")[0]
-              : "The Knight"}
-          </div>
-        </div>
+        <PlayersInfo session={session} />
         <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
           {engineOperable ? (
             <SettingComponent
@@ -1597,6 +1574,35 @@ export function Page() {
           setGameEnded={setGameEnded}
           setSoundTrigger={setSoundTrigger}
         />
+      </div>
+    </div>
+  );
+}
+
+function PlayersInfo({ session }: { session: Session | null }) {
+  return (
+    <div className="h-full flex flex-col justify-between">
+      <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
+        <Image
+          src={"/images/stockfish.png"}
+          width={67}
+          height={67}
+          alt="stokfish"
+          className="border border-[#f0d9b5] rounded-lg mr-5"
+        />
+        Stockfish
+      </div>
+      <div className="flex bg-[#b58863] font-bold text-xl mr-8 text-[#f0d9b5] rounded-lg p-2">
+        <Image
+          src={"/knight_mirror.png"}
+          width={60}
+          height={60}
+          alt="default avatar"
+          className="border border-[#b58863] mr-5 rounded-lg"
+        />
+        {session && session.user && session.user.email
+          ? session.user.email.split("@")[0]
+          : "The Knight"}
       </div>
     </div>
   );
