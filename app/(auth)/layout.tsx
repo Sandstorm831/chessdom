@@ -1,5 +1,4 @@
 import { playfair_display } from "../ui/fonts";
-import Script from "next/script";
 
 export default function RootLayout({
   children,

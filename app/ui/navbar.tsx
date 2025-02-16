@@ -1,13 +1,10 @@
 import { auth } from "@/auth";
 import { SignIn, SignOut } from "@/components/auth_components";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Image from "next/image";
 import Link from "next/link";
 import { GiMountedKnight } from "react-icons/gi";
 import { MdDashboard } from "react-icons/md";

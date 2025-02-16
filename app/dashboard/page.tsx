@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { EngineX } from "../engineAndPGN";
 import { useEffect } from "react";
@@ -7,7 +6,7 @@ import initialisingEngineWorker from "../startEngine";
 import isAuth from "@/components/auth_HOC";
 import Image from "next/image";
 
-export function Page() {
+function Page() {
   // The code will run only when present on the client, and not on pre-rendering on server.
   useEffect(() => {
     if (EngineX.stockfishEngine === null) initialisingEngineWorker();
@@ -30,7 +29,7 @@ export function Page() {
             Play with Computer
           </h2>
           <div className="absolute bg-[#fffefc] bg-opacity-80 text-2xl top-48 text-[#323014] opacity-0 group-hover:opacity-100 group-hover:delay-300 group-hover:duration-300 transition duration-300 rounded-lg mx-5 p-5">
-            In 1997, IBM's Deep Blue achieved a historic victory over world
+            In 1997, IBM&apos;s Deep Blue achieved a historic victory over world
             chess champion Garry Kasparov, marking the first time a computer
             defeated a reigning world chess champion under standard tournament
             conditions. Now, an open-source chess engine, Stockfish, has far
@@ -55,10 +54,10 @@ export function Page() {
           </div>
           <div className="absolute text-2xl left-[38px] mr-5 top-48 text-[#fffefc] opacity-0 group-hover:opacity-100 group-hover:delay-300 group-hover:duration-300 transition duration-300">
             Chess has evolved over centuries, from its ancient origins in India
-            as "chaturanga" to the global strategy game we recognize today.
-            Throughout history, it has been a battleground of intellect, with
-            players challenging each other across generations. From royal courts
-            to modern tournaments, chess remains a profound test of human
+            as &quot;chaturanga&quot; to the global strategy game we recognize
+            today. Throughout history, it has been a battleground of intellect,
+            with players challenging each other across generations. From royal
+            courts to modern tournaments, chess remains a profound test of human
             strategy and creativity.
           </div>
           <div className="absolute cursor-pointer bg-[#c4742e] bg-opacity-80 text-3xl left-8 bottom-8 p-3 rounded-lg text-[#1b1713] opacity-0 group-hover:opacity-100 group-hover:delay-300 group-hover:duration-300 transition duration-300">

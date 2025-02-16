@@ -6,6 +6,7 @@ import Navbar from "./ui/navbar";
 import StoreProvider from "./storeProvider";
 import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
+import React from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

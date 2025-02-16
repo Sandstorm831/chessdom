@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { playfair_display } from "./ui/fonts";
 import { EngineX } from "./engineAndPGN";
 import { useEffect } from "react";
@@ -8,10 +7,8 @@ import { GiOrbitalRays, GiMountedKnight } from "react-icons/gi";
 import {
   FaQuoteLeft,
   FaQuoteRight,
-  FaChess,
   FaChessBoard,
 } from "react-icons/fa";
-import { FaPersonWalkingArrowRight, FaArrowTrendDown } from "react-icons/fa6";
 
 export default function Home() {
   // The code will run only when present on the client, and not on pre-rendering on server.

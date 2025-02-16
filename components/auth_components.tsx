@@ -1,5 +1,6 @@
 import { signIn, signOut } from "@/auth";
 import { Button } from "./ui/button";
+import React from "react";
 
 export function SignIn({provider, ...props}:{provider?: string} & React.ComponentPropsWithRef<typeof Button>){
     return (
@@ -13,7 +14,7 @@ export function SignIn({provider, ...props}:{provider?: string} & React.Componen
     )
 }
 
-export function SignOut({provider, ...props} : {provider?: string} & React.ComponentPropsWithRef<typeof Button>){
+export function SignOut({ ...props} : React.ComponentPropsWithRef<typeof Button>){
     return (
         <form
             action={async () => {

@@ -114,7 +114,7 @@ function arbitraryTimeTravel(
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
 
-export function initializeHistory() {
+function initializeHistory() {
   const x = ["a", "b", "c", "d", "e", "f", "g", "h"];
   for (let i = 1; i <= 4; i++) {
     for (let j = 0; j < x.length; j++) {
@@ -200,7 +200,7 @@ type PGNObject = {
 //   // throw new Error("Error retreiving piece history");
 // }
 
-export function updatePGN(
+function updatePGN(
   moveObj: Move,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
 ) {
@@ -1533,13 +1533,24 @@ function useSocket(
       handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
     );
 
-    socket.on("move", async (chessMove: string, callback: (response: string) => void ) =>
-      handleOpponentMoveForSocket(chessMove, callback, setOpponentMove, setFen),
+    socket.on(
+      "move",
+      async (chessMove: string, callback: (response: string) => void) =>
+        handleOpponentMoveForSocket(
+          chessMove,
+          callback,
+          setOpponentMove,
+          setFen,
+        ),
     );
 
     socket.on(
       "reconciliation",
-      (historyX: string[], colorHeld: Color, callback:  (response: string) => void ) =>
+      (
+        historyX: string[],
+        colorHeld: Color,
+        callback: (response: string) => void,
+      ) =>
         handleReconciliationForSocket(
           colorHeld,
           historyX,
@@ -1623,7 +1634,7 @@ function useSocket(
 }
 /*  Variables relating to socket chess and online play */
 
-export function Page() {
+function Page() {
   const gameEndResult = "";
   const gameEndTitle = "";
   const [fen, setFen] = useState<FenObject>({
@@ -1664,7 +1675,7 @@ export function Page() {
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
-  console.log(`Connected to server : ${isConnected}`)
+  console.log(`Connected to server : ${isConnected}`);
   console.log(`Transport Method : ${transport}`);
   chess.load(fen.fen);
 
@@ -2125,8 +2136,10 @@ function PGNTable({
                     )
                   }
                   disabled={
-                    !(playColor === chess.turn() &&
-                        currentUIPosition === FENHistory.length - 1)
+                    !(
+                      playColor === chess.turn() &&
+                      currentUIPosition === FENHistory.length - 1
+                    )
                   }
                 >
                   Yes
@@ -2162,10 +2175,7 @@ function GameEndDialogue({
   setRematchD: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
-    <Dialog
-      open={gameEnded.gameEnded}
-      modal={true}
-    >
+    <Dialog open={gameEnded.gameEnded} modal={true}>
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
           <DialogTitle className="text-3xl flex justify-center text-[#323014]">

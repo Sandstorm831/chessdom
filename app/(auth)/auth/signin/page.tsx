@@ -27,7 +27,7 @@ export default function Page() {
           {Object.values(providerMap).map((provider) => (
             <form
               key={provider.id}
-              action={async (formData) => {
+              action={async () => {
                 "use server";
                 await signIn(provider.id, { redirectTo: "/dashboard" });
               }}

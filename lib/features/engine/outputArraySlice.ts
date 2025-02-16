@@ -1,6 +1,5 @@
 import { RootState } from "@/lib/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { StockfishEngine } from "@/app/dashboard/chessboard/page";
 
 type outputArray = string[];
 
@@ -11,7 +10,7 @@ export const outputArraySlice = createSlice({
   initialState,
   reducers: {
     clearArray: (state) => {
-      state = [];
+      state.length = 0;
     },
     pushResponse: (state, action: PayloadAction<string>) => {
         state.push(action.payload)

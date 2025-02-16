@@ -65,7 +65,7 @@ const FENHistory: FenObject[] = [
 ];
 let currentUIPosition = 0;
 let blueDotArrayClearIntimator: boolean = false;
-export function applyInitialSettings(elo: string) {
+function applyInitialSettings(elo: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -107,7 +107,7 @@ function arbitraryTimeTravel(
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
 
-export function initializeHistory() {
+function initializeHistory() {
   const x = ["a", "b", "c", "d", "e", "f", "g", "h"];
   for (let i = 1; i <= 4; i++) {
     for (let j = 0; j < x.length; j++) {
@@ -131,7 +131,7 @@ export function initializeHistory() {
   }
 }
 
-export function getBestMove(fen: string) {
+function getBestMove(fen: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage(`position fen ${fen}`);
@@ -145,7 +145,6 @@ export function getBestMove(fen: string) {
 //   }
 //   return stockfishOutputArray[stockfishOutputArray.length - 1];
 // }
-
 
 export type historyObject = {
   id: Square;
@@ -202,7 +201,7 @@ type PGNObject = {
 //   // throw new Error("Error retreiving piece history");
 // }
 
-export function updatePGN(
+function updatePGN(
   moveObj: Move,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
 ) {
@@ -292,7 +291,7 @@ function getPieceMovements(moveObj: Move): MoveLAN[] {
   return [{ from: moveObj.from, to: moveObj.to }];
 }
 
-export function wasmThreadsSupported() {
+function wasmThreadsSupported() {
   // WebAssembly 1.0
   const source = Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
   if (
@@ -1342,7 +1341,7 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: () => void) {
   }, [parsedPGN]);
 }
 
-export function Page() {
+function Page() {
   const gameEndResult = "";
   const gameEndTitle = "";
   const originalFEN =
@@ -1657,8 +1656,10 @@ function PGNTable({
                     )
                   }
                   disabled={
-                    !(playColor === chess.turn() &&
-                        currentUIPosition === FENHistory.length - 1)
+                    !(
+                      playColor === chess.turn() &&
+                      currentUIPosition === FENHistory.length - 1
+                    )
                   }
                 >
                   Yes
@@ -1720,10 +1721,7 @@ function GameEndDialogue({
   session: Session | null;
 }) {
   return (
-    <Dialog
-      open={gameEnded.gameEnded}
-      modal={true}
-    >
+    <Dialog open={gameEnded.gameEnded} modal={true}>
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
           <DialogTitle className="text-3xl flex justify-center text-[#323014]">

@@ -364,7 +364,7 @@ function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: () => void) {
   }, [parsedPGN]);
 }
 
-export function Page() {
+function Page() {
   const [fen, setFen] = useState<FenObject>({
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     isDnD: false,

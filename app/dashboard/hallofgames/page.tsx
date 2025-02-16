@@ -18,7 +18,7 @@ function getPageArray(totalPages: number) {
   return x;
 }
 
-export function Page() {
+function Page() {
   const [page, setPage] = useState(1);
   const [gameArray, setGameArray] = useState<Game[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

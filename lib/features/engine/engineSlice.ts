@@ -1,6 +1,5 @@
 import { RootState } from "@/lib/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { StockfishEngine } from "@/app/dashboard/chessboard/page";
 
 type engine = {
   ready: "waiting" | "loading" | "failed" | "ready";
