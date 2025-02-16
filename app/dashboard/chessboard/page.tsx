@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import Image from "next/image";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
@@ -37,11 +38,9 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 // import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./stockfishWasm";
 import {
   getLatestResponse,
-  getResponseArray,
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
 import { parse, ParseTree } from "@mliebelt/pgn-parser";
-import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -132,8 +131,6 @@ export function initializeHistory() {
   }
 }
 
-export function engineXCallback() {}
-
 export function getBestMove(fen: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
@@ -149,9 +146,6 @@ export function getBestMove(fen: string) {
 //   return stockfishOutputArray[stockfishOutputArray.length - 1];
 // }
 
-export type engineX = {
-  stockfishEngine: StockfishEngine | null;
-};
 
 export type historyObject = {
   id: Square;
@@ -170,14 +164,14 @@ export type FenObject = {
 };
 
 export type StockfishEngine = {
-  onmessage: Function;
-  postMessage: Function;
+  onmessage: (e: MessageEvent) => void;
+  postMessage: (s: any) => void;
   [key: string]: any;
 };
 
 type gameEndObject = {
-  gameEndTitle: String;
-  gameEndResult: String;
+  gameEndTitle: string;
+  gameEndResult: string;
   gameEnded: boolean;
 };
 
@@ -222,8 +216,8 @@ export function updatePGN(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
+  // console.log(parsed);
+  // console.log(PGN.pgn);
   // Type Checking Code ------>
   // if(!Array.isArray(parsed)){
   //   console.log(parsed);
@@ -238,8 +232,8 @@ export function updatePGN(
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
-  console.log("Piece movements");
-  console.log(pieceMovements);
+  // console.log("Piece movements");
+  // console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -249,17 +243,17 @@ async function animatePieceMovement(moveObj: Move) {
     const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
     const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
     const parent = document.getElementById(from);
-    console.log(parent);
-    console.log("children of parent");
-    console.log(parent?.children[parent.children.length - 1]);
+    // console.log(parent);
+    // console.log("children of parent");
+    // console.log(parent?.children[parent.children.length - 1]);
     const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
     const transX = MoveX - (childRect.left + childRect.right) / 2;
     const transY = MoveY - (childRect.top + childRect.bottom) / 2;
     // child?.getBoundingClientRect()
-    console.log(`X = ${transX}`);
-    console.log(`Y = ${transY}`);
+    // console.log(`X = ${transX}`);
+    // console.log(`Y = ${transY}`);
     child.style.transition = "all 0.2s";
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
     child.style.zIndex = "20";
@@ -287,23 +281,6 @@ async function animatePieceMovement(moveObj: Move) {
     // await new Promise(resolve => setTimeout(resolve, 2000));
   }
 }
-
-function removeAnimationTransforms(pieceMovements: MoveLAN[]) {
-  for (let i = 0; i < pieceMovements.length; i++) {
-    const from = pieceMovements[i].from;
-    const to = pieceMovements[i].to;
-    const destSquare = document.getElementById(to);
-    if (!destSquare) throw new Error("dest square is null");
-    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
-    for (let i = 0; i < destChild.length; i++) {
-      if (destChild[i].nodeName === "IMG") {
-        destChild[i].style.transform = "none";
-      }
-    }
-  }
-}
-
-const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 function getPieceMovements(moveObj: Move): MoveLAN[] {
   if (moveObj.san === "O-O" || moveObj.san === "O-O+") {
@@ -359,6 +336,7 @@ export function wasmThreadsSupported() {
     // You have to make sure nobody cares about these messages!
     window.postMessage(mem, "*");
   } catch (e) {
+    console.log(e);
     return false;
   }
 
@@ -366,6 +344,7 @@ export function wasmThreadsSupported() {
   try {
     mem.grow(8);
   } catch (e) {
+    console.log(e);
     return false;
   }
 
@@ -386,9 +365,6 @@ function updateHistory(pieceMovement: MoveLAN[]) {
       }
     }
     for (let j = 0; j < upd.length; j++) {
-      console.log(
-        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`,
-      );
       HistoryArray[upd[j]].to = pieceMovement[i].to;
     }
     for (let j = 0; j < take.length; j++) {
@@ -396,8 +372,6 @@ function updateHistory(pieceMovement: MoveLAN[]) {
       // HistoryArray.splice(take[j], 1);
     }
   }
-  console.log(`History`);
-  console.log(HistoryArray);
 }
 
 function handleResignation(
@@ -415,8 +389,8 @@ function handleResignation(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
+  // console.log(parsed);
+  // console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -436,20 +410,6 @@ function handleResignation(
   });
   setSoundTrigger("/sounds/game-end.mp3");
   return;
-}
-
-function getPieceId(
-  chessBoardIJ: positionObject | null,
-  pieceMovements: MoveLAN[],
-  i: number,
-  j: number,
-  playColor: Color,
-) {
-  let IJsquare = IJToSquare(i, j, playColor);
-  if (!chessBoardIJ) return IJsquare;
-  let x = pieceMovements.find((obj) => obj.to === chessBoardIJ.square);
-  if (!x) return IJsquare;
-  return x.from;
 }
 
 function squareToIJ(square: Square, color: Color) {
@@ -511,9 +471,7 @@ function SquareBlock({
       element: elm,
       getData: () => ({ cord, validMovesArray }),
       canDrop: () =>
-        validMovesArray.find((obj) => obj.square === cord) !== undefined
-          ? true
-          : false,
+        validMovesArray.find((obj) => obj.square === cord) !== undefined,
       onDragEnter: () => setIsDraggedOver(true),
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: () => setIsDraggedOver(false),
@@ -549,13 +507,9 @@ function SquareBlock({
 function Peice({
   chessBoardIJ,
   blueDotFunc,
-  isDnD,
-  id,
 }: {
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
-  isDnD: boolean;
-  id: string;
 }) {
   // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
@@ -626,11 +580,10 @@ function RenderSquare(
       setBlueDotArray(tempArray);
     }
   }
-  console.log("render happened");
+  // console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
-      const pieceId = getPieceId(chessBoardIJ, fen.pieceMovements, i, j, color);
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
@@ -653,8 +606,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -683,8 +634,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -714,8 +663,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -740,8 +687,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -773,8 +718,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -803,8 +746,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -834,8 +775,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -861,8 +800,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -976,8 +913,8 @@ function handleGameOver(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
+  // console.log(parsed);
+  // console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -992,7 +929,7 @@ function handleGameOver(
     });
   }, 1000);
   setSoundTrigger("/sounds/game-end.mp3");
-  console.log(JSON.stringify(chess.pgn()));
+  // console.log(JSON.stringify(chess.pgn()));
   return true;
 }
 
@@ -1027,7 +964,7 @@ function handlePromotion(
   }
   const moveObj = chess.move(promotionMove.move);
   updatePGN(moveObj, setParsedPGN);
-  console.log(moveObj);
+  // console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
@@ -1125,10 +1062,10 @@ function useEngine(
         // );
         // console.log(e.data);
         // console.log(ArrayBuffer.isView(e.data));
-        console.time("starting");
+        // console.time("starting");
         // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
         const x: StockfishEngine = await Stockfish(e.data);
-        console.timeEnd("starting");
+        // console.timeEnd("starting");
         x.addMessageListener((line: string) => {
           // console.log(`hello : ${line}`);
           // setStockfishResponseArray(StockfishResponseArray.concat([line]));
@@ -1139,8 +1076,8 @@ function useEngine(
         // }
         // console.log(x.onmessage);
         dispatch(setReady());
-        console.log("arraybuffer view : ");
-        console.log(ArrayBuffer.isView(x));
+        // console.log("arraybuffer view : ");
+        // console.log(ArrayBuffer.isView(x));
         // dispatch(setReady(x));
         // console.log(typeof x);
         // console.log(x);
@@ -1213,7 +1150,7 @@ function triggerStockfishTrigger(
     });
     currentUIPosition += 1;
     animatePieceMovement(x);
-    console.log(x);
+    // console.log(x);
     if (
       handleGameOver(
         setParsedPGN,
@@ -1258,7 +1195,8 @@ function useSound(
       setSoundTrigger("");
     } catch (err) {
       setSoundTrigger("");
-      throw new Error("Error occured in playing sound");
+      console.log(err);
+      throw new Error("Error occurred in playing sound");
     }
   }, [soundTrigger]);
 }
@@ -1277,7 +1215,7 @@ function useClickAndMove(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   useEffect(() => {
-    console.log("clickAndMoveTriggerred");
+    // console.log("clickAndMoveTriggerred");
     if (clickAndMoveTrigger.length === 0) return;
     if (clickAndMoveTrigger.length === 4) {
       setPromotionArray(clickAndMoveTrigger);
@@ -1295,7 +1233,7 @@ function useClickAndMove(
       });
       currentUIPosition += 1;
       animatePieceMovement(x);
-      console.log(x);
+      // console.log(x);
       if (
         handleGameOver(
           setParsedPGN,
@@ -1347,7 +1285,7 @@ function useOnPieceDrop(
 ) {
   useEffect(() => {
     return monitorForElements({
-      onDrop({ source, location }) {
+      onDrop({ location }) {
         const destination = location.current.dropTargets[0];
         if (!destination) return;
         const dest = destination.data.cord; // Square object
@@ -1417,15 +1355,15 @@ function useOnPieceDrop(
   }, []);
 }
 
-function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
+function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: () => void) {
   useEffect(() => {
     ScrollToBottom();
   }, [parsedPGN]);
 }
 
 export function Page() {
-  let gameEndResult = "";
-  let gameEndTitle = "";
+  const gameEndResult = "";
+  const gameEndTitle = "";
   const originalFEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   const [fen, setFen] = useState<FenObject>({
@@ -1450,7 +1388,7 @@ export function Page() {
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
   const [engineOperable, setEngineOperable] = useState<boolean>(true);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   console.log("page rendering");
 
   chess.load(fen.fen);
@@ -1738,10 +1676,8 @@ function PGNTable({
                     )
                   }
                   disabled={
-                    playColor === chess.turn() &&
-                    currentUIPosition === FENHistory.length - 1
-                      ? false
-                      : true
+                    !(playColor === chess.turn() &&
+                        currentUIPosition === FENHistory.length - 1)
                   }
                 >
                   Yes
@@ -1806,9 +1742,6 @@ function GameEndDialogue({
     <Dialog
       open={gameEnded.gameEnded}
       modal={true}
-      onOpenChange={(open: boolean) => {
-        redirect("/dashboard");
-      }}
     >
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
@@ -2105,7 +2038,7 @@ function SettingComponent({
             //     console.log(workerRef.current)
             //     return workerRef.current.postMessage('start')
             //   }}}
-            disabled={useAppSelector(getEngineState) === "ready" ? false : true}
+            disabled={useAppSelector(getEngineState) !== "ready"}
           >
             Apply and Play
           </Button>
