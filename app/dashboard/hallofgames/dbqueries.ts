@@ -1,6 +1,5 @@
 "use server";
-import { Dispatch, SetStateAction } from "react";
-import { Game, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient({ log: ["query", "info"] });
 
 export async function getAllGames(page: number) {

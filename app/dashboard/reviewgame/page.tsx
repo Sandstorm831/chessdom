@@ -24,6 +24,7 @@ import { Popover } from "@radix-ui/react-popover";
 import { Toaster } from "@/components/ui/toaster";
 import { TheParentPGN } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
+import { redirect } from "next/navigation";
 /*  Variables relating to socket chess and online play */
 let stockfishColor: Color = "w";
 const chess = new Chess();
@@ -182,11 +183,7 @@ function SquareBlock({
       : "bg-[#f0d9b5] text-[#b58863]";
   }
   return (
-    <div
-      {...props}
-      ref={ref}
-      className={`${getColor()} relative`}
-    >
+    <div {...props} ref={ref} className={`${getColor()} relative`}>
       {children}
     </div>
   );
@@ -209,10 +206,7 @@ function Peice({ chessBoardIJ }: { chessBoardIJ: positionObject }) {
   );
 }
 
-function RenderSquare(
-  fen: FenObject,
-  color: Color,
-) {
+function RenderSquare(fen: FenObject, color: Color) {
   chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
   if (color === "b") {
@@ -395,6 +389,7 @@ export function Page() {
 
   useEffect(() => {
     if (chess.fen() === DEFAULT_POSITION) {
+      if (TheParentPGN.PGN === "") redirect("/dashboard");
       PGN.pgn = "";
       PGN.moveNumber = 0;
       setParsedPGN([]);
