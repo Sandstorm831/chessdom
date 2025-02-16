@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import Image from "next/image";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
@@ -26,7 +27,6 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,7 +34,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -42,21 +41,18 @@ import Link from "next/link";
 import { socket } from "@/app/socket";
 import { LoadingSpinner } from "@/app/ui/loadingSpinner";
 // import { getBestMove, startTheEngine } from "../../../opponent/opponent";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 // import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./opponentWasm";
 import { parse, ParseTree } from "@mliebelt/pgn-parser";
-import { PgnMove, Tags } from "@mliebelt/pgn-types/";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { setReady } from "@/lib/features/engine/engineSlice";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import isAuth from "@/components/auth_HOC";
 import { Session } from "next-auth";
 /*  Variables relating to socket chess and online play */
-let storeCallback: Function;
+let storeCallback: (response: string) => void;
 let reconciliation = false;
 let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
 // dependency array, state variables that
@@ -172,8 +168,8 @@ export type FenObject = {
 };
 
 type gameEndObject = {
-  gameEndTitle: String;
-  gameEndResult: String;
+  gameEndTitle: string;
+  gameEndResult: string;
   gameEnded: boolean;
 };
 
@@ -269,37 +265,11 @@ async function animatePieceMovement(moveObj: Move) {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].alt = "";
         }, 100);
-        // destChild[i].style.transform = "scale(0, 0)"
-        // destChild[i].style.transition = "all 0.15s"
-        // console.log(destAlt);
-        // destAlt = destChild[i].id;
-        // destChild[i].remove();
         break;
-        // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
-      }
-    }
-    // return;
-    // child.style.transform = ``
-    // await new Promise(resolve => setTimeout(resolve, 2000));
-  }
-}
-
-function removeAnimationTransforms(pieceMovements: MoveLAN[]) {
-  for (let i = 0; i < pieceMovements.length; i++) {
-    const from = pieceMovements[i].from;
-    const to = pieceMovements[i].to;
-    const destSquare = document.getElementById(to);
-    if (!destSquare) throw new Error("dest square is null");
-    const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
-    for (let i = 0; i < destChild.length; i++) {
-      if (destChild[i].nodeName === "IMG") {
-        destChild[i].style.transform = "none";
       }
     }
   }
 }
-
-const delay = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 function getPieceMovements(moveObj: Move): MoveLAN[] {
   if (moveObj.san === "O-O" || moveObj.san === "O-O+") {
@@ -328,44 +298,6 @@ function getPieceMovements(moveObj: Move): MoveLAN[] {
     }
   }
   return [{ from: moveObj.from, to: moveObj.to }];
-}
-
-export function wasmThreadsSupported() {
-  // WebAssembly 1.0
-  const source = Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
-  if (
-    typeof WebAssembly !== "object" ||
-    typeof WebAssembly.validate !== "function"
-  )
-    return false;
-  if (!WebAssembly.validate(source)) return false;
-
-  // SharedArrayBuffer
-  if (typeof SharedArrayBuffer !== "function") return false;
-
-  // Atomics
-  if (typeof Atomics !== "object") return false;
-
-  // Shared memory
-  const mem = new WebAssembly.Memory({ shared: true, initial: 8, maximum: 16 });
-  if (!(mem.buffer instanceof SharedArrayBuffer)) return false;
-
-  // Structured cloning
-  try {
-    // You have to make sure nobody cares about these messages!
-    window.postMessage(mem, "*");
-  } catch (e) {
-    return false;
-  }
-
-  // Growable shared memory (optional)
-  try {
-    mem.grow(8);
-  } catch (e) {
-    return false;
-  }
-
-  return true;
 }
 
 function updateHistory(pieceMovement: MoveLAN[]) {
@@ -435,20 +367,6 @@ function handleResignation(
   return;
 }
 
-function getPieceId(
-  chessBoardIJ: positionObject | null,
-  pieceMovements: MoveLAN[],
-  i: number,
-  j: number,
-  playColor: Color,
-) {
-  let IJsquare = IJToSquare(i, j, playColor);
-  if (!chessBoardIJ) return IJsquare;
-  let x = pieceMovements.find((obj) => obj.to === chessBoardIJ.square);
-  if (!x) return IJsquare;
-  return x.from;
-}
-
 function squareToIJ(square: Square, color: Color) {
   let j = square[0].toLowerCase().charCodeAt(0) - 97;
   let i = Math.abs(Number(square[1]) - 8);
@@ -508,9 +426,7 @@ function SquareBlock({
       element: elm,
       getData: () => ({ cord, validMovesArray }),
       canDrop: () =>
-        validMovesArray.find((obj) => obj.square === cord) !== undefined
-          ? true
-          : false,
+        validMovesArray.find((obj) => obj.square === cord) !== undefined,
       onDragEnter: () => setIsDraggedOver(true),
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: () => setIsDraggedOver(false),
@@ -546,13 +462,9 @@ function SquareBlock({
 function Peice({
   chessBoardIJ,
   blueDotFunc,
-  isDnD,
-  id,
 }: {
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
-  isDnD: boolean;
-  id: string;
 }) {
   // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
@@ -627,7 +539,6 @@ function RenderSquare(
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
-      const pieceId = getPieceId(chessBoardIJ, fen.pieceMovements, i, j, color);
       if (i % 2 === j % 2) {
         if (j === 0 && i === 7) {
           chessBoardArray.push(
@@ -650,8 +561,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -680,8 +589,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -711,8 +618,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -737,8 +642,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -770,8 +673,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -800,8 +701,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -831,8 +730,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -858,8 +755,6 @@ function RenderSquare(
                 <Peice
                   chessBoardIJ={chessBoardIJ}
                   blueDotFunc={setBlueDotArrayFunc}
-                  isDnD={fen.isDnD}
-                  id={pieceId}
                 />
               ) : null}
               {blueDotArray.find(
@@ -880,28 +775,6 @@ function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>) {
   const isDnD: boolean = nextMoveObject.isDnD;
   const pieceMovements: MoveLAN[] = nextMoveObject.pieceMovements;
   setFen({ fen: fen, isDnD: isDnD, pieceMovements: pieceMovements });
-}
-
-function setNewGame(
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
-  setFen: Dispatch<SetStateAction<FenObject>>,
-  originalFEN: string,
-  setOpenSettings: Dispatch<SetStateAction<boolean>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-) {
-  PGN.pgn = "";
-  PGN.moveNumber = 0;
-  setParsedPGN([]);
-  FENHistory.length = 0;
-  FENHistory.push({
-    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-    isDnD: false,
-    pieceMovements: [],
-  });
-  currentUIPosition = 0;
-  setFen({ fen: originalFEN, isDnD: false, pieceMovements: [] });
-  setOpenSettings(true);
-  setGameEnded({ gameEnded: false, gameEndResult: "", gameEndTitle: "" });
 }
 
 function startTheGame(
@@ -1031,7 +904,6 @@ function handlePromotion(
       console.log(response);
       return;
     }
-    return;
   }
   if (chess.turn() !== playColor)
     socket
@@ -1133,7 +1005,6 @@ function triggerOpponentTrigger(
         console.log(response);
         return;
       }
-      return;
     }
     // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
     if (chess.turn() !== playColor)
@@ -1265,7 +1136,7 @@ function handleGameStartingForSocket(
 
 function handleOpponentMoveForSocket(
   chessMove: string,
-  callback: Function,
+  callback: (response: string) => void,
   setOpponentMove: Dispatch<SetStateAction<string>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
 ) {
@@ -1284,7 +1155,7 @@ function handleReconciliationForSocket(
   colorHeld: Color,
   historyX: string[],
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
-  callback: Function,
+  callback: (response: string) => void,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
@@ -1401,6 +1272,7 @@ function useSound(
       setSoundTrigger("");
     } catch (err) {
       setSoundTrigger("");
+      console.log(err);
       throw new Error("Error occured in playing sound");
     }
   }, [soundTrigger]);
@@ -1441,7 +1313,6 @@ function useClickAndMove(
           console.log(response);
           return;
         }
-        return;
       }
       // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
       if (chess.turn() !== playColor)
@@ -1512,7 +1383,7 @@ function useOnPieceDrop(
 ) {
   useEffect(() => {
     return monitorForElements({
-      onDrop({ source, location }) {
+      onDrop({ location }) {
         const destination = location.current.dropTargets[0];
         if (!destination) return;
         const dest = destination.data.cord; // Square object
@@ -1550,7 +1421,6 @@ function useOnPieceDrop(
               console.log(response);
               return;
             }
-            return;
           }
           // since the move has been played in chess object we have get an opposite check, otherwise the move recieved will be throttled back
           if (chess.turn() !== NonStatePlaycolor)
@@ -1604,7 +1474,7 @@ function useOnPieceDrop(
   }, []);
 }
 
-function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: Function) {
+function useParsedPGNView(parsedPGN: ParseTree[], ScrollToBottom: () => void) {
   useEffect(() => {
     ScrollToBottom();
   }, [parsedPGN]);
@@ -1653,7 +1523,7 @@ function useSocket(
 
     socket.on("disconnect", onDisconnect);
 
-    socket.on("gamecolor", (color: Color, opponent: String) => {
+    socket.on("gamecolor", (color: Color, opponent: string) => {
       setPlayColor(color);
       NonStatePlaycolor = color;
       setOpponentName(opponent.split("@")[0]);
@@ -1663,13 +1533,13 @@ function useSocket(
       handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
     );
 
-    socket.on("move", async (chessMove: string, callback: Function) =>
+    socket.on("move", async (chessMove: string, callback: (response: string) => void ) =>
       handleOpponentMoveForSocket(chessMove, callback, setOpponentMove, setFen),
     );
 
     socket.on(
       "reconciliation",
-      (historyX: string[], colorHeld: Color, callback: Function) =>
+      (historyX: string[], colorHeld: Color, callback:  (response: string) => void ) =>
         handleReconciliationForSocket(
           colorHeld,
           historyX,
@@ -1754,10 +1624,8 @@ function useSocket(
 /*  Variables relating to socket chess and online play */
 
 export function Page() {
-  let gameEndResult = "";
-  let gameEndTitle = "";
-  const originalFEN =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  const gameEndResult = "";
+  const gameEndTitle = "";
   const [fen, setFen] = useState<FenObject>({
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     isDnD: false,
@@ -1774,14 +1642,13 @@ export function Page() {
   const [soundTrigger, setSoundTrigger] = useState<string>("");
   const [playColor, setPlayColor] = useState<Color>("w");
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [openSettings, setOpenSettings] = useState(true);
   const [promotionArray, setPromotionArray] = useState<SquareAndMove[]>([]);
   const [opponentMove, setOpponentMove] = useState<string>("");
   // const workerRef = useRef<Worker>(null);
   // const TheOpponentEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   /*  Variables relating to socket chess and online play */
   const [isConnected, setIsConnected] = useState(false);
@@ -1797,6 +1664,8 @@ export function Page() {
   /*  Variables relating to socket chess and online play */
 
   console.log("page rendering");
+  console.log(`Connected to server : ${isConnected}`)
+  console.log(`Transport Method : ${transport}`);
   chess.load(fen.fen);
 
   if (HistoryArray.length === 0) {
@@ -1897,8 +1766,6 @@ export function Page() {
             setParsedPGN={setParsedPGN}
             gameEnded={gameEnded}
             setFen={setFen}
-            originalFEN={originalFEN}
-            setOpenSettings={setOpenSettings}
             setGameEnded={setGameEnded}
             setFindingRoom={setFindingRoom}
             rematchD={rematchD}
@@ -2258,10 +2125,8 @@ function PGNTable({
                     )
                   }
                   disabled={
-                    playColor === chess.turn() &&
-                    currentUIPosition === FENHistory.length - 1
-                      ? false
-                      : true
+                    !(playColor === chess.turn() &&
+                        currentUIPosition === FENHistory.length - 1)
                   }
                 >
                   Yes
@@ -2281,8 +2146,6 @@ function GameEndDialogue({
   setParsedPGN,
   gameEnded,
   setFen,
-  originalFEN,
-  setOpenSettings,
   setGameEnded,
   setFindingRoom,
   rematchD,
@@ -2293,8 +2156,6 @@ function GameEndDialogue({
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
   gameEnded: gameEndObject;
   setFen: Dispatch<SetStateAction<FenObject>>;
-  originalFEN: string;
-  setOpenSettings: Dispatch<SetStateAction<boolean>>;
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>;
   setFindingRoom: Dispatch<SetStateAction<boolean>>;
   rematchD: boolean;
@@ -2304,9 +2165,6 @@ function GameEndDialogue({
     <Dialog
       open={gameEnded.gameEnded}
       modal={true}
-      onOpenChange={(open: boolean) => {
-        redirect("/dashboard");
-      }}
     >
       <DialogContent className="flex flex-col justify-center">
         <DialogHeader>
@@ -2505,99 +2363,5 @@ function PromotionDrawer({
     </Drawer>
   );
 }
-
-function SettingComponent({
-  setParsedPGN,
-  openSettings,
-  playColor,
-  setPlayColor,
-  setOpenSettings,
-  originalFEN,
-}: {
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>;
-  openSettings: boolean;
-  playColor: Color;
-  setPlayColor: Dispatch<SetStateAction<Color>>;
-  setOpenSettings: Dispatch<SetStateAction<boolean>>;
-  originalFEN: string;
-}) {}
-
-///////////////////////////
-
-// function OldBook({
-//   isConnected,
-//   transport,
-//   move,
-//   setMove,
-//   recievedMoves,
-//   handleSubmit,
-//   handleRematch,
-//   handleNewGame,
-// }: {
-//   isConnected: boolean;
-//   transport: string;
-//   move: string;
-//   setMove: Dispatch<SetStateAction<string>>;
-//   recievedMoves: string[];
-//   handleSubmit: (event: any) => void;
-//   handleRematch: Function;
-//   handleNewGame: Function;
-// }) {
-//   return (
-//     <div className="w-full h-full flex flex-col justify-center bg-[#FFFEFC] text-[#323014]">
-//       <div className="w-full flex justify-center">
-//         <div className="flex-col justify-center">
-//           <div className="text-3xl">Opponent player page</div>
-//           <div className="text-3xl mt-5">
-//             isConnected : {isConnected ? "connected" : "disconnected"}
-//           </div>
-//           <div className="text-3xl mt-5">Transport : {transport}</div>
-//           <form onSubmit={handleSubmit}>
-//             <label>
-//               Enter your name:
-//               <input
-//                 type="text"
-//                 value={move}
-//                 onChange={(e) => setMove(e.target.value)}
-//               />
-//             </label>
-//             <input type="submit" />
-//           </form>
-//         </div>
-//         <div className="text-3xl mt-5">
-//           <ul>
-//             {recievedMoves && recievedMoves.length
-//               ? recievedMoves.map((obj, idx) => <li key={idx}>{obj}</li>)
-//               : null}
-//           </ul>
-//         </div>
-//         <button onClick={() => handleRematch()}>rematch</button>
-//         <button onClick={() => handleNewGame()}>New Game</button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// <OldBook
-//   isConnected={isConnected}
-//   transport={transport}
-//   move={move}
-//   setMove={setMove}
-//   recievedMoves={recievedMoves}
-//   handleSubmit={handleSubmit}
-//   handleRematch={handleRematch}
-//   handleNewGame={handleNewGame}
-// />
-
-// <SettingComponent
-//   setParsedPGN={setParsedPGN}
-//   openSettings={openSettings}
-//   playColor={playColor}
-//   setPlayColor={setPlayColor}
-//   setOpenSettings={setOpenSettings}
-//   originalFEN={originalFEN}
-// />
-//
-export function Paged() {}
 
 export default isAuth(Page);

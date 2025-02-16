@@ -232,8 +232,6 @@ export function updatePGN(
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
-  // console.log("Piece movements");
-  // console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -243,42 +241,25 @@ async function animatePieceMovement(moveObj: Move) {
     const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
     const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
     const parent = document.getElementById(from);
-    // console.log(parent);
-    // console.log("children of parent");
-    // console.log(parent?.children[parent.children.length - 1]);
     const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
     const transX = MoveX - (childRect.left + childRect.right) / 2;
     const transY = MoveY - (childRect.top + childRect.bottom) / 2;
-    // child?.getBoundingClientRect()
-    // console.log(`X = ${transX}`);
-    // console.log(`Y = ${transY}`);
     child.style.transition = "all 0.2s";
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
     child.style.zIndex = "20";
-    // let destAlt = "";
     for (let i = 0; i < destChild.length; i++) {
       if (destChild[i].nodeName === "IMG") {
-        // const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
         setTimeout(() => {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].src = "";
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].alt = "";
         }, 100);
-        // destChild[i].style.transform = "scale(0, 0)"
-        // destChild[i].style.transition = "all 0.15s"
-        // console.log(destAlt);
-        // destAlt = destChild[i].id;
-        // destChild[i].remove();
         break;
-        // setTimeout(() => {destChild[i].style.transform = "none"}, 400);
       }
     }
-    // return;
-    // child.style.transform = ``
-    // await new Promise(resolve => setTimeout(resolve, 2000));
   }
 }
 
