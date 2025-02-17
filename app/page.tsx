@@ -4,17 +4,12 @@ import { EngineX } from "./engineAndPGN";
 import { useEffect } from "react";
 import initialisingEngineWorker from "./startEngine";
 import { GiOrbitalRays, GiMountedKnight } from "react-icons/gi";
-import {
-  FaQuoteLeft,
-  FaQuoteRight,
-  FaChessBoard,
-} from "react-icons/fa";
+import { FaQuoteLeft, FaQuoteRight, FaChessBoard } from "react-icons/fa";
 
 export default function Home() {
   // The code will run only when present on the client, and not on pre-rendering on server.
   useEffect(() => {
     if (EngineX.stockfishEngine === null) initialisingEngineWorker();
-    console.log(EngineX);
   }, []);
 
   return (
@@ -52,9 +47,7 @@ export default function Home() {
               Chess was never just a game, but a journey for anyone who masters
               it and becomes a knight
             </div>
-            {/* <div className="flex justify-center"><FaArrowTrendDown /></div> */}
             <div className="flex justify-center mr-8 mt-5">
-              {/* <FaPersonWalkingArrowRight className="text-[200px] text-[#fffefc]" /> */}
               <GiMountedKnight className="text-[200px] text-[#fffefc]" />
             </div>
           </div>

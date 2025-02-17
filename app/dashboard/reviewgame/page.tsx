@@ -17,7 +17,6 @@ import {
 } from "chess.js";
 import { LoadingSpinner } from "@/app/ui/loadingSpinner";
 
-// import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./opponentWasm";
 import { parse, ParseTree } from "@mliebelt/pgn-parser";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
@@ -63,19 +62,6 @@ function arbitraryTimeTravel(
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
-
-// export function getBestMove(fen: string, opponentEngine: OpponentEngine) {
-//   opponentEngine.postMessage(`position fen ${fen}`);
-//   opponentEngine.postMessage("go depth 15");
-// }
-
-// export function captureBestMoves(){
-//   const opponentOutputArray = useAppSelector(getResponseArray);
-//   if(opponentOutputArray[opponentOutputArray.length - 1] === 'readyok'){
-//     return opponentOutputArray[opponentOutputArray.length - 2];
-//   }
-//   return opponentOutputArray[opponentOutputArray.length - 1];
-// }
 
 export type gameEst = {
   white: string;
@@ -190,7 +176,6 @@ function SquareBlock({
 }
 
 function Peice({ chessBoardIJ }: { chessBoardIJ: positionObject }) {
-  // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
   return (
     <Image
@@ -216,7 +201,6 @@ function RenderSquare(fen: FenObject, color: Color) {
     chessBoard.reverse();
   }
   const chessBoardArray: ReactElement[] = [];
-  console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
@@ -372,12 +356,8 @@ function Page() {
   });
   const [playColor, setPlayColor] = useState<Color>("w");
   const [loading, setLoading] = useState(true);
-  // const workerRef = useRef<Worker>(null);
-  // const TheOpponentEngine = useAppSelector(getEngine);
   const [parsedPGN, setParsedPGN] = useState<ParseTree[]>([]);
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
-
-  console.log("page rendering");
 
   chess.load(DEFAULT_POSITION);
 
@@ -410,7 +390,6 @@ function Page() {
       }
       const OG: string = TheParentPGN.PGN;
       const parsed = parse(OG, { startRule: "game" });
-      console.log(parsed);
       // Type Checking Code ------>
       const isOfType = (z: any): z is ParseTree => "moves" in z;
       if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -423,9 +402,6 @@ function Page() {
       const parsedPGNMoves = x[0].moves;
       for (let i = 0; i < parsedPGNMoves.length; i++) {
         const san = parsedPGNMoves[i].notation.notation;
-        // console.log(chess.fen());
-        // console.log(chess.ascii());
-        console.log(san + " | " + i);
         const moveObj = chess.move(san);
         const pieceMovements = getPieceMovements(moveObj);
         FENHistory.push({
@@ -604,7 +580,6 @@ function PGNTable({
             </div>
           ) : null}
         </div>
-        {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
       </div>
       <div className="bg-[#fffefc] w-full h-20 flex justify-around">
         <div className="h-full w-1/3 flex flex-col justify-center p-2">

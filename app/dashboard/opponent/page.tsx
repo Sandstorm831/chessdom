@@ -40,8 +40,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { socket } from "@/app/socket";
 import { LoadingSpinner } from "@/app/ui/loadingSpinner";
-// import { getBestMove, startTheEngine } from "../../../opponent/opponent";
-// import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./opponentWasm";
 import { parse, ParseTree } from "@mliebelt/pgn-parser";
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
@@ -138,19 +136,6 @@ function initializeHistory() {
   }
 }
 
-// export function getBestMove(fen: string, opponentEngine: OpponentEngine) {
-//   opponentEngine.postMessage(`position fen ${fen}`);
-//   opponentEngine.postMessage("go depth 15");
-// }
-
-// export function captureBestMoves(){
-//   const opponentOutputArray = useAppSelector(getResponseArray);
-//   if(opponentOutputArray[opponentOutputArray.length - 1] === 'readyok'){
-//     return opponentOutputArray[opponentOutputArray.length - 2];
-//   }
-//   return opponentOutputArray[opponentOutputArray.length - 1];
-// }
-
 export type historyObject = {
   id: Square;
   to: Square | "X";
@@ -189,17 +174,6 @@ type PGNObject = {
   moveNumber: number;
 };
 
-// export function getOriginalID(square: Square) {
-//   for (let i = 0; i < HistoryArray.length; i++) {
-//     if (HistoryArray[i].to === square) return HistoryArray[i].id;
-//   }
-//   // console.log(HistoryArray);
-//   console.log(`OriginalID = ${square}`);
-//   console.log(HistoryArray);
-//   alert("Error retreiving piece history");
-//   // throw new Error("Error retreiving piece history");
-// }
-
 function updatePGN(
   moveObj: Move,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
@@ -214,13 +188,7 @@ function updatePGN(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
   // Type Checking Code ------>
-  // if(!Array.isArray(parsed)){
-  //   console.log(parsed);
-  //   throw new Error("parsed output is not an array");
-  // }
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
   const x = [parsed];
@@ -230,8 +198,6 @@ function updatePGN(
 
 async function animatePieceMovement(moveObj: Move) {
   const pieceMovements = getPieceMovements(moveObj);
-  console.log("Piece movements");
-  console.log(pieceMovements);
   for (let i = 0; i < pieceMovements.length; i++) {
     const from = pieceMovements[i].from;
     const to = pieceMovements[i].to;
@@ -241,24 +207,16 @@ async function animatePieceMovement(moveObj: Move) {
     const MoveX = (destinaionRect.right + destinaionRect.left) / 2;
     const MoveY = (destinaionRect.top + destinaionRect.bottom) / 2;
     const parent = document.getElementById(from);
-    console.log(parent);
-    console.log("children of parent");
-    console.log(parent?.children[parent.children.length - 1]);
     const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
     const transX = MoveX - (childRect.left + childRect.right) / 2;
     const transY = MoveY - (childRect.top + childRect.bottom) / 2;
-    // child?.getBoundingClientRect()
-    console.log(`X = ${transX}`);
-    console.log(`Y = ${transY}`);
     child.style.transition = "all 0.2s";
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
     child.style.zIndex = "20";
-    // let destAlt = "";
     for (let i = 0; i < destChild.length; i++) {
       if (destChild[i].nodeName === "IMG") {
-        // const attacker: string = `/chesspeices/${moveObj.color}${moveObj.piece}.svg`;
         setTimeout(() => {
           //@ts-expect-error since node name is 'IMG' therefore this is an img tag, therefor will contain the src for sure
           destChild[i].src = "";
@@ -314,18 +272,12 @@ function updateHistory(pieceMovement: MoveLAN[]) {
       }
     }
     for (let j = 0; j < upd.length; j++) {
-      console.log(
-        `${HistoryArray[upd[j]].to} changed to ${pieceMovement[i].to}`,
-      );
       HistoryArray[upd[j]].to = pieceMovement[i].to;
     }
     for (let j = 0; j < take.length; j++) {
       HistoryArray[take[j]].to = "X";
-      // HistoryArray.splice(take[j], 1);
     }
   }
-  console.log(`History`);
-  console.log(HistoryArray);
 }
 
 function handleResignation(
@@ -343,8 +295,6 @@ function handleResignation(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -352,11 +302,6 @@ function handleResignation(
   // <-------- Type Checking Code
   setParsedPGN(x);
 
-  // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
-  // do something on resignatino, I haven't thought about it till now.
-  // TheOpponentEngine.postMessage("ucinewgame");
-  // TheOpponentEngine.postMessage("isready");
-  //
   setGameEnded({
     gameEnded: true,
     gameEndResult: playColor === "w" ? "0 - 1" : "1 - 0",
@@ -419,7 +364,6 @@ function SquareBlock({
     }
   }
   useEffect(() => {
-    console.log("rendering");
     const elm = ref.current;
     invariant(elm);
     return dropTargetForElements({
@@ -466,9 +410,7 @@ function Peice({
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
 }) {
-  // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
-  // const ID = getOriginalID(chessBoardIJ.square);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
     const elm = ref.current;
@@ -535,7 +477,6 @@ function RenderSquare(
       setBlueDotArray(tempArray);
     }
   }
-  console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
@@ -840,8 +781,6 @@ function handleGameOver(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -856,7 +795,6 @@ function handleGameOver(
     });
   }, 1000);
   setSoundTrigger("/sounds/game-end.mp3");
-  console.log(JSON.stringify(chess.pgn()));
   return true;
 }
 
@@ -886,7 +824,6 @@ function handlePromotion(
     }
   }
   if (promotionMove === undefined) {
-    // console.log(promotionArray);
     throw new Error("Failed promotion, some error occured");
   }
   const moveObj = chess.move(promotionMove.move);
@@ -901,7 +838,7 @@ function handlePromotion(
         );
       return;
     } else {
-      console.log(response);
+      console.log(`Acknowledgement : ${response}`);
       return;
     }
   }
@@ -912,7 +849,6 @@ function handlePromotion(
         ackknowledgementCallback(err, response),
       );
   updatePGN(moveObj, setParsedPGN);
-  console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
@@ -958,8 +894,6 @@ function useLatestOpponentResponse(
   opponentMove: string,
 ) {
   useEffect(() => {
-    // console.log(`engine on message : ${TheOpponentEngine.onmessage}`);
-    // console.log("am in the latest response" + latestOpponentResponse)
     if (currentUIPosition === FENHistory.length - 1) {
       triggerOpponentTrigger(
         setParsedPGN,
@@ -973,9 +907,7 @@ function useLatestOpponentResponse(
         setSoundTrigger,
       );
     } else {
-      // if game is in time travel get to the current FEN and the animate the move
     }
-    // console.log(`found best move = ${latestOpponentResponse.split(" ")[1]}`);
   }, [opponentMove]);
 }
 
@@ -1002,7 +934,7 @@ function triggerOpponentTrigger(
           );
         return;
       } else {
-        console.log(response);
+        console.log(`Acknowledgement : ${response}`);
         return;
       }
     }
@@ -1023,7 +955,6 @@ function triggerOpponentTrigger(
     });
     currentUIPosition += 1;
     animatePieceMovement(x);
-    console.log(x);
     if (
       handleGameOver(
         setParsedPGN,
@@ -1051,7 +982,6 @@ function triggerOpponentTrigger(
     nextMoveObject.isDnD = isDnD;
     nextMoveObject.pieceMovements = pieceMovements;
     setTimeout(() => FENCallback(setFen), 500);
-    // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
     return;
   } else return;
 }
@@ -1083,8 +1013,6 @@ function handleReconciliationGameOver(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -1099,7 +1027,6 @@ function handleReconciliationGameOver(
     });
   }, 1000);
   setSoundTrigger("/sounds/game-end.mp3");
-  console.log(JSON.stringify(chess.pgn()));
 }
 
 function handleResetBoardForSocket(
@@ -1164,7 +1091,7 @@ function handleReconciliationForSocket(
 ) {
   reconciliation = true;
   storeCallback = callback;
-  // do whatever you want to do for reconciliation
+  // do whatever you want to do for reconciliation from here
   setPlayColor(colorHeld);
   NonStatePlaycolor = colorHeld;
   while (chess.history().length < historyX.length) {
@@ -1195,7 +1122,7 @@ function handleReconciliationForSocket(
         );
     }
   }
-  //
+  // upto here
   storeCallback("reconciled");
   setFindingRoom(false);
   reconciliation = false;
@@ -1216,8 +1143,6 @@ function handleOpponentResignationForSocket(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  console.log(parsed);
-  console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -1292,7 +1217,6 @@ function useClickAndMove(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   useEffect(() => {
-    console.log("clickAndMoveTriggerred");
     if (clickAndMoveTrigger.length === 0) return;
     if (clickAndMoveTrigger.length === 4) {
       setPromotionArray(clickAndMoveTrigger);
@@ -1310,7 +1234,7 @@ function useClickAndMove(
             );
           return;
         } else {
-          console.log(response);
+          console.log(`Acknowledgemenet : ${response}`);
           return;
         }
       }
@@ -1331,7 +1255,6 @@ function useClickAndMove(
       });
       currentUIPosition += 1;
       animatePieceMovement(x);
-      console.log(x);
       if (
         handleGameOver(
           setParsedPGN,
@@ -1359,11 +1282,6 @@ function useClickAndMove(
       nextMoveObject.isDnD = isDnD;
       nextMoveObject.pieceMovements = pieceMovements;
       setTimeout(() => FENCallback(setFen), 500);
-      // setFen({
-      //   fen: chess.fen(),
-      //   isDnD: isDnD,
-      //   pieceMovements: pieceMovements,
-      // });
     }
   }, [clickAndMoveTrigger]);
 }
@@ -1418,7 +1336,7 @@ function useOnPieceDrop(
                 );
               return;
             } else {
-              console.log(response);
+              console.log(`Acknowledgement : ${response}`);
               return;
             }
           }
@@ -1438,8 +1356,6 @@ function useOnPieceDrop(
             pieceMovements: pieceMovements,
           });
           currentUIPosition += 1;
-          // animatePieceMovement(x);
-          // console.log(x);
           if (
             handleGameOver(
               setParsedPGN,
@@ -1504,14 +1420,10 @@ function useSocket(
   useEffect(() => {
     async function authSetter() {
       if (session && session.user && session.user.email && session.user.name) {
-        console.log("inside the important stuff");
-        console.log(session.user.email);
         socket.auth = {
           username: session.user.email,
         };
       }
-      console.log("just before connectin");
-      console.log(socket.auth);
       socket.connect();
     }
     authSetter();
@@ -1595,7 +1507,6 @@ function useSocket(
     });
 
     socket.on("opponentleftgame", () => {
-      console.log("recieved the event opponentleftgame");
       setIsDisconnectedFromGame(true);
       setOpponentLeftTheGame(true);
     });
@@ -1674,7 +1585,6 @@ function Page() {
   const [opponentName, setOpponentName] = useState("A knight");
   /*  Variables relating to socket chess and online play */
 
-  console.log("page rendering");
   console.log(`Connected to server : ${isConnected}`);
   console.log(`Transport Method : ${transport}`);
   chess.load(fen.fen);
@@ -1723,10 +1633,6 @@ function Page() {
     setSoundTrigger,
     opponentMove,
   );
-
-  // useEngine(workerRef);
-
-  // useUpdateBoardFEN(playColor, fen, TheOpponentEngine, openSettings);
 
   useSound(soundTrigger, setSoundTrigger);
 
@@ -2087,7 +1993,6 @@ function PGNTable({
             </div>
           ) : null}
         </div>
-        {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
       </div>
       <div className="bg-[#fffefc] w-full h-20 flex justify-around">
         <div className="h-full w-1/3 flex flex-col justify-center p-2">

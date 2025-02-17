@@ -32,10 +32,8 @@ import {
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-// import { getBestMove, startTheEngine } from "../../../stockfish/stockfish";
 import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-// import { useApplyInitialSettings, useCaptureBestMoves, useGetBestMove } from "./stockfishWasm";
 import {
   getLatestResponse,
   pushResponse,
@@ -138,14 +136,6 @@ function getBestMove(fen: string) {
   EngineX.stockfishEngine.postMessage("go depth 15");
 }
 
-// export function captureBestMoves(){
-//   const stockfishOutputArray = useAppSelector(getResponseArray);
-//   if(stockfishOutputArray[stockfishOutputArray.length - 1] === 'readyok'){
-//     return stockfishOutputArray[stockfishOutputArray.length - 2];
-//   }
-//   return stockfishOutputArray[stockfishOutputArray.length - 1];
-// }
-
 export type historyObject = {
   id: Square;
   to: Square | "X";
@@ -190,17 +180,6 @@ type PGNObject = {
   moveNumber: number;
 };
 
-// export function getOriginalID(square: Square) {
-//   for (let i = 0; i < HistoryArray.length; i++) {
-//     if (HistoryArray[i].to === square) return HistoryArray[i].id;
-//   }
-//   // console.log(HistoryArray);
-//   console.log(`OriginalID = ${square}`);
-//   console.log(HistoryArray);
-//   alert("Error retreiving piece history");
-//   // throw new Error("Error retreiving piece history");
-// }
-
 function updatePGN(
   moveObj: Move,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
@@ -215,13 +194,7 @@ function updatePGN(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  // console.log(parsed);
-  // console.log(PGN.pgn);
   // Type Checking Code ------>
-  // if(!Array.isArray(parsed)){
-  //   console.log(parsed);
-  //   throw new Error("parsed output is not an array");
-  // }
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
   const x = [parsed];
@@ -349,7 +322,6 @@ function updateHistory(pieceMovement: MoveLAN[]) {
     }
     for (let j = 0; j < take.length; j++) {
       HistoryArray[take[j]].to = "X";
-      // HistoryArray.splice(take[j], 1);
     }
   }
 }
@@ -369,8 +341,6 @@ function handleResignation(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  // console.log(parsed);
-  // console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -444,7 +414,6 @@ function SquareBlock({
     }
   }
   useEffect(() => {
-    console.log("rendering");
     const elm = ref.current;
     invariant(elm);
     return dropTargetForElements({
@@ -491,9 +460,7 @@ function Peice({
   chessBoardIJ: positionObject;
   blueDotFunc: (a: Square, b: boolean) => void;
 }) {
-  // const layoutId = chessBoardIJ.square === toSquare ? fromSquare : chessBoardIJ.square;
   const ref = useRef(null);
-  // const ID = getOriginalID(chessBoardIJ.square);
   const [dragging, setDragging] = useState<boolean>(false);
   useEffect(() => {
     const elm = ref.current;
@@ -560,7 +527,6 @@ function RenderSquare(
       setBlueDotArray(tempArray);
     }
   }
-  // console.log("render happened");
   for (let i = 0; i < chessBoard.length; i++) {
     for (let j = 0; j < chessBoard[i].length; j++) {
       const chessBoardIJ = chessBoard[i][j];
@@ -845,8 +811,6 @@ function startTheGame(
   applyInitialSettings(stockfishElo.toString());
   if (playColor === "b") {
     getBestMove(originalFEN);
-    // const bestMoveString = useCaptureBestMoves();
-    // console.log(`latest response = ${latestStockfishResponse}`);
   }
 }
 
@@ -869,7 +833,6 @@ function handleGameOver(
   nextMoveObject.isDnD = isDnD;
   nextMoveObject.pieceMovements = pieceMovements;
   setTimeout(() => FENCallback(setFen), 500);
-  // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -893,8 +856,6 @@ function handleGameOver(
     PGN.pgn += pgnString;
   }
   const parsed = parse(PGN.pgn, { startRule: "game" });
-  // console.log(parsed);
-  // console.log(PGN.pgn);
   // Type Checking Code ------>
   const isOfType = (z: any): z is ParseTree => "moves" in z;
   if (!isOfType(parsed)) throw new Error("parsed output is not of type");
@@ -909,7 +870,6 @@ function handleGameOver(
     });
   }, 1000);
   setSoundTrigger("/sounds/game-end.mp3");
-  // console.log(JSON.stringify(chess.pgn()));
   return true;
 }
 
@@ -939,12 +899,10 @@ function handlePromotion(
     }
   }
   if (promotionMove === undefined) {
-    // console.log(promotionArray);
     throw new Error("Failed promotion, some error occured");
   }
   const moveObj = chess.move(promotionMove.move);
   updatePGN(moveObj, setParsedPGN);
-  // console.log(moveObj);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
   updateHistory(pieceMovements);
@@ -990,8 +948,6 @@ function useLatestStockfishResponse(
 ) {
   const latestStockfishResponse = useAppSelector(getLatestResponse);
   useEffect(() => {
-    // console.log(`engine on message : ${EngineX.stockfishEngine.onmessage}`);
-    // console.log("am in the latest response" + latestStockfishResponse)
     if (
       latestStockfishResponse &&
       latestStockfishResponse.split(" ")[0] === "bestmove"
@@ -1010,7 +966,6 @@ function useLatestStockfishResponse(
           setSoundTrigger,
         );
       }
-      // console.log(`found best move = ${latestStockfishResponse.split(" ")[1]}`);
     }
   }, [latestStockfishResponse]);
 }
@@ -1034,40 +989,13 @@ function useEngine(
       workerRef.current = new window.Worker("/lib/loadEngine.js");
       if (workerRef.current === null) throw new Error("worker is null");
       workerRef.current.onmessage = async (e) => {
-        // alert("web worker responded");
-        // console.log(
-        //   e.data &&
-        //     e.data.buffer instanceof ArrayBuffer &&
-        //     e.data.byteLength !== undefined
-        // );
-        // console.log(e.data);
-        // console.log(ArrayBuffer.isView(e.data));
-        // console.time("starting");
         // @ts-expect-error Stockfish loaded from script present in /lib/stockfish.js and referenced in layout
         const x: StockfishEngine = await Stockfish(e.data);
-        // console.timeEnd("starting");
         x.addMessageListener((line: string) => {
-          // console.log(`hello : ${line}`);
-          // setStockfishResponseArray(StockfishResponseArray.concat([line]));
           dispatch(pushResponse(line));
         });
-        // x.onmessage = (e: MessageEvent) => {
         EngineX.stockfishEngine = x;
-        // }
-        // console.log(x.onmessage);
         dispatch(setReady());
-        // console.log("arraybuffer view : ");
-        // console.log(ArrayBuffer.isView(x));
-        // dispatch(setReady(x));
-        // console.log(typeof x);
-        // console.log(x);
-        // console.log(typeof x);
-        // console.log(JSON.stringify(x));
-        // console.log(x);
-        // const ax: string = JSON.stringify(x);
-        // const cx: object = JSON.parse(ax);
-        // console.log(cx === x);
-        // console.log(useAppSelector(getEngineState))
       };
       workerRef.current.onerror = (e) => {
         console.log(e);
@@ -1076,8 +1004,6 @@ function useEngine(
         );
       };
       workerRef.current.postMessage("start");
-      // console.log(workerRef.current);
-
       return () => {
         workerRef.current?.terminate();
       };
@@ -1091,7 +1017,6 @@ function useUpdateBoardFEN(
   openSettings: boolean,
 ) {
   useEffect(() => {
-    console.log(`WASM Thread Supported = ${wasmThreadsSupported()} `);
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
       if (
         !chess.isGameOver() &&
@@ -1099,8 +1024,6 @@ function useUpdateBoardFEN(
         FENHistory.length - 1 === currentUIPosition
       )
         getBestMove(fen.fen);
-      // const bestMoveString = useCaptureBestMoves();
-      // console.log(bestMoveString);
     } else {
       return;
     }
@@ -1130,7 +1053,6 @@ function triggerStockfishTrigger(
     });
     currentUIPosition += 1;
     animatePieceMovement(x);
-    // console.log(x);
     if (
       handleGameOver(
         setParsedPGN,
@@ -1158,7 +1080,6 @@ function triggerStockfishTrigger(
     nextMoveObject.isDnD = isDnD;
     nextMoveObject.pieceMovements = pieceMovements;
     setTimeout(() => FENCallback(setFen), 500);
-    // setFen({ fen: chess.fen(), isDnD: isDnD, pieceMovements: pieceMovements });
     return;
   } else return;
 }
@@ -1195,7 +1116,6 @@ function useClickAndMove(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   useEffect(() => {
-    // console.log("clickAndMoveTriggerred");
     if (clickAndMoveTrigger.length === 0) return;
     if (clickAndMoveTrigger.length === 4) {
       setPromotionArray(clickAndMoveTrigger);
@@ -1213,7 +1133,6 @@ function useClickAndMove(
       });
       currentUIPosition += 1;
       animatePieceMovement(x);
-      // console.log(x);
       if (
         handleGameOver(
           setParsedPGN,
@@ -1241,11 +1160,6 @@ function useClickAndMove(
       nextMoveObject.isDnD = isDnD;
       nextMoveObject.pieceMovements = pieceMovements;
       setTimeout(() => FENCallback(setFen), 500);
-      // setFen({
-      //   fen: chess.fen(),
-      //   isDnD: isDnD,
-      //   pieceMovements: pieceMovements,
-      // });
     }
   }, [clickAndMoveTrigger]);
 }
@@ -1299,8 +1213,6 @@ function useOnPieceDrop(
             pieceMovements: pieceMovements,
           });
           currentUIPosition += 1;
-          // animatePieceMovement(x);
-          // console.log(x);
           if (
             handleGameOver(
               setParsedPGN,
@@ -1369,7 +1281,6 @@ function Page() {
   const parsedPGNRef = useRef<null | HTMLDivElement>(null);
   const [engineOperable, setEngineOperable] = useState<boolean>(true);
   const { data: session } = useSession();
-  console.log("page rendering");
 
   chess.load(fen.fen);
 
@@ -1460,11 +1371,9 @@ function Page() {
             playColor={playColor}
             session={session}
           />
-          {/* <div className="col-span-8 bg-blue-400"></div> */}
           {chessBoardArray && chessBoardArray.length
             ? chessBoardArray.map((elem) => elem)
             : null}
-          {/* <div className="col-span-8 bg-blue-800"></div> */}
           {openDrawer ? (
             <PromotionDrawer
               setParsedPGN={setParsedPGN}
@@ -1607,7 +1516,6 @@ function PGNTable({
             </div>
           ) : null}
         </div>
-        {/* <div ref={parsedPGNRef} className="w-full bg-slate-600 absolute bottom-0">hello</div> */}
       </div>
       <div className="bg-[#fffefc] w-full h-20 flex justify-around">
         <div className="h-full w-1/3 flex flex-col justify-center p-2">
@@ -2009,14 +1917,6 @@ function SettingComponent({
                 originalFEN,
               )
             }
-            // onClick={() => {
-            //   if(!workerRef.current) {
-            //     console.log("worker not initialized")
-            //     return;
-            //   }else{
-            //     console.log(workerRef.current)
-            //     return workerRef.current.postMessage('start')
-            //   }}}
             disabled={useAppSelector(getEngineState) !== "ready"}
           >
             Apply and Play

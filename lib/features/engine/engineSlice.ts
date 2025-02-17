@@ -30,5 +30,4 @@ export const engineSlice = createSlice({
 
 export const { setLoading, setFailed, setReady } = engineSlice.actions;
 export const getEngineState = (state: RootState) => state.engine.ready;
-// export const getEngine = (state: RootState) => state.engine.engine;
 export default engineSlice.reducer;
