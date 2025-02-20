@@ -106,30 +106,6 @@ function arbitraryTimeTravel(
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
 
-function initializeHistory() {
-  const x = ["a", "b", "c", "d", "e", "f", "g", "h"];
-  for (let i = 1; i <= 4; i++) {
-    for (let j = 0; j < x.length; j++) {
-      if (i < 3) {
-        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
-        const isq: Square = `${x[j]}${i}`;
-        HistoryArray.push({
-          id: isq,
-          to: isq,
-        });
-      } else {
-        const ii = i + 4;
-        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
-        const isq: Square = `${x[j]}${ii}`;
-        HistoryArray.push({
-          id: isq,
-          to: isq,
-        });
-      }
-    }
-  }
-}
-
 function getBestMove(fen: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
@@ -303,28 +279,6 @@ function wasmThreadsSupported() {
   }
 
   return true;
-}
-
-function updateHistory(pieceMovement: MoveLAN[]) {
-  for (let i = 0; i < pieceMovement.length; i++) {
-    const take: number[] = [];
-    const upd: number[] = [];
-    const from = pieceMovement[i].from;
-    const to = pieceMovement[i].to;
-    for (let j = 0; j < HistoryArray.length; j++) {
-      if (HistoryArray[j].to === to) {
-        take.push(j);
-      } else if (HistoryArray[j].to === from) {
-        upd.push(j);
-      }
-    }
-    for (let j = 0; j < upd.length; j++) {
-      HistoryArray[upd[j]].to = pieceMovement[i].to;
-    }
-    for (let j = 0; j < take.length; j++) {
-      HistoryArray[take[j]].to = "X";
-    }
-  }
 }
 
 function handleResignation(
@@ -829,7 +783,6 @@ function handleGameOver(
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
   const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
-  updateHistory(pieceMovements);
   nextMoveObject.fen = chess.fen();
   nextMoveObject.isDnD = isDnD;
   nextMoveObject.pieceMovements = pieceMovements;
@@ -906,7 +859,6 @@ function handlePromotion(
   updatePGN(moveObj, setParsedPGN);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
-  updateHistory(pieceMovements);
   FENHistory.push({
     fen: chess.fen(),
     isDnD: isDnD,
@@ -1046,7 +998,6 @@ function triggerStockfishTrigger(
     const x = chess.move(bestMove);
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
-    updateHistory(pieceMovements);
     FENHistory.push({
       fen: chess.fen(),
       isDnD: isDnD,
@@ -1126,7 +1077,6 @@ function useClickAndMove(
       const x = chess.move(move);
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
-      updateHistory(pieceMovements);
       FENHistory.push({
         fen: chess.fen(),
         isDnD: isDnD,
@@ -1207,7 +1157,6 @@ function useOnPieceDrop(
           const x = chess.move(move);
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
-          updateHistory(pieceMovements);
           FENHistory.push({
             fen: chess.fen(),
             isDnD: isDnD,
@@ -1284,10 +1233,6 @@ function Page() {
   const { data: session } = useSession();
 
   chess.load(fen.fen);
-
-  if (HistoryArray.length === 0) {
-    initializeHistory();
-  }
 
   const ScrollToBottom = () => {
     parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
