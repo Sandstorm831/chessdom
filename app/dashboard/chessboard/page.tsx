@@ -47,7 +47,6 @@ import { EngineX } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
 import { Session } from "next-auth";
 const chess = new Chess();
-const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   isDnD: false,
@@ -64,6 +63,8 @@ const FENHistory: FenObject[] = [
 let currentUIPosition = 0;
 let blueDotArrayClearIntimator: boolean = false;
 function applyInitialSettings(elo: string) {
+  const skill_level = (Number(elo) - 1350) / 80;
+  const skill_string = skill_level.toString();
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -71,9 +72,8 @@ function applyInitialSettings(elo: string) {
   EngineX.stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
   EngineX.stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
   EngineX.stockfishEngine.postMessage(
-    "setoption name UCI_LimitStrength value true",
+    `setoption name Skill Level value ${skill_string}`,
   ); // setting option
-  EngineX.stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
   EngineX.stockfishEngine.postMessage("isready");
 }
 
@@ -105,41 +105,12 @@ function arbitraryTimeTravel(
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
 
-function initializeHistory() {
-  const x = ["a", "b", "c", "d", "e", "f", "g", "h"];
-  for (let i = 1; i <= 4; i++) {
-    for (let j = 0; j < x.length; j++) {
-      if (i < 3) {
-        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
-        const isq: Square = `${x[j]}${i}`;
-        HistoryArray.push({
-          id: isq,
-          to: isq,
-        });
-      } else {
-        const ii = i + 4;
-        //@ts-expect-error will be converting to a square, which can't be evaluated statically in expression
-        const isq: Square = `${x[j]}${ii}`;
-        HistoryArray.push({
-          id: isq,
-          to: isq,
-        });
-      }
-    }
-  }
-}
-
 function getBestMove(fen: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage(`position fen ${fen}`);
   EngineX.stockfishEngine.postMessage("go depth 15");
 }
-
-export type historyObject = {
-  id: Square;
-  to: Square | "X";
-};
 
 export type MoveLAN = {
   from: Square;
@@ -216,7 +187,7 @@ async function animatePieceMovement(moveObj: Move) {
     const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
-    const transX = MoveX - (childRect.left + childRect.right) / 2;
+    const transX = MoveX - (childRect.left + childRect.right) / 2 + 3;
     const transY = MoveY - (childRect.top + childRect.bottom) / 2;
     child.style.transition = "all 0.2s";
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
@@ -302,28 +273,6 @@ function wasmThreadsSupported() {
   }
 
   return true;
-}
-
-function updateHistory(pieceMovement: MoveLAN[]) {
-  for (let i = 0; i < pieceMovement.length; i++) {
-    const take: number[] = [];
-    const upd: number[] = [];
-    const from = pieceMovement[i].from;
-    const to = pieceMovement[i].to;
-    for (let j = 0; j < HistoryArray.length; j++) {
-      if (HistoryArray[j].to === to) {
-        take.push(j);
-      } else if (HistoryArray[j].to === from) {
-        upd.push(j);
-      }
-    }
-    for (let j = 0; j < upd.length; j++) {
-      HistoryArray[upd[j]].to = pieceMovement[i].to;
-    }
-    for (let j = 0; j < take.length; j++) {
-      HistoryArray[take[j]].to = "X";
-    }
-  }
 }
 
 function handleResignation(
@@ -485,7 +434,7 @@ function Peice({
       ref={ref}
       height={0}
       width={0}
-      className="w-10/12 h-10/12 absolute 2xl:left-[8%] max-2xl:left-[9%] bottom-[3%] z-10"
+      className="w-11/12 h-11/12 absolute 2xl:left-[6%] max-2xl:left-[6%] bottom-[3%] z-10"
       style={dragging ? { opacity: 0 } : {}}
       draggable="false"
     />
@@ -557,7 +506,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -585,7 +534,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -614,7 +563,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -638,7 +587,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -669,7 +618,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -697,7 +646,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -726,7 +675,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -751,7 +700,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -828,11 +777,10 @@ function handleGameOver(
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
   const pieceMovements: MoveLAN[] = getPieceMovements(moveObj);
-  updateHistory(pieceMovements);
   nextMoveObject.fen = chess.fen();
   nextMoveObject.isDnD = isDnD;
   nextMoveObject.pieceMovements = pieceMovements;
-  setTimeout(() => FENCallback(setFen), 500);
+  setTimeout(() => FENCallback(setFen), 250);
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -905,7 +853,6 @@ function handlePromotion(
   updatePGN(moveObj, setParsedPGN);
   const pieceMovements = getPieceMovements(moveObj);
   animatePieceMovement(moveObj);
-  updateHistory(pieceMovements);
   FENHistory.push({
     fen: chess.fen(),
     isDnD: isDnD,
@@ -1045,7 +992,6 @@ function triggerStockfishTrigger(
     const x = chess.move(bestMove);
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
-    updateHistory(pieceMovements);
     FENHistory.push({
       fen: chess.fen(),
       isDnD: isDnD,
@@ -1079,7 +1025,7 @@ function triggerStockfishTrigger(
     nextMoveObject.fen = chess.fen();
     nextMoveObject.isDnD = isDnD;
     nextMoveObject.pieceMovements = pieceMovements;
-    setTimeout(() => FENCallback(setFen), 500);
+    setTimeout(() => FENCallback(setFen), 250);
     return;
   } else return;
 }
@@ -1125,7 +1071,6 @@ function useClickAndMove(
       const x = chess.move(move);
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
-      updateHistory(pieceMovements);
       FENHistory.push({
         fen: chess.fen(),
         isDnD: isDnD,
@@ -1159,7 +1104,7 @@ function useClickAndMove(
       nextMoveObject.fen = chess.fen();
       nextMoveObject.isDnD = isDnD;
       nextMoveObject.pieceMovements = pieceMovements;
-      setTimeout(() => FENCallback(setFen), 500);
+      setTimeout(() => FENCallback(setFen), 250);
     }
   }, [clickAndMoveTrigger]);
 }
@@ -1206,7 +1151,6 @@ function useOnPieceDrop(
           const x = chess.move(move);
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
-          updateHistory(pieceMovements);
           FENHistory.push({
             fen: chess.fen(),
             isDnD: isDnD,
@@ -1283,10 +1227,6 @@ function Page() {
   const { data: session } = useSession();
 
   chess.load(fen.fen);
-
-  if (HistoryArray.length === 0) {
-    initializeHistory();
-  }
 
   const ScrollToBottom = () => {
     parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1897,9 +1837,9 @@ function SettingComponent({
         <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
           <Slider
             defaultValue={[stockfishElo]}
-            max={3150}
+            max={2870}
             min={1350}
-            step={50}
+            step={80}
             onValueChange={(value) => setStockfishElo(value[0])}
             color="#323014"
           />

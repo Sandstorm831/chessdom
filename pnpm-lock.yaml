@@ -80,9 +80,6 @@ importers:
       socket.io-client:
         specifier: ^4.8.1
         version: 4.8.1
-      stockfish-nnue.wasm:
-        specifier: ^1.0.0-1946a675.smolnet
-        version: 1.0.0-1946a675.smolnet
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -2369,9 +2366,6 @@ packages:
 
   stable-hash@0.0.4:
     resolution: {integrity: sha512-LjdcbuBeLcdETCrPn9i8AYAZ1eCtu4ECAWtP7UleOiZ9LzVxRzzUZEoZ8zB24nhkQnDWyET0I+3sWokSDS3E7g==}
-
-  stockfish-nnue.wasm@1.0.0-1946a675.smolnet:
-    resolution: {integrity: sha512-ofHHGb60dsMuz1SFurbkUBStMz6zmSLEculHUYdryX3782dys785hWgY9HJVgxMZQW+uhAARFcwPtPlyeW/nZg==}
 
   streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
@@ -5011,8 +5005,6 @@ snapshots:
   source-map-js@1.2.1: {}
 
   stable-hash@0.0.4: {}
-
-  stockfish-nnue.wasm@1.0.0-1946a675.smolnet: {}
 
   streamsearch@1.1.0: {}
 
