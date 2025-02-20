@@ -187,7 +187,7 @@ async function animatePieceMovement(moveObj: Move) {
     const child = parent?.children[parent.children.length - 1] as HTMLElement; // Taking the last child, as it's always the last child which is the img object
     const destChild = destSquare.children as HTMLCollectionOf<HTMLElement>;
     const childRect = child.getBoundingClientRect();
-    const transX = MoveX - (childRect.left + childRect.right) / 2;
+    const transX = MoveX - (childRect.left + childRect.right) / 2 + 3;
     const transY = MoveY - (childRect.top + childRect.bottom) / 2;
     child.style.transition = "all 0.2s";
     child.style.transform = `translateY(${transY}px) translateX(${transX}px)`;
@@ -434,7 +434,7 @@ function Peice({
       ref={ref}
       height={0}
       width={0}
-      className="w-10/12 h-10/12 absolute 2xl:left-[8%] max-2xl:left-[9%] bottom-[3%] z-10"
+      className="w-11/12 h-11/12 absolute 2xl:left-[6%] max-2xl:left-[6%] bottom-[3%] z-10"
       style={dragging ? { opacity: 0 } : {}}
       draggable="false"
     />
@@ -506,7 +506,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -534,7 +534,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -563,7 +563,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -587,7 +587,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -618,7 +618,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -646,7 +646,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -675,7 +675,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
@@ -700,7 +700,7 @@ function RenderSquare(
               {blueDotArray.find(
                 (obj) => obj.square === IJToSquare(i, j, color),
               ) ? (
-                <div className="z-10 absolute bottom-[33%] left-[42%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-3 max-2xl:h-3"></div>
+                <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
             </SquareBlock>,
           );
