@@ -64,6 +64,8 @@ const FENHistory: FenObject[] = [
 let currentUIPosition = 0;
 let blueDotArrayClearIntimator: boolean = false;
 function applyInitialSettings(elo: string) {
+  const skill_level = (Number(elo) - 1350) / 80;
+  const skill_string = skill_level.toString();
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -71,9 +73,8 @@ function applyInitialSettings(elo: string) {
   EngineX.stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
   EngineX.stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
   EngineX.stockfishEngine.postMessage(
-    "setoption name UCI_LimitStrength value true",
+    `setoption name Skill Level value ${skill_string}`,
   ); // setting option
-  EngineX.stockfishEngine.postMessage(`setoption name UCI_Elo value ${elo}`); // setting option
   EngineX.stockfishEngine.postMessage("isready");
 }
 
@@ -1897,9 +1898,9 @@ function SettingComponent({
         <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
           <Slider
             defaultValue={[stockfishElo]}
-            max={3150}
+            max={2870}
             min={1350}
-            step={50}
+            step={80}
             onValueChange={(value) => setStockfishElo(value[0])}
             color="#323014"
           />

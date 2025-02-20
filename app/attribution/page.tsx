@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import React, { ReactElement } from "react";
 
 export default function Page() {
   return (
@@ -11,7 +10,7 @@ export default function Page() {
       <div className="w-full flex justify-center text-2xl mt-4">
         <div className="w-3/4">
           This project would not be possible without using the resources,
-          libraries and packages designed and developed by other people. Here's
+          libraries and packages designed and developed by other people. Here&apos;s
           a list of all the resources I have used in making this project and an
           attempt to give them proper credit for their work.
         </div>
@@ -520,23 +519,6 @@ export default function Page() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Itemholder({
-  description,
-  children,
-}: {
-  description: ReactElement;
-  children: ReactElement;
-}) {
-  return (
-    <div className="flex my-3">
-      <div className="flex flex-col justify-end">{children}</div>
-      <div className="text-xl h-full flex flex-col justify-center">
-        {description}
       </div>
     </div>
   );
