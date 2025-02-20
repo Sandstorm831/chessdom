@@ -60,7 +60,6 @@ let NonStatePlaycolor: Color = "w"; // Created, as in useEffect with zero
 /*  Variables relating to socket chess and online play */
 
 const chess = new Chess();
-const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   isDnD: false,
@@ -111,11 +110,6 @@ function arbitraryTimeTravel(
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
 }
-
-export type historyObject = {
-  id: Square;
-  to: Square | "X";
-};
 
 export type MoveLAN = {
   from: Square;

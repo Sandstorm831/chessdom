@@ -47,7 +47,6 @@ import { EngineX } from "@/app/engineAndPGN";
 import isAuth from "@/components/auth_HOC";
 import { Session } from "next-auth";
 const chess = new Chess();
-const HistoryArray: historyObject[] = [];
 const nextMoveObject: FenObject = {
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   isDnD: false,
@@ -112,11 +111,6 @@ function getBestMove(fen: string) {
   EngineX.stockfishEngine.postMessage(`position fen ${fen}`);
   EngineX.stockfishEngine.postMessage("go depth 15");
 }
-
-export type historyObject = {
-  id: Square;
-  to: Square | "X";
-};
 
 export type MoveLAN = {
   from: Square;
@@ -786,7 +780,7 @@ function handleGameOver(
   nextMoveObject.fen = chess.fen();
   nextMoveObject.isDnD = isDnD;
   nextMoveObject.pieceMovements = pieceMovements;
-  setTimeout(() => FENCallback(setFen), 500);
+  setTimeout(() => FENCallback(setFen), 250);
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
@@ -1031,7 +1025,7 @@ function triggerStockfishTrigger(
     nextMoveObject.fen = chess.fen();
     nextMoveObject.isDnD = isDnD;
     nextMoveObject.pieceMovements = pieceMovements;
-    setTimeout(() => FENCallback(setFen), 500);
+    setTimeout(() => FENCallback(setFen), 250);
     return;
   } else return;
 }
@@ -1110,7 +1104,7 @@ function useClickAndMove(
       nextMoveObject.fen = chess.fen();
       nextMoveObject.isDnD = isDnD;
       nextMoveObject.pieceMovements = pieceMovements;
-      setTimeout(() => FENCallback(setFen), 500);
+      setTimeout(() => FENCallback(setFen), 250);
     }
   }, [clickAndMoveTrigger]);
 }
