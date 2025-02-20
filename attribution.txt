@@ -56,43 +56,7 @@ HTML > By <a href="//commons.wikimedia.org/wiki/User:Cburnett" title="User:Cburn
 black pawn > By Cburnett - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=1499809
 HTML > By <a href="//commons.wikimedia.org/wiki/User:Cburnett" title="User:Cburnett">Cburnett</a> - <span class="int-own-work" lang="en">Own work</span>, <a href="http://creativecommons.org/licenses/by-sa/3.0/" title="Creative Commons Attribution-Share Alike 3.0">CC BY-SA 3.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=1499809">Link</a>
 
+-------------------
 
---------
-
-setoption name Threads value 2
-setoption name Hash value 64
-setoption name MultiPV value 1
-position fen {} moves {}
-setoption name UCI_LimitStrength value true
-setoption name UCI_Elo value 1320
-go movetime {}\n
-go depth {}\n
-go nodes {}\n
-
-----------
-
-interface UciDetails {
-  depth?: string
-  seldepth?: string
-  multipv?: string
-  scoreType?: UciScoreType
-  scoreValue?: string
-  scoreBound?: string
-  nodes?: string
-  nps?: string
-  hashfull?: string
-  tbhits?: string
-  time?: string
-  pv?: string[]
-  bestmove?: string
-  ponder?: string
-  currmove?: string
-}
-  
-----------------
-
-https://gist.github.com/aliostad/f4470274f39d29b788c1b09519e67372
-https://github.com/fitztrev/lichess-tauri/tree/main
-https://blog.logrocket.com/using-stdout-stdin-stderr-node-js/
-https://www.behance.net/gallery/110228391/Illustrations-chess?l=16# 
+https://www.behance.net/gallery/110228391/Illustrations-chess?l=16#
 https://dribbble.com/shots/16086042-Match-Point-Kasparov
