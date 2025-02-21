@@ -225,6 +225,7 @@ chessdom
 ┣ styles.txt               // contain font and color-palette
 ┣ tailwind.config.ts
 ┣ tsconfig.json
+┣ LICENSE
 ┗ tsconfig.tsbuildinfo
 ```
 
@@ -286,7 +287,7 @@ The `play with a friend` option, will not work if the socket-io server is not se
 
 ## License
 
-Distributed under the GPL-3.0 license. See [License](./LICENSE) for more information.
+Distributed under the GPL-3.0 license. See [LICENSE](./LICENSE) for more information.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
