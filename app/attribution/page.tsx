@@ -10,9 +10,9 @@ export default function Page() {
       <div className="w-full flex justify-center text-2xl mt-4">
         <div className="w-3/4">
           This project would not be possible without using the resources,
-          libraries and packages designed and developed by other people. Here&apos;s
-          a list of all the resources I have used in making this project and an
-          attempt to give them proper credit for their work.
+          libraries and packages designed and developed by other people.
+          Here&apos;s a list of all the resources I have used in making this
+          project and an attempt to give them proper credit for their work.
         </div>
       </div>
       <div className="w-full flex justify-center font-bold text-3xl mt-12 underline">
@@ -57,6 +57,25 @@ export default function Page() {
                 Knight icons created by Pixel perfect - Flaticon. visit{" "}
                 <Link
                   href="https://www.flaticon.com/free-icon/chess_591779?term=chess&page=1&position=63&origin=tag&related_id=591779"
+                  title="chess icons"
+                  className="text-blue-800 underline"
+                >
+                  Flaticon
+                </Link>{" "}
+                for more details
+              </div>
+            </div>
+          </div>
+
+          <div className="flex my-3">
+            <div className="flex flex-col justify-end">
+              <Image src="/chess.png" width={50} height={50} alt="knight" />
+            </div>
+            <div className="text-xl h-full flex flex-col justify-center ms-8">
+              <div>
+                Knight icons created by Pixel perfect - Flaticon. visit{" "}
+                <Link
+                  href="https://www.flaticon.com/free-icon/chess_726165?term=chess&page=1&position=13&origin=search&related_id=726165"
                   title="chess icons"
                   className="text-blue-800 underline"
                 >

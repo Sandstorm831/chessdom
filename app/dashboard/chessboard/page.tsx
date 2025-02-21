@@ -35,11 +35,12 @@ import Link from "next/link";
 import { getEngineState, setReady } from "@/lib/features/engine/engineSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
+  clearArray,
   getLatestResponse,
   pushResponse,
 } from "@/lib/features/engine/outputArraySlice";
 import { parse, ParseTree } from "@mliebelt/pgn-parser";
-import { ChevronLeft, ChevronRight, Flag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flag, Minus, Plus } from "lucide-react";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TheParentPGN } from "@/app/engineAndPGN";
@@ -62,13 +63,16 @@ const FENHistory: FenObject[] = [
 ];
 let currentUIPosition = 0;
 let blueDotArrayClearIntimator: boolean = false;
-function applyInitialSettings(elo: string) {
+let StockfishSearchDepth: number = 15;
+function applyInitialSettings(elo: string, CPUCores: number) {
   const skill_level = (Number(elo) - 1350) / 80;
   const skill_string = skill_level.toString();
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
-  EngineX.stockfishEngine.postMessage("setoption name Threads value 2"); // setting option
+  EngineX.stockfishEngine.postMessage(
+    `setoption name Threads value ${CPUCores}`,
+  ); // setting option
   EngineX.stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
   EngineX.stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
   EngineX.stockfishEngine.postMessage(
@@ -109,7 +113,7 @@ function getBestMove(fen: string) {
   if (EngineX.stockfishEngine === null)
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage(`position fen ${fen}`);
-  EngineX.stockfishEngine.postMessage("go depth 15");
+  EngineX.stockfishEngine.postMessage(`go depth ${StockfishSearchDepth}`);
 }
 
 export type MoveLAN = {
@@ -745,6 +749,8 @@ function startTheGame(
   stockfishElo: number,
   playColor: Color,
   originalFEN: string,
+  CPUCores: number,
+  searchDepth: number,
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -757,7 +763,8 @@ function startTheGame(
   });
   currentUIPosition = 0;
   setOpenSettings(false);
-  applyInitialSettings(stockfishElo.toString());
+  applyInitialSettings(stockfishElo.toString(), CPUCores);
+  StockfishSearchDepth = searchDepth;
   if (playColor === "b") {
     getBestMove(originalFEN);
   }
@@ -894,12 +901,14 @@ function useLatestStockfishResponse(
   setSoundTrigger: Dispatch<SetStateAction<string>>,
 ) {
   const latestStockfishResponse = useAppSelector(getLatestResponse);
+  const dispatch = useAppDispatch();
   useEffect(() => {
     if (
       latestStockfishResponse &&
       latestStockfishResponse.split(" ")[0] === "bestmove"
     ) {
       const bestMove: string = latestStockfishResponse.split(" ")[1];
+      dispatch(clearArray());
       if (currentUIPosition === FENHistory.length - 1) {
         triggerStockfishTrigger(
           setParsedPGN,
@@ -1793,6 +1802,9 @@ function SettingComponent({
   originalFEN: string;
 }) {
   const [stockfishElo, setStockfishElo] = useState<number>(1350);
+  const [cores, setCores] = useState(2);
+  const [depth, setDepth] = useState(15);
+  const totalCores = navigator.hardwareConcurrency;
   return (
     <Drawer
       open={openSettings}
@@ -1800,7 +1812,7 @@ function SettingComponent({
       dismissible={false}
       direction="left"
     >
-      <DrawerContent className="w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc]">
+      <DrawerContent className="w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc] overflow-scroll">
         <DrawerTitle className="flex justify-center text-5xl mb-16">
           Settings
         </DrawerTitle>
@@ -1844,6 +1856,56 @@ function SettingComponent({
             color="#323014"
           />
         </DrawerDescription>
+        <DrawerDescription className="flex justify-center font-bold mb-3 text-3xl text-[#323014] mt-12">
+          CPU cores limit
+        </DrawerDescription>
+        <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
+          <div
+            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+            onClick={() => {
+              if (cores > 1) setCores((cores) => cores - 1);
+            }}
+          >
+            <Minus />
+          </div>
+          <div className="text-3xl flex flex-col justify-center">{cores}</div>
+          <div
+            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+            onClick={() => {
+              if (cores < totalCores - 1) setCores((cores) => cores + 1);
+            }}
+          >
+            <Plus />
+          </div>
+        </div>
+        <DrawerDescription className="flex justify-center font-bold mb-3 text-3xl text-[#323014] mt-12">
+          Stockfish search depth
+        </DrawerDescription>
+        <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
+          <div
+            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+            onClick={() => {
+              if (depth > 12) setDepth((depth) => depth - 1);
+            }}
+          >
+            <Minus />
+          </div>
+          <div className="text-3xl flex flex-col justify-center">{depth}</div>
+          <div
+            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+            onClick={() => {
+              if (depth < 20) setDepth((depth) => depth + 1);
+            }}
+          >
+            <Plus />
+          </div>
+        </div>
+        <div className="flex justify-center font-bold text-sm mt-2 text-[#323014] font-mono">
+          <div className="w-3/4">
+            NOTE : higher depth can lead to slow stockfish responses, we
+            recommend sticking to default
+          </div>
+        </div>
         <div className="flex flex-col justify-end py-12 w-full px-12 h-full">
           <Button
             className="w-full bg-[#323014] text-[#fffefc] text-xl"
@@ -1855,6 +1917,8 @@ function SettingComponent({
                 stockfishElo,
                 playColor,
                 originalFEN,
+                cores,
+                depth,
               )
             }
             disabled={useAppSelector(getEngineState) !== "ready"}
