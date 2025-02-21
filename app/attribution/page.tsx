@@ -422,22 +422,6 @@ export default function Page() {
           <div className="flex my-3">
             <div>
               <Link
-                href="https://react-redux.js.org/"
-                className="text-blue-800 underline"
-              >
-                {" "}
-                React-Redux
-              </Link>{" "}
-              :
-            </div>
-            <div className="text-xl h-full flex flex-col justify-center ms-8">
-              <div>For global state management</div>
-            </div>
-          </div>
-
-          <div className="flex my-3">
-            <div>
-              <Link
                 href="https://socket.io/"
                 className="text-blue-800 underline"
               >

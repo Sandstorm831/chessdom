@@ -8,7 +8,7 @@ import {
 import Link from "next/link";
 import { GiMountedKnight } from "react-icons/gi";
 import { MdDashboard } from "react-icons/md";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaGithub } from "react-icons/fa";
 import { GoCommandPalette } from "react-icons/go";
 import { TbHeartHandshake } from "react-icons/tb";
 
@@ -80,6 +80,18 @@ export default async function Navbar() {
                     </div>
                     <div className="flex flex-col justify-center">
                       <Link href={"/attribution"}>Attributions</Link>
+                    </div>
+                  </div>
+                ) : null}
+                {session ? (
+                  <div className="bg-[#fffefec] text-[#323014] hover:bg-[#323014] hover:bg-opacity-10 text-lg cursor-pointer border-[#fffefc] rounded-md flex">
+                    <div className="flex flex-col justify-center ms-5 mr-2">
+                      <FaGithub />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <Link href={"https://github.com/sandstorm831/chessdom"}>
+                        GitHub Repo
+                      </Link>
                     </div>
                   </div>
                 ) : null}
