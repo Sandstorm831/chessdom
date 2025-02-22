@@ -59,7 +59,7 @@ Chessdom is an web-based chess application, whose name comes from combining `Che
 
 ## Prerequisites
 
-To run the project in your local machine, you have to have the following packages
+To run the project in your local machine, you must have
 
 - Node.js : [Volta recommended](https://volta.sh/)
 
@@ -107,14 +107,20 @@ Once you finish installation Node.js, follow the commands to setup the project l
    DATABASE_URL=
    ```
 
-   You can get a hosted SQL database from Aiven
+   You can get a hosted SQL database from [Aiven](https://aiven.io/)
    <br/>
 
-8. Run the development server:
-   `sh
- npm run dev
- `
-   This completes the set-up for this project, all the functionalities present in the application will now be live in your `dev server` except for live game-play for which you have to setup the [chess-socket server](https://github.com/sandstorm831/chessSocket)
+8. Establish link between `schema.prisma` and `.env`
+
+   ```sh
+   npx prisma generate
+   ```
+
+9. Run the development server:
+   ```sh
+   npm run dev
+   ```
+This completes the set-up for this project, all the functionalities present in the application will now be live in your `dev server` except for live game-play for which you have to setup the [chess-socket server](https://github.com/sandstorm831/chessSocket)
 
 <!-- LICENSE -->
 
@@ -255,8 +261,10 @@ If top level headers are not configured properly, the `wasmThreadsSupported()` f
 
 <li>
 
-#### Stockfish Folder
-Stockfish folder present in the root, is a dormant folder and doesn't help in any of the functionalities up untill current project scenario and removing the whole folder at once also will not have any impact in proper functioning of the project. It's kept because it can be moulded into added functionalities in future. The folder structure is as follows 
+#### Stockfish Folder and C++ code anomaly
+
+Stockfish folder present in the root, is a dormant folder and doesn't help in any of the functionalities up untill current project scenario and removing the whole folder at once also will not have any impact in proper functioning of the project. It's kept because it can be moulded into added functionalities in future. The folder structure is as follows
+
 ```
 stockfish                // Dormant stockfish folder
 ┣ stockfish              // Complete Stockfish 17 code folder
@@ -273,12 +281,18 @@ stockfish                // Dormant stockfish folder
 ┣ running.pid            // file containing running engine pid
 ┗ stockfish.ts           // Script to run stockfish on server
 ```
+
 The subfolder named `stockfish` contains the complete source code to run Stockfish 17 on a `linux` server. The `stockfish.ts` file contain the code to run the Stockfish 17 on server, execute stockfish commands, process best moves and information back to the client. The `running.pid` file will hold the PIDs of all the spawned Stockfish processes. This was initial approach to integrate stockfish with the client, but it faced the problem of scaling and delay, so this approach was abandoned for a client side Web-Assembly (.wasm) stockfish engine originally taken from [here](https://github.com/hi-ogawa/Stockfish). It can be the case in future that we might give an option for server side analysis, and so the reason for keeping the original files.
+
+> *The high C++ precentage present in the languages section is due to this folder only, I have not written any C/C++ code in making of this project. This is primarily a typescript project*
+
+
 </li>
 
 <li>
 
-#### Detached Socket.IO server
+#### Detached Socket-IO server
+
 The `play with a friend` option, will not work if the socket-io server is not setup. You can find the socket-io server [here](https://github.com/sandstorm831/chessSocket), going through the readme will be enought to setup the server.
 
 </li>

@@ -523,6 +523,68 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <div className="w-full flex justify-center font-bold text-3xl mt-12 underline">
+        <div className="w-3/4">Hosting platforms</div>
+      </div>
+      <div className="w-full flex justify-center text-xl mt-4">
+        <div className="w-3/4">
+          The various different functionalities of this project are currently
+          hosted on various service providers in their free tiers, and It would
+          not be possible to host this project without those free-services.
+        </div>
+      </div>
+      <div className="w-full flex justify-center text-2xl mt-4">
+        <div className="w-3/4 flex flex-col">
+          <div className="flex my-3">
+            <div>
+              <Link
+                href="https://vercel.com/"
+                className="text-blue-800 underline"
+              >
+                {" "}
+                Vercel
+              </Link>{" "}
+              :
+            </div>
+            <div className="text-xl h-full flex flex-col justify-center ms-8">
+              <div>Used for hosting chessdom project.</div>
+            </div>
+          </div>
+          <div className="flex my-3">
+            <div>
+              <Link
+                href="https://railway.com/"
+                className="text-blue-800 underline"
+              >
+                {" "}
+                Railway
+              </Link>{" "}
+              :
+            </div>
+            <div className="text-xl h-full flex flex-col justify-center ms-8">
+              <div>Used for hosting the SocketIO server for live chess game-play.</div>
+            </div>
+          </div>
+          <div className="flex my-3">
+            <div>
+              <Link
+                href="https://aiven.io/"
+                className="text-blue-800 underline"
+              >
+                {" "}
+                Aiven
+              </Link>{" "}
+              :
+            </div>
+            <div className="text-xl h-full flex flex-col justify-center ms-8">
+              <div>
+                Provider of web-hosted SQL Database where the whole game-archive
+                is stored.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
