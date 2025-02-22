@@ -1466,6 +1466,12 @@ function useSocket(
       setSameUser(true);
     });
 
+    socket.on("connect_error", (err) => {
+      console.log("some socket connection error occured");
+      console.log(err);
+      console.log(err.message);
+    });
+
     function onConnect() {
       setIsConnected(true);
       setTransport(socket.io.engine.transport.name);
