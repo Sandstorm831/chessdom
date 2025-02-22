@@ -38,7 +38,7 @@ function Page() {
   }, [page]); // add page in the dependency array
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex w-full justify-center text-5xl my-12">
+      <div className="flex w-full justify-center text-5xl my-12 text-[#323014]">
         Welcome to the hall of games
       </div>
       {loading ? (

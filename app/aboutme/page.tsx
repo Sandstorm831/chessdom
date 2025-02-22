@@ -14,9 +14,9 @@ export default function Page() {
         <div className="w-1/2">
           a full-stack developer who loves to work and learn new technologies
           everyday. Web-3 and Blockchain enthusiast and trying to do something
-          hands-on. I like to do Calisthenics to maintian fitness and loves to
-          watch movies and read books in my free time. If you liked my project,
-          you can reach me out via ...{" "}
+          hands-on. I like to do Calisthenics and loves to watch movies and read
+          books in my free time. If you liked my project, you can reach me out
+          via ...{" "}
         </div>
       </div>
       <div className="w-full flex justify-center text-2xl mt-4">
@@ -40,7 +40,7 @@ export default function Page() {
             <IoIosMail className="mx-3 text-5xl" />
           </Iconholder>
           <Iconholder
-            href="https://sandstorm831.github.io"
+            href="https://sandstorm831.vercel.app"
             title="Portfolio Page"
           >
             <HiCodeBracket className="mx-3 text-5xl" />
