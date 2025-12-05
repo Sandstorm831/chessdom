@@ -71,12 +71,12 @@ function applyInitialSettings(elo: string, CPUCores: number) {
     throw new Error("stockfishEngine of EngineX is null");
   EngineX.stockfishEngine.postMessage("ucinewgame");
   EngineX.stockfishEngine.postMessage(
-    `setoption name Threads value ${CPUCores}`,
+    `setoption name Threads value ${CPUCores}`
   ); // setting option
   EngineX.stockfishEngine.postMessage("setoption name Hash value 64"); // setting option
   EngineX.stockfishEngine.postMessage("setoption name MultiPV value 1"); // setting option
   EngineX.stockfishEngine.postMessage(
-    `setoption name Skill Level value ${skill_string}`,
+    `setoption name Skill Level value ${skill_string}`
   ); // setting option
   EngineX.stockfishEngine.postMessage("isready");
 }
@@ -102,7 +102,7 @@ function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
 function arbitraryTimeTravel(
   moveNumber: number,
   turn: string,
-  setFen: Dispatch<SetStateAction<FenObject>>,
+  setFen: Dispatch<SetStateAction<FenObject>>
 ) {
   blueDotArrayClearIntimator = true;
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
@@ -157,7 +157,7 @@ type PGNObject = {
 
 function updatePGN(
   moveObj: Move,
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>
 ) {
   if (moveObj.color === "w") {
     const x = PGN.moveNumber + 1;
@@ -283,7 +283,7 @@ function handleResignation(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   playColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
@@ -448,7 +448,7 @@ function Peice({
 function RenderSquare(
   fen: FenObject,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
   chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -508,11 +508,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -536,11 +536,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -565,11 +565,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -589,11 +589,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -620,11 +620,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -648,11 +648,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -677,11 +677,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -702,11 +702,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       }
     }
@@ -726,7 +726,7 @@ function setNewGame(
   setFen: Dispatch<SetStateAction<FenObject>>,
   originalFEN: string,
   setOpenSettings: Dispatch<SetStateAction<boolean>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -750,7 +750,7 @@ function startTheGame(
   playColor: Color,
   originalFEN: string,
   CPUCores: number,
-  searchDepth: number,
+  searchDepth: number
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -779,7 +779,7 @@ function handleGameOver(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const gameOver = chess.isGameOver();
   if (!gameOver) return false;
@@ -840,7 +840,7 @@ function handlePromotion(
   setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -878,7 +878,7 @@ function handlePromotion(
       gameEndResult,
       gameEndTitle,
       setGameEnded,
-      setSoundTrigger,
+      setSoundTrigger
     )
   )
     return;
@@ -898,7 +898,7 @@ function useLatestStockfishResponse(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const latestStockfishResponse = useAppSelector(getLatestResponse);
   const dispatch = useAppDispatch();
@@ -919,7 +919,7 @@ function useLatestStockfishResponse(
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger,
+          setSoundTrigger
         );
       }
     }
@@ -928,7 +928,7 @@ function useLatestStockfishResponse(
 
 function useEngine(
   workerRef: RefObject<Worker | null>,
-  setEngineOperable: Dispatch<SetStateAction<boolean>>,
+  setEngineOperable: Dispatch<SetStateAction<boolean>>
 ) {
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -956,7 +956,7 @@ function useEngine(
       workerRef.current.onerror = (e) => {
         console.log(e);
         alert(
-          "Error while initiating the Engine, please refresh and try again",
+          "Error while initiating the Engine, please refresh and try again"
         );
       };
       workerRef.current.postMessage("start");
@@ -970,7 +970,7 @@ function useEngine(
 function useUpdateBoardFEN(
   playColor: Color,
   fen: FenObject,
-  openSettings: boolean,
+  openSettings: boolean
 ) {
   useEffect(() => {
     if (chess.turn() === (playColor === "w" ? "b" : "w")) {
@@ -995,7 +995,7 @@ function triggerStockfishTrigger(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
@@ -1018,7 +1018,7 @@ function triggerStockfishTrigger(
         gameEndResult,
         gameEndTitle,
         setGameEnded,
-        setSoundTrigger,
+        setSoundTrigger
       )
     )
       return;
@@ -1041,13 +1041,22 @@ function triggerStockfishTrigger(
 
 function useSound(
   soundTrigger: string,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     if (soundTrigger.length === 0) return;
     try {
       const Sound = new Audio(soundTrigger);
-      Sound.play();
+      const playPromise = Sound.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {})
+          .catch((error) => {
+            console.log(
+              "Some error occurred while playing sound media error: " + error
+            );
+          });
+      }
       setSoundTrigger("");
     } catch (err) {
       setSoundTrigger("");
@@ -1068,7 +1077,7 @@ function useClickAndMove(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     if (clickAndMoveTrigger.length === 0) return;
@@ -1097,7 +1106,7 @@ function useClickAndMove(
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger,
+          setSoundTrigger
         )
       )
         return;
@@ -1129,7 +1138,7 @@ function useOnPieceDrop(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -1147,7 +1156,7 @@ function useOnPieceDrop(
         ///////////////////////////////////////////////////////////////////////
 
         const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates,
+          (obj) => obj.square === destSquareCoordinates
         );
         if (tempObj.length === 0) {
           throw new Error("Some Error occured, can not find the right move");
@@ -1176,7 +1185,7 @@ function useOnPieceDrop(
               gameEndResult,
               gameEndTitle,
               setGameEnded,
-              setSoundTrigger,
+              setSoundTrigger
             )
           )
             return;
@@ -1238,7 +1247,14 @@ function Page() {
   chess.load(fen.fen);
 
   const ScrollToBottom = () => {
-    parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = parsedPGNRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+    // parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // custom hook calls
@@ -1253,7 +1269,7 @@ function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   useEngine(workerRef, setEngineOperable);
@@ -1273,7 +1289,7 @@ function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   useOnPieceDrop(
@@ -1287,59 +1303,88 @@ function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
 
   return (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
-      <div className="flex w-full h-full justify-center">
+      <div className="flex max-2xl:flex-col w-full h-full justify-center px-2">
         <PlayersInfo session={session} />
-        <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
-          {engineOperable ? (
-            <SettingComponent
-              setParsedPGN={setParsedPGN}
-              openSettings={openSettings}
-              playColor={playColor}
-              setPlayColor={setPlayColor}
-              setOpenSettings={setOpenSettings}
-              originalFEN={originalFEN}
+        <div className="2xl:hidden my-3">
+          <div className="flex text-[#b58863] font-bold text-lg md:text-xl bg-[#f0d9b5] rounded-lg p-1 md:p-2">
+            <Image
+              src={"/images/stockfish.png"}
+              width={45}
+              height={45}
+              alt="stokfish"
+              className="border border-[#f0d9b5] rounded-lg mr-2 md:w-[60px] md:h-[60px]"
             />
-          ) : null}
-
-          <WASMThreadsNotSupportedDialog engineOperable={engineOperable} />
-
-          <GameEndDialogue
-            setParsedPGN={setParsedPGN}
-            gameEnded={gameEnded}
-            setFen={setFen}
-            originalFEN={originalFEN}
-            setOpenSettings={setOpenSettings}
-            setGameEnded={setGameEnded}
-            playColor={playColor}
-            session={session}
-          />
-          {chessBoardArray && chessBoardArray.length
-            ? chessBoardArray.map((elem) => elem)
-            : null}
-          {openDrawer ? (
-            <PromotionDrawer
-              setParsedPGN={setParsedPGN}
-              openDrawer={openDrawer}
-              promotionArray={promotionArray}
-              playColor={playColor}
-              setOpenDrawer={setOpenDrawer}
-              setPromotionArray={setPromotionArray}
-              setSoundTrigger={setSoundTrigger}
-              setFen={setFen}
-              gameEndResult={gameEndResult}
-              gameEndTitle={gameEndTitle}
-              setGameEnded={setGameEnded}
-            />
-          ) : null}
+            Stockfish
+          </div>
         </div>
+        <div className="min-[800px]:max-2xl:w-full min-[800px]:max-2xl:flex min-[800px]:max-2xl:justify-center 2xl:aspect-square">
+          <div className="min-[800px]:max-2xl:w-[780px] aspect-square">
+            {engineOperable ? (
+              <SettingComponent
+                setParsedPGN={setParsedPGN}
+                openSettings={openSettings}
+                playColor={playColor}
+                setPlayColor={setPlayColor}
+                setOpenSettings={setOpenSettings}
+                originalFEN={originalFEN}
+              />
+            ) : null}
 
+            <WASMThreadsNotSupportedDialog engineOperable={engineOperable} />
+
+            <GameEndDialogue
+              setParsedPGN={setParsedPGN}
+              gameEnded={gameEnded}
+              setFen={setFen}
+              originalFEN={originalFEN}
+              setOpenSettings={setOpenSettings}
+              setGameEnded={setGameEnded}
+              playColor={playColor}
+              session={session}
+            />
+            <div className="aspect-square w-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
+              {chessBoardArray && chessBoardArray.length
+                ? chessBoardArray.map((elem) => elem)
+                : null}
+            </div>
+            {openDrawer ? (
+              <PromotionDrawer
+                setParsedPGN={setParsedPGN}
+                openDrawer={openDrawer}
+                promotionArray={promotionArray}
+                playColor={playColor}
+                setOpenDrawer={setOpenDrawer}
+                setPromotionArray={setPromotionArray}
+                setSoundTrigger={setSoundTrigger}
+                setFen={setFen}
+                gameEndResult={gameEndResult}
+                gameEndTitle={gameEndTitle}
+                setGameEnded={setGameEnded}
+              />
+            ) : null}
+          </div>
+        </div>
+        <div className="2xl:hidden my-3">
+          <div className="flex bg-[#b58863] font-bold text-lg md:text-xl text-[#f0d9b5] rounded-lg p-1 md:p-2">
+            <Image
+              src={"/knight_mirror.png"}
+              width={40}
+              height={40}
+              alt="default avatar"
+              className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
+            />
+            {session && session.user && session.user.email
+              ? session.user.email.split("@")[0]
+              : "The Knight"}
+          </div>
+        </div>
         <PGNTable
           parsedPGN={parsedPGN}
           parsedPGNRef={parsedPGNRef}
@@ -1357,7 +1402,7 @@ function Page() {
 
 function PlayersInfo({ session }: { session: Session | null }) {
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div className="h-full flex flex-col justify-between max-2xl:hidden">
       <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
         <Image
           src={"/images/stockfish.png"}
@@ -1404,36 +1449,53 @@ function PGNTable({
   setSoundTrigger: Dispatch<SetStateAction<string>>;
 }) {
   return (
-    <div className="w-1/5 h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
-      <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
-        <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
-          <div>PGN Table</div>
+    <div className="max-2xl:mt-8 max-2xl:mb-8 max-2xl:w-full 2xl:w-1/5 flex justify-center">
+      <div className="w-11/12 lg:w-3/5 2xl:w-full h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
+        <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
+          <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
+            <div>PGN Table</div>
+          </div>
         </div>
-      </div>
-      <div className="w-full h-full overflow-y-auto bg-[#fffefc] relative font-mono">
-        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
-          {parsedPGN && parsedPGN.length
-            ? parsedPGN[0].moves.map((obj, id) => {
-                return obj.turn === "w" ? (
-                  <div
-                    key={id}
-                    className="col-span-4 grid grid-cols-4 grid-rows-1"
-                  >
-                    <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+        <div
+          className="w-full h-full overflow-y-auto bg-[#fffefc] relative font-mono"
+          ref={parsedPGNRef}
+        >
+          <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
+            {parsedPGN && parsedPGN.length
+              ? parsedPGN[0].moves.map((obj, id) => {
+                  return obj.turn === "w" ? (
+                    <div
+                      key={id}
+                      className="col-span-4 grid grid-cols-4 grid-rows-1"
+                    >
+                      <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+                        <div
+                          className="h-full flex flex-col justify-center"
+                          // ref={
+                          //   obj.moveNumber ===
+                          //   parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
+                          //     .moveNumber
+                          //     ? parsedPGNRef
+                          //     : null
+                          // }
+                        >
+                          {obj.moveNumber}
+                        </div>
+                      </div>
                       <div
-                        className="h-full flex flex-col justify-center"
-                        ref={
-                          obj.moveNumber ===
-                          parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
-                            .moveNumber
-                            ? parsedPGNRef
-                            : null
+                        className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
+                        onClick={() =>
+                          arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                         }
                       >
-                        {obj.moveNumber}
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.notation.notation}
+                        </div>
                       </div>
                     </div>
+                  ) : (
                     <div
+                      key={id}
                       className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                       onClick={() =>
                         arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
@@ -1443,87 +1505,75 @@ function PGNTable({
                         {obj.notation.notation}
                       </div>
                     </div>
+                  );
+                })
+              : null}
+            {gameEnded.gameEnded ? (
+              <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
+                <div>{gameEnded.gameEndResult}</div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className="bg-[#fffefc] w-full h-20 flex justify-around">
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+              onClick={() => moveBackward(setFen)}
+            >
+              <div className="flex flex-col justify-center h-full">
+                <ChevronLeft className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+              onClick={() => moveForward(setFen)}
+            >
+              <div className="flex flex-col justify-center h-full">
+                <ChevronRight className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100">
+                  <div className="flex flex-col justify-center">
+                    <Flag className="text-[#fffefc]" size={25} />
                   </div>
-                ) : (
-                  <div
-                    key={id}
-                    className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
+                </div>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className=" text-xl flex justify-center">
+                  Are you sure you want to resign ?
+                </div>
+                <div className="w-full flex justify-center text-xl">
+                  <Button
+                    variant={"destructive"}
+                    className="w-full mt-2"
                     onClick={() =>
-                      arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
+                      handleResignation(
+                        setParsedPGN,
+                        playColor,
+                        setGameEnded,
+                        setSoundTrigger
+                      )
+                    }
+                    disabled={
+                      !(
+                        playColor === chess.turn() &&
+                        currentUIPosition === FENHistory.length - 1
+                      )
                     }
                   >
-                    <div className="h-full flex flex-col justify-center">
-                      {obj.notation.notation}
-                    </div>
-                  </div>
-                );
-              })
-            : null}
-          {gameEnded.gameEnded ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
-              <div>{gameEnded.gameEndResult}</div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <div className="bg-[#fffefc] w-full h-20 flex justify-around">
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveBackward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronLeft className="text-[#fffefc]" size={25} />
-            </div>
-          </div>
-        </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveForward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronRight className="text-[#fffefc]" size={25} />
-            </div>
-          </div>
-        </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <div className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100">
-                <div className="flex flex-col justify-center">
-                  <Flag className="text-[#fffefc]" size={25} />
+                    Yes
+                  </Button>
                 </div>
-              </div>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className=" text-xl flex justify-center">
-                Are you sure you want to resign ?
-              </div>
-              <div className="w-full flex justify-center text-xl">
-                <Button
-                  variant={"destructive"}
-                  className="w-full mt-2"
-                  onClick={() =>
-                    handleResignation(
-                      setParsedPGN,
-                      playColor,
-                      setGameEnded,
-                      setSoundTrigger,
-                    )
-                  }
-                  disabled={
-                    !(
-                      playColor === chess.turn() &&
-                      currentUIPosition === FENHistory.length - 1
-                    )
-                  }
-                >
-                  Yes
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
     </div>
@@ -1629,7 +1679,7 @@ function GameEndDialogue({
                   setFen,
                   originalFEN,
                   setOpenSettings,
-                  setGameEnded,
+                  setGameEnded
                 )
               }
             >
@@ -1698,7 +1748,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -1724,7 +1774,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -1750,7 +1800,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -1776,7 +1826,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -1812,7 +1862,7 @@ function SettingComponent({
       dismissible={false}
       direction="left"
     >
-      <DrawerContent className="w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc] overflow-scroll">
+      <DrawerContent className="w-full md:w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc] overflow-scroll">
         <DrawerTitle className="flex justify-center text-5xl mb-16">
           Settings
         </DrawerTitle>
@@ -1918,7 +1968,7 @@ function SettingComponent({
                 playColor,
                 originalFEN,
                 cores,
-                depth,
+                depth
               )
             }
             disabled={useAppSelector(getEngineState) !== "ready"}

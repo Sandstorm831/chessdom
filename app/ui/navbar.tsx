@@ -16,13 +16,13 @@ export default async function Navbar() {
   const session = await auth();
   return (
     <div className="w-full flex justify-between pt-3 px-3 text-[#fffefc] bg-[#323014]">
-      <div className=" text-3xl">
+      <div className="text-xl md:text-3xl">
         <Link href={"/"}> Chessdom </Link>
       </div>
       <div>
         {session?.user ? (
           <div className="flex justify-evenly">
-            <div className="text-2xl mx-5">
+            <div className="text-lg md:text-2xl mx-5">
               <div className="flex flex-col justify-center h-full">
                 <Link
                   href="/dashboard"
