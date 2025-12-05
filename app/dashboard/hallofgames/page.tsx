@@ -37,28 +37,28 @@ function Page() {
     };
   }, [page]); // add page in the dependency array
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="flex w-full justify-center text-5xl my-12 text-[#323014]">
+    <div className="w-full h-full flex flex-col mb-5">
+      <div className="flex w-full px-4 justify-center text-5xl my-12 text-[#323014]">
         Welcome to the hall of games
       </div>
       {loading ? (
         <LoadingComponent />
       ) : (
-        <div className="flex justify-center w-full">
-          <div className="w-4/5 grid grid-cols-5 grid-auto-flow-row auto-rows-[50px] bg-[#323014] border rounded-lg">
-            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
+        <div className="flex justify-center w-full px-3">
+          <div className="w-full lg:w-4/5 grid grid-cols-5 grid-auto-flow-row auto-rows-[50px] bg-[#323014] border rounded-lg">
+            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] font-bold text-sm md:text-xl xl:text-3xl flex justify-center w-full">
               <div className="flex flex-col h-full justify-center">GameId </div>
             </div>
-            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
+            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] font-bold text-sm md:text-xl xl:text-3xl flex justify-center w-full">
               <div className="flex flex-col h-full justify-center">White </div>
             </div>
-            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
+            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] font-bold text-sm md:text-xl xl:text-3xl flex justify-center w-full">
               <div className="flex flex-col h-full justify-center">Black </div>
             </div>
-            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
+            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] font-bold text-sm md:text-xl xl:text-3xl flex justify-center w-full">
               <div className="flex flex-col h-full justify-center">Result </div>
             </div>
-            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] text-3xl flex justify-center w-full">
+            <div className="border-[#323014] rounded-lg bg-[#323014] text-[#fffefc] font-bold text-sm md:text-xl xl:text-3xl flex justify-center w-full">
               <div className="flex flex-col h-full justify-center">
                 View Game
               </div>
@@ -70,12 +70,12 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
                       }
                     >
                       <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
-                        {obj.RoomID.split("?user1")[0]}
+                        {obj.RoomID.split("?user1")[0].slice(0,6)}
                       </div>
                     </div>,
                   );
@@ -83,8 +83,8 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
                       }
                     >
                       <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
@@ -96,8 +96,8 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
                       }
                     >
                       <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
@@ -109,8 +109,8 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
                       }
                     >
                       <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
@@ -122,8 +122,8 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-sm md:text-md xl:text-xl flex justify-center w-full font-mono"
                       }
                     >
                       <div className="overflow-hidden px-2 flex flex-col h-full justify-center p-1">
