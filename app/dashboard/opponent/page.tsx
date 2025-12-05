@@ -104,7 +104,7 @@ function presentTimeTravel(setFen: Dispatch<SetStateAction<FenObject>>) {
 function arbitraryTimeTravel(
   moveNumber: number,
   turn: string,
-  setFen: Dispatch<SetStateAction<FenObject>>,
+  setFen: Dispatch<SetStateAction<FenObject>>
 ) {
   blueDotArrayClearIntimator = true;
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
@@ -146,7 +146,7 @@ type PGNObject = {
 
 function updatePGN(
   moveObj: Move,
-  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
+  setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>
 ) {
   if (moveObj.color === "w") {
     const x = PGN.moveNumber + 1;
@@ -232,7 +232,7 @@ function handleResignation(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   playColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const resgString: string = playColor === "w" ? "0-1" : "1-0";
   if (playColor === "w") {
@@ -393,7 +393,7 @@ function Peice({
 function RenderSquare(
   fen: FenObject,
   color: Color,
-  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>,
+  setClickAndMoveTrigger: Dispatch<SetStateAction<SquareAndMove[]>>
 ) {
   chess.load(fen.fen);
   const chessBoard: chessBoardObject = chess.board();
@@ -453,11 +453,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -481,11 +481,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -510,11 +510,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -534,11 +534,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -565,11 +565,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -593,11 +593,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -622,11 +622,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -647,11 +647,11 @@ function RenderSquare(
                 />
               ) : null}
               {blueDotArray.find(
-                (obj) => obj.square === IJToSquare(i, j, color),
+                (obj) => obj.square === IJToSquare(i, j, color)
               ) ? (
                 <div className="z-10 absolute 2xl:bottom-[33%] 2xl:left-[42%] max-2xl:bottom-[35%] max-2xl:left-[44%] bg-[#0077CC] rounded-full 2xl:w-5 2xl:h-5 max-2xl:w-4 max-2xl:h-4"></div>
               ) : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       }
     }
@@ -668,7 +668,7 @@ function FENCallback(setFen: Dispatch<SetStateAction<FenObject>>) {
 
 function startTheGame(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
-  setFindingRoom: Dispatch<SetStateAction<boolean>>,
+  setFindingRoom: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -692,7 +692,7 @@ function handleGameOver(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const playColorAct: Color =
     playColor !== NonStatePlaycolor ? NonStatePlaycolor : playColor; // to avoid conflict of some edge cases.
@@ -757,7 +757,7 @@ function handlePromotion(
   setFen: Dispatch<SetStateAction<FenObject>>,
   gameEndResult: string,
   gameEndTitle: string,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   let promotionMove;
   for (let i = 0; i < promotionArray.length; i++) {
@@ -781,7 +781,7 @@ function handlePromotion(
       socket
         .timeout(5000)
         .emit("move", moveObj.san, (err: Error, response: string) =>
-          ackknowledgementCallback(err, response),
+          ackknowledgementCallback(err, response)
         );
       return;
     } else {
@@ -793,7 +793,7 @@ function handlePromotion(
     socket
       .timeout(5000)
       .emit("move", moveObj.san, (err: Error, response: string) =>
-        ackknowledgementCallback(err, response),
+        ackknowledgementCallback(err, response)
       );
   updatePGN(moveObj, setParsedPGN);
   const pieceMovements = getPieceMovements(moveObj);
@@ -816,7 +816,7 @@ function handlePromotion(
       gameEndResult,
       gameEndTitle,
       setGameEnded,
-      setSoundTrigger,
+      setSoundTrigger
     )
   )
     return;
@@ -837,7 +837,7 @@ function useLatestOpponentResponse(
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  opponentMove: string,
+  opponentMove: string
 ) {
   useEffect(() => {
     if (currentUIPosition === FENHistory.length - 1) {
@@ -850,7 +850,7 @@ function useLatestOpponentResponse(
         gameEndResult,
         gameEndTitle,
         setGameEnded,
-        setSoundTrigger,
+        setSoundTrigger
       );
     } else {
     }
@@ -866,7 +866,7 @@ function triggerOpponentTrigger(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   if (chess.turn() === (playColor === "w" ? "b" : "w")) {
     const x = chess.move(bestMove);
@@ -876,7 +876,7 @@ function triggerOpponentTrigger(
         socket
           .timeout(5000)
           .emit("move", x.san, (err: Error, response: string) =>
-            ackknowledgementCallback(err, response),
+            ackknowledgementCallback(err, response)
           );
         return;
       } else {
@@ -889,7 +889,7 @@ function triggerOpponentTrigger(
       socket
         .timeout(5000)
         .emit("move", x.san, (err: Error, response: string) =>
-          ackknowledgementCallback(err, response),
+          ackknowledgementCallback(err, response)
         );
     updatePGN(x, setParsedPGN);
     const pieceMovements = getPieceMovements(x);
@@ -910,7 +910,7 @@ function triggerOpponentTrigger(
         gameEndResult,
         gameEndTitle,
         setGameEnded,
-        setSoundTrigger,
+        setSoundTrigger
       )
     )
       return;
@@ -935,7 +935,7 @@ function handleReconciliationGameOver(
   playColor: Color,
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
-  setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
+  setGameEnded: Dispatch<SetStateAction<gameEndObject>>
 ) {
   let gameEndResult: string = "";
   let gameEndTitle: string = "";
@@ -979,7 +979,7 @@ function handleResetBoardForSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setIsDisconnectedFromGame: Dispatch<SetStateAction<boolean>>,
-  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>,
+  setOpponentLeftTheGame: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -1000,7 +1000,7 @@ function handleResetBoardForSocket(
 function handleGameStartingForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFindingRoom: Dispatch<SetStateAction<boolean>>,
-  setRematchD: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>
 ) {
   setRematchD(false);
   startTheGame(setParsedPGN, setFindingRoom);
@@ -1010,7 +1010,7 @@ function handleOpponentMoveForSocket(
   chessMove: string,
   callback: (response: string) => void,
   setOpponentMove: Dispatch<SetStateAction<string>>,
-  setFen: Dispatch<SetStateAction<FenObject>>,
+  setFen: Dispatch<SetStateAction<FenObject>>
 ) {
   // Next 2 lines are fundamental and should not be removed
   if (reconciliation) return;
@@ -1032,7 +1032,7 @@ function handleReconciliationForSocket(
   setFen: Dispatch<SetStateAction<FenObject>>,
   setSoundTrigger: Dispatch<SetStateAction<string>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setPlayColor: Dispatch<SetStateAction<Color>>,
+  setPlayColor: Dispatch<SetStateAction<Color>>
 ) {
   reconciliation = true;
   storeCallback = callback;
@@ -1062,7 +1062,7 @@ function handleReconciliationForSocket(
           colorHeld,
           setParsedPGN,
           setSoundTrigger,
-          setGameEnded,
+          setGameEnded
         );
     }
   }
@@ -1076,7 +1076,7 @@ function handleOpponentResignationForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   opponentColor: Color,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   const resgString: string = opponentColor === "w" ? "0-1" : "1-0";
   if (opponentColor === "w") {
@@ -1112,7 +1112,7 @@ function handleRematchForSocket(
   setParsedPGN: Dispatch<SetStateAction<ParseTree[]>>,
   setFen: Dispatch<SetStateAction<FenObject>>,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setRematchD: Dispatch<SetStateAction<boolean>>,
+  setRematchD: Dispatch<SetStateAction<boolean>>
 ) {
   PGN.pgn = "";
   PGN.moveNumber = 0;
@@ -1131,13 +1131,22 @@ function handleRematchForSocket(
 
 function useSound(
   soundTrigger: string,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     if (soundTrigger.length === 0) return;
     try {
       const Sound = new Audio(soundTrigger);
-      Sound.play();
+      const playPromise = Sound.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {})
+          .catch((error) => {
+            console.log(
+              "Some error occurred while playing sound media error: " + error
+            );
+          });
+      }
       setSoundTrigger("");
     } catch (err) {
       setSoundTrigger("");
@@ -1158,7 +1167,7 @@ function useClickAndMove(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     if (clickAndMoveTrigger.length === 0) return;
@@ -1174,7 +1183,7 @@ function useClickAndMove(
           socket
             .timeout(5000)
             .emit("move", x.san, (err: Error, response: string) =>
-              ackknowledgementCallback(err, response),
+              ackknowledgementCallback(err, response)
             );
           return;
         } else {
@@ -1187,7 +1196,7 @@ function useClickAndMove(
         socket
           .timeout(5000)
           .emit("move", x.san, (err: Error, response: string) =>
-            ackknowledgementCallback(err, response),
+            ackknowledgementCallback(err, response)
           );
       updatePGN(x, setParsedPGN);
       const pieceMovements = getPieceMovements(x);
@@ -1208,7 +1217,7 @@ function useClickAndMove(
           gameEndResult,
           gameEndTitle,
           setGameEnded,
-          setSoundTrigger,
+          setSoundTrigger
         )
       )
         return;
@@ -1240,7 +1249,7 @@ function useOnPieceDrop(
   gameEndResult: string,
   gameEndTitle: string,
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
-  setSoundTrigger: Dispatch<SetStateAction<string>>,
+  setSoundTrigger: Dispatch<SetStateAction<string>>
 ) {
   useEffect(() => {
     return monitorForElements({
@@ -1258,7 +1267,7 @@ function useOnPieceDrop(
         ///////////////////////////////////////////////////////////////////////
 
         const tempObj = validMovesArray.filter(
-          (obj) => obj.square === destSquareCoordinates,
+          (obj) => obj.square === destSquareCoordinates
         );
         if (tempObj.length === 0) {
           throw new Error("Some Error occured, can not find the right move");
@@ -1275,7 +1284,7 @@ function useOnPieceDrop(
               socket
                 .timeout(5000)
                 .emit("move", x.san, (err: Error, response: string) =>
-                  ackknowledgementCallback(err, response),
+                  ackknowledgementCallback(err, response)
                 );
               return;
             } else {
@@ -1288,7 +1297,7 @@ function useOnPieceDrop(
             socket
               .timeout(5000)
               .emit("move", x.san, (err: Error, response: string) =>
-                ackknowledgementCallback(err, response),
+                ackknowledgementCallback(err, response)
               );
           updatePGN(x, setParsedPGN);
           const pieceMovements = getPieceMovements(x);
@@ -1308,7 +1317,7 @@ function useOnPieceDrop(
               gameEndResult,
               gameEndTitle,
               setGameEnded,
-              setSoundTrigger,
+              setSoundTrigger
             )
           )
             return;
@@ -1355,7 +1364,7 @@ function useSocket(
   setGameEnded: Dispatch<SetStateAction<gameEndObject>>,
   setRematchD: Dispatch<SetStateAction<boolean>>,
   setSameUser: Dispatch<SetStateAction<boolean>>,
-  setOpponentName: Dispatch<SetStateAction<string>>,
+  setOpponentName: Dispatch<SetStateAction<string>>
 ) {
   const { toast } = useToast();
   const { data: session } = useSession();
@@ -1384,7 +1393,7 @@ function useSocket(
     });
 
     socket.on("startgame", () =>
-      handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD),
+      handleGameStartingForSocket(setParsedPGN, setFindingRoom, setRematchD)
     );
 
     socket.on(
@@ -1394,8 +1403,8 @@ function useSocket(
           chessMove,
           callback,
           setOpponentMove,
-          setFen,
-        ),
+          setFen
+        )
     );
 
     socket.on(
@@ -1403,7 +1412,7 @@ function useSocket(
       (
         historyX: string[],
         colorHeld: Color,
-        callback: (response: string) => void,
+        callback: (response: string) => void
       ) =>
         handleReconciliationForSocket(
           colorHeld,
@@ -1414,8 +1423,8 @@ function useSocket(
           setFen,
           setSoundTrigger,
           setGameEnded,
-          setPlayColor,
-        ),
+          setPlayColor
+        )
     );
 
     socket.on("resigned", (opponentColor: Color) =>
@@ -1423,12 +1432,12 @@ function useSocket(
         setParsedPGN,
         opponentColor,
         setGameEnded,
-        setSoundTrigger,
-      ),
+        setSoundTrigger
+      )
     );
 
     socket.on("rematchconfirmed", () =>
-      handleRematchForSocket(setParsedPGN, setFen, setGameEnded, setRematchD),
+      handleRematchForSocket(setParsedPGN, setFen, setGameEnded, setRematchD)
     );
 
     socket.on("playeroptednewgame", () => {
@@ -1538,7 +1547,13 @@ function Page() {
   chess.load(fen.fen);
 
   const ScrollToBottom = () => {
-    parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = parsedPGNRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   // custom hook calls
@@ -1560,7 +1575,7 @@ function Page() {
     setGameEnded,
     setRematchD,
     setSameUser,
-    setOpponentName,
+    setOpponentName
   );
   /*  Variables relating to socket chess and online play */
 
@@ -1575,7 +1590,7 @@ function Page() {
     gameEndTitle,
     setGameEnded,
     setSoundTrigger,
-    opponentMove,
+    opponentMove
   );
 
   useSound(soundTrigger, setSoundTrigger);
@@ -1591,7 +1606,7 @@ function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   useOnPieceDrop(
@@ -1605,7 +1620,7 @@ function Page() {
     gameEndResult,
     gameEndTitle,
     setGameEnded,
-    setSoundTrigger,
+    setSoundTrigger
   );
 
   const chessBoardArray = RenderSquare(fen, playColor, setClickAndMoveTrigger);
@@ -1618,55 +1633,81 @@ function Page() {
     <FindingRoom />
   ) : (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
-      <div className="flex w-full h-full justify-center">
+      <div className="flex max-2xl:flex-col w-full h-full justify-center px-2 ">
         <PlayersInfo session={session} opponentName={opponentName} />
-        <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
-          <GameEndDialogue
-            setOpponentLeftTheGame={setOpponentLeftTheGame}
-            setIsDisconnectedFromGame={setIsDisconnectedFromGame}
-            setParsedPGN={setParsedPGN}
-            gameEnded={gameEnded}
-            setFen={setFen}
-            setGameEnded={setGameEnded}
-            setFindingRoom={setFindingRoom}
-            rematchD={rematchD}
-            setRematchD={setRematchD}
-          />
-
-          {isDisconnected ? (
-            <DisconnectionDialogue
+        <div className="2xl:hidden my-3">
+          <div className="flex text-[#b58863] font-bold text-lg md:text-xl bg-[#f0d9b5] rounded-lg p-1 md:p-2">
+            <Image
+              src={"/knight_mirror.png"}
+              width={40}
+              height={40}
+              alt="default avatar"
+              className="border border-[#f0d9b5] rounded-lg mr-2 md:w-[60px] md:h-[60px]"
+            />
+            {opponentName}
+          </div>
+        </div>
+        <div className="min-[800px]:max-2xl:w-full min-[800px]:max-2xl:flex min-[800px]:max-2xl:justify-center 2xl:aspect-square">
+          <div className="min-[800px]:max-2xl:w-[780px] aspect-square">
+            <GameEndDialogue
               setOpponentLeftTheGame={setOpponentLeftTheGame}
               setIsDisconnectedFromGame={setIsDisconnectedFromGame}
-              isDisconnected={isDisconnected}
-              opponentLeftTheGame={opponentLeftTheGame}
+              setParsedPGN={setParsedPGN}
+              gameEnded={gameEnded}
+              setFen={setFen}
+              setGameEnded={setGameEnded}
               setFindingRoom={setFindingRoom}
-              setParsedPGN={setParsedPGN}
-              setFen={setFen}
-              setGameEnded={setGameEnded}
+              rematchD={rematchD}
+              setRematchD={setRematchD}
             />
-          ) : null}
 
-          {chessBoardArray && chessBoardArray.length
-            ? chessBoardArray.map((elem) => elem)
-            : null}
+            {isDisconnected ? (
+              <DisconnectionDialogue
+                setOpponentLeftTheGame={setOpponentLeftTheGame}
+                setIsDisconnectedFromGame={setIsDisconnectedFromGame}
+                isDisconnected={isDisconnected}
+                opponentLeftTheGame={opponentLeftTheGame}
+                setFindingRoom={setFindingRoom}
+                setParsedPGN={setParsedPGN}
+                setFen={setFen}
+                setGameEnded={setGameEnded}
+              />
+            ) : null}
+            <div className="aspect-square w-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
+              {chessBoardArray && chessBoardArray.length
+                ? chessBoardArray.map((elem) => elem)
+                : null}
+            </div>
 
-          {openDrawer ? (
-            <PromotionDrawer
-              setParsedPGN={setParsedPGN}
-              openDrawer={openDrawer}
-              promotionArray={promotionArray}
-              playColor={playColor}
-              setOpenDrawer={setOpenDrawer}
-              setPromotionArray={setPromotionArray}
-              setSoundTrigger={setSoundTrigger}
-              setFen={setFen}
-              gameEndResult={gameEndResult}
-              gameEndTitle={gameEndTitle}
-              setGameEnded={setGameEnded}
-            />
-          ) : null}
+            {openDrawer ? (
+              <PromotionDrawer
+                setParsedPGN={setParsedPGN}
+                openDrawer={openDrawer}
+                promotionArray={promotionArray}
+                playColor={playColor}
+                setOpenDrawer={setOpenDrawer}
+                setPromotionArray={setPromotionArray}
+                setSoundTrigger={setSoundTrigger}
+                setFen={setFen}
+                gameEndResult={gameEndResult}
+                gameEndTitle={gameEndTitle}
+                setGameEnded={setGameEnded}
+              />
+            ) : null}
+          </div>
         </div>
-
+        <div className="flex bg-[#b58863] font-bold text-lg md:text-xl text-[#f0d9b5] rounded-lg p-1 md:p-2">
+          <Image
+            src={"/knight_mirror.png"}
+            width={40}
+            height={40}
+            alt="default avatar"
+            className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
+          />
+          {session && session.user && session.user.email
+            ? session.user.email.split("@")[0]
+            : "The Knight"}
+        </div>
         <PGNTable
           parsedPGN={parsedPGN}
           parsedPGNRef={parsedPGNRef}
@@ -1692,7 +1733,7 @@ function PlayersInfo({
   session: Session | null;
 }) {
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div className="h-full flex flex-col justify-between max-2xl:hidden">
       <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
         <Image
           src={"/knight_mirror.png"}
@@ -1838,7 +1879,7 @@ function DisconnectionDialogue({
                     setFen,
                     setGameEnded,
                     setIsDisconnectedFromGame,
-                    setOpponentLeftTheGame,
+                    setOpponentLeftTheGame
                   );
                 }}
               >
@@ -1876,36 +1917,44 @@ function PGNTable({
   setSoundTrigger: Dispatch<SetStateAction<string>>;
 }) {
   return (
-    <div className="w-1/5 h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
-      <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
-        <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
-          <div>PGN Table</div>
+    <div className="max-2xl:mt-8 max-2xl:mb-8 max-2xl:w-full 2xl:w-1/5 flex justify-center">
+      <div className="w-11/12 lg:w-3/5 2xl:w-full h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
+        <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
+          <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
+            <div>PGN Table</div>
+          </div>
         </div>
-      </div>
-      <div className="w-full h-full overflow-scroll bg-[#fffefc] relative font-mono">
-        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
-          {parsedPGN && parsedPGN.length
-            ? parsedPGN[0].moves.map((obj, id) => {
-                return obj.turn === "w" ? (
-                  <div
-                    key={id}
-                    className="col-span-4 grid grid-cols-4 grid-rows-1"
-                  >
-                    <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+        <div
+          className="w-full h-full overflow-y-auto bg-[#fffefc] relative font-mono"
+          ref={parsedPGNRef}
+        >
+          <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
+            {parsedPGN && parsedPGN.length
+              ? parsedPGN[0].moves.map((obj, id) => {
+                  return obj.turn === "w" ? (
+                    <div
+                      key={id}
+                      className="col-span-4 grid grid-cols-4 grid-rows-1"
+                    >
+                      <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.moveNumber}
+                        </div>
+                      </div>
                       <div
-                        className="h-full flex flex-col justify-center"
-                        ref={
-                          obj.moveNumber ===
-                          parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
-                            .moveNumber
-                            ? parsedPGNRef
-                            : null
+                        className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
+                        onClick={() =>
+                          arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                         }
                       >
-                        {obj.moveNumber}
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.notation.notation}
+                        </div>
                       </div>
                     </div>
+                  ) : (
                     <div
+                      key={id}
                       className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                       onClick={() =>
                         arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
@@ -1915,87 +1964,75 @@ function PGNTable({
                         {obj.notation.notation}
                       </div>
                     </div>
+                  );
+                })
+              : null}
+            {gameEnded.gameEnded ? (
+              <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
+                <div>{gameEnded.gameEndResult}</div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className="bg-[#fffefc] w-full h-20 flex justify-around">
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+              onClick={() => moveBackward(setFen)}
+            >
+              <div className="flex flex-col justify-center h-full">
+                <ChevronLeft className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+              onClick={() => moveForward(setFen)}
+            >
+              <div className="flex flex-col justify-center h-full">
+                <ChevronRight className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100">
+                  <div className="flex flex-col justify-center">
+                    <Flag className="text-[#fffefc]" size={25} />
                   </div>
-                ) : (
-                  <div
-                    key={id}
-                    className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
+                </div>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className=" text-xl flex justify-center">
+                  Are you sure you want to resign ?
+                </div>
+                <div className="w-full flex justify-center text-xl">
+                  <Button
+                    variant={"destructive"}
+                    className="w-full mt-2"
                     onClick={() =>
-                      arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
+                      handleResignation(
+                        setParsedPGN,
+                        playColor,
+                        setGameEnded,
+                        setSoundTrigger
+                      )
+                    }
+                    disabled={
+                      !(
+                        playColor === chess.turn() &&
+                        currentUIPosition === FENHistory.length - 1
+                      )
                     }
                   >
-                    <div className="h-full flex flex-col justify-center">
-                      {obj.notation.notation}
-                    </div>
-                  </div>
-                );
-              })
-            : null}
-          {gameEnded.gameEnded ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-[#343014] mt-3">
-              <div>{gameEnded.gameEndResult}</div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <div className="bg-[#fffefc] w-full h-20 flex justify-around">
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveBackward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronLeft className="text-[#fffefc]" size={25} />
-            </div>
-          </div>
-        </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveForward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronRight className="text-[#fffefc]" size={25} />
-            </div>
-          </div>
-        </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <div className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100">
-                <div className="flex flex-col justify-center">
-                  <Flag className="text-[#fffefc]" size={25} />
+                    Yes
+                  </Button>
                 </div>
-              </div>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className=" text-xl flex justify-center">
-                Are you sure you want to resign ?
-              </div>
-              <div className="w-full flex justify-center text-xl">
-                <Button
-                  variant={"destructive"}
-                  className="w-full mt-2"
-                  onClick={() =>
-                    handleResignation(
-                      setParsedPGN,
-                      playColor,
-                      setGameEnded,
-                      setSoundTrigger,
-                    )
-                  }
-                  disabled={
-                    !(
-                      playColor === chess.turn() &&
-                      currentUIPosition === FENHistory.length - 1
-                    )
-                  }
-                >
-                  Yes
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
     </div>
@@ -2068,7 +2105,7 @@ function GameEndDialogue({
                   setFen,
                   setGameEnded,
                   setIsDisconnectedFromGame,
-                  setOpponentLeftTheGame,
+                  setOpponentLeftTheGame
                 );
               }}
             >
@@ -2135,7 +2172,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2161,7 +2198,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2187,7 +2224,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
@@ -2213,7 +2250,7 @@ function PromotionDrawer({
                 setFen,
                 gameEndResult,
                 gameEndTitle,
-                setGameEnded,
+                setGameEnded
               )
             }
           />
