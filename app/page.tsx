@@ -14,52 +14,54 @@ export default function Home() {
 
   return (
     <div
-      className={`${playfair_display.className} antialiased bg-[#323014] w-full h-full text-[#fffefc]`}
+      className={`${playfair_display.className} antialiased bg-[#323014] w-full h-full text-[#fffefc] overflow-auto`}
     >
-      <div className="w-full h-full flex flex-col justify-center px-5">
-        <div className="w-full flex h-max">
-          <div className="text-[150px] mr-12 ">THE Game</div>
-          <div className="flex">
+      <div className="w-full h-full flex flex-col justify-center p-4 sm:p-5">
+        <div className="w-full flex flex-col md:flex-row items-center h-max">
+          <div className="text-6xl sm:text-8xl md:text-9xl lg:text-[150px] md:mr-12">
+            THE Game
+          </div>
+          <div className="flex mt-4 md:mt-0">
             <div className="flex flex-col justify-center">
               <TheGrid />
             </div>
           </div>
         </div>
-        <div className="w-full flex justify-end h-max">
-          <div className="flex justify-end">
+        <div className="w-full flex flex-col md:flex-row justify-end items-center h-max mt-4 md:mt-0">
+          <div className="flex justify-end order-2 md:order-1">
             <div className="flex flex-col justify-center">
               <TheGrid />
             </div>
           </div>
-          <div className="text-[200px] flex ml-12">of CHESS</div>
+          <div className="text-7xl sm:text-9xl md:text-[150px] lg:text-[200px] flex md:ml-12 order-1 md:order-2">
+            of CHESS
+          </div>
         </div>
-        <div className="flex w-full">
-          <div className="border-r-2 border-[#fffefc] w-1/3 flex flex-col">
-            <div className="text-4xl flex justify-end mr-8 ">
+        <div className="flex flex-col lg:flex-row w-full mt-10">
+          <div className="border-b-2 lg:border-r-2 lg:border-b-0 border-[#fffefc] w-full lg:w-1/3 flex flex-col pb-8 lg:pb-0">
+            <div className="text-2xl sm:text-3xl md:text-4xl flex justify-center lg:justify-end lg:mr-8">
               <p className="font-extrabold">
                 6<sup>th</sup> Century - Eternity
               </p>
             </div>
-            <div className="text-3xl flex justify-end mr-8 mt-5">
+            <div className="text-xl sm:text-2xl md:text-3xl flex justify-center lg:justify-end lg:mr-8 mt-3 sm:mt-5">
               <div className="italic font-serif font-light">Earth</div>
             </div>
-            <div className="text-3xl text-center mt-5 mr-8">
+            <div className="text-xl sm:text-2xl md:text-3xl text-center mt-5 mx-auto lg:mx-0 lg:mr-8 max-w-sm">
               Chess was never just a game, but a journey for anyone who masters
               it and becomes a knight
             </div>
-            <div className="flex justify-center mr-8 mt-5">
-              <GiMountedKnight className="text-[200px] text-[#fffefc]" />
+            <div className="flex justify-center lg:mr-8 mt-5">
+              <GiMountedKnight className="text-9xl sm:text-[150px] md:text-[200px] text-[#fffefc]" />
             </div>
           </div>
-          <div className="w-2/3 flex flex-col">
-            <div className="flex ms-8 h-full">
-              <div className="flex flex-col justify-around">
-                <div className="flex justify-center">
-                  <GiOrbitalRays className="text-[150px]" />
-                </div>
-                <FaChessBoard className="text-[200px] text-[#fffefc]" />
+          <div className="w-full lg:w-2/3 flex flex-col mt-8 lg:mt-0">
+            <div className="flex flex-col sm:flex-row ms-0 lg:ms-8 h-full">
+              <div className="flex flex-row sm:flex-col justify-around items-center">
+                <GiOrbitalRays className="text-8xl sm:text-9xl md:text-[150px] mb-4 sm:mb-0" />
+                <FaChessBoard className="text-9xl sm:text-[150px] md:text-[200px] text-[#fffefc]" />
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-8 sm:mt-0">
                 <Quote />
               </div>
             </div>
@@ -72,7 +74,7 @@ export default function Home() {
 
 function Quote() {
   return (
-    <div className="ml-12 flex flex-col h-full text-5xl w-1/2">
+    <div className="ml-0 sm:ml-12 flex flex-col h-full text-2xl sm:text-3xl md:text-4xl lg:text-5xl w-full lg:w-3/4">
       <FaQuoteLeft className="mb-5" />
       Of chess, it has been said that life is not long enough for it, but that
       is the fault of life, not chess.
@@ -91,7 +93,7 @@ function TheGrid() {
   }
   return (
     <div
-      className={`grid grid-cols-[repeat(15,50px)] grid-rows-[repeat(3,50px)] w-full`}
+      className={`grid grid-cols-[repeat(15,15px)] grid-rows-[repeat(3,15px)] sm:grid-cols-[repeat(15,25px)] sm:grid-rows-[repeat(3,25px)] md:grid-cols-[repeat(15,35px)] md:grid-rows-[repeat(3,35px)] lg:grid-cols-[repeat(15,50px)] lg:grid-rows-[repeat(3,50px)] w-full`}
     >
       {x.map((num, idx) => (
         <div

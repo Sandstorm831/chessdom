@@ -8,10 +8,10 @@ export default function Page() {
   return (
     <div className="w-full h-full flex flex-col justify-center text-[#323014]">
       <div className="w-full flex justify-center font-bold text-5xl">
-        <div className="w-1/2">Hello, Nice to meet you, I am Rohan</div>
+        <div className="w-full mx-3 md:lg-5/6 lg:w-1/2">Hello, Nice to meet you, I am Rohan</div>
       </div>
       <div className="w-full flex justify-center text-2xl mt-4">
-        <div className="w-1/2">
+        <div className="w-full mx-3 md:lg-5/6 lg:w-1/2">
           a full-stack developer who loves to work and learn new technologies
           everyday. Web-3 and Blockchain enthusiast and trying to do something
           hands-on. I like to do Calisthenics and loves to watch movies and read
@@ -20,7 +20,7 @@ export default function Page() {
         </div>
       </div>
       <div className="w-full flex justify-center text-2xl mt-4">
-        <div className="w-1/2 flex flex-col">
+        <div className="w-full mx-3 md:lg-5/6 lg:w-1/2 flex flex-col">
           <Iconholder href="https://x.com/Rodes30947083" title="Twitter">
             <FaXTwitter className="mx-3 text-5xl" />
           </Iconholder>
