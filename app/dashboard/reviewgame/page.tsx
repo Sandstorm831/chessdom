@@ -57,7 +57,7 @@ function moveBackward(setFen: Dispatch<SetStateAction<FenObject>>) {
 function arbitraryTimeTravel(
   moveNumber: number,
   turn: string,
-  setFen: Dispatch<SetStateAction<FenObject>>,
+  setFen: Dispatch<SetStateAction<FenObject>>
 ) {
   setFen(FENHistory[moveNumber * 2 - (turn === "w" ? 1 : 0)]);
   currentUIPosition = moveNumber * 2 - (turn === "w" ? 1 : 0);
@@ -220,7 +220,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -235,7 +235,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -251,7 +251,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                   : String.fromCharCode(96 + 8 - j)}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -262,7 +262,7 @@ function RenderSquare(fen: FenObject, color: Color) {
               id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       } else {
         if (j === 0 && i === 7) {
@@ -280,7 +280,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                 {color === "w" ? "a" : "h"}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (j === 0) {
           chessBoardArray.push(
@@ -295,7 +295,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                 {color === "w" ? 8 - i : i + 1}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else if (i === 7) {
           chessBoardArray.push(
@@ -311,7 +311,7 @@ function RenderSquare(fen: FenObject, color: Color) {
                   : String.fromCharCode(96 + 8 - j)}
               </div>
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
         } else
           chessBoardArray.push(
@@ -323,7 +323,7 @@ function RenderSquare(fen: FenObject, color: Color) {
               id={IJToSquare(i, j, color)}
             >
               {chessBoardIJ ? <Peice chessBoardIJ={chessBoardIJ} /> : null}
-            </SquareBlock>,
+            </SquareBlock>
           );
       }
     }
@@ -362,7 +362,13 @@ function Page() {
   chess.load(DEFAULT_POSITION);
 
   const ScrollToBottom = () => {
-    parsedPGNRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = parsedPGNRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   // custom hook calls
@@ -422,14 +428,65 @@ function Page() {
     <LoadingComponent />
   ) : (
     <div className="w-full h-full flex flex-col justify-center bg-[#323014] py-2">
-      <div className="flex w-full h-full justify-center">
+      <div className="flex max-2xl:flex-col w-full h-full justify-center px-2">
         <PlayersInfo playColor={playColor} />
-        <div className="aspect-square h-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
-          {chessBoardArray && chessBoardArray.length
-            ? chessBoardArray.map((elem) => elem)
-            : null}
+        <div className="2xl:hidden my-3">
+          <div className="flex text-[#b58863] font-bold text-lg md:text-xl bg-[#f0d9b5] rounded-lg p-1 md:p-2">
+            {gameInitials.stockfishGame && playColor !== stockfishColor ? (
+              <Image
+                src={"/images/stockfish.png"}
+                width={45}
+                height={45}
+                alt="stockfish"
+                className="border border-[#f0d9b5] rounded-lg mr-2 md:w-[60px] md:h-[60px]"
+              />
+            ) : (
+              <Image
+                src={"/knight_mirror.png"}
+                width={40}
+                height={40}
+                alt="default avatar"
+                className="border border-[#f0d9b5] rounded-lg mr-2 md:w-[60px] md:h-[60px]"
+              />
+            )}
+            {playColor === "w"
+              ? gameInitials.black.split("@")[0]
+              : gameInitials.white.split("@")[0]}
+          </div>
         </div>
-
+        <div className="min-[800px]:max-2xl:w-full min-[800px]:max-2xl:flex min-[800px]:max-2xl:justify-center 2xl:aspect-square">
+          <div className="min-[800px]:max-2xl:w-[780px] aspect-square">
+            <div className="aspect-square w-full grid grid-rows-8 grid-cols-8 border rounded-lg overflow-hidden">
+              {chessBoardArray && chessBoardArray.length
+                ? chessBoardArray.map((elem) => elem)
+                : null}
+            </div>
+          </div>
+        </div>
+        <div className="2xl:hidden my-3">
+          <div className="flex bg-[#b58863] font-bold text-lg md:text-xl text-[#f0d9b5] rounded-lg p-1 md:p-2">
+            {gameInitials.stockfishGame && playColor === stockfishColor ? (
+              <Image
+                src={"/images/stockfish.png"}
+                width={45}
+                height={45}
+                alt="stokfish"
+                className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
+              />
+            ) : (
+              <Image
+                src={"/knight_mirror.png"}
+                width={40}
+                height={40}
+                alt="default avatar"
+                className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
+              />
+            )}
+            {playColor === "b"
+              ? gameInitials.black.split("@")[0]
+              : gameInitials.white.split("@")[0]}
+          </div>
+        </div>
         <PGNTable
           parsedPGN={parsedPGN}
           parsedPGNRef={parsedPGNRef}
@@ -445,7 +502,7 @@ function Page() {
 
 function PlayersInfo({ playColor }: { playColor: Color }) {
   return (
-    <div className="h-full flex flex-col justify-between">
+    <div className="h-full flex flex-col justify-between max-2xl:hidden ">
       <div className="flex text-[#b58863] font-bold text-xl mr-8 bg-[#f0d9b5] rounded-lg p-2">
         {gameInitials.stockfishGame && playColor !== stockfishColor ? (
           <Image
@@ -519,36 +576,44 @@ function PGNTable({
   setPlayColor: Dispatch<SetStateAction<Color>>;
 }) {
   return (
-    <div className="w-1/5 h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
-      <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
-        <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
-          <div>PGN Table</div>
+    <div className="max-2xl:mt-8 max-2xl:mb-8 max-2xl:w-full 2xl:w-1/5 flex justify-center">
+      <div className="w-11/12 lg:w-3/5 2xl:w-full h-[480px] border rounded-lg bg-[#fffefc] flex flex-col mx-5 overflow-hidden border-[#323014]">
+        <div className="bg-[#323014] h-16 flex justify-center rounded-lg m-2">
+          <div className="text-3xl text-[#fffefc] flex flex-col justify-center">
+            <div>PGN Table</div>
+          </div>
         </div>
-      </div>
-      <div className="w-full h-full overflow-scroll bg-[#fffefc] relative font-mono">
-        <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
-          {parsedPGN && parsedPGN.length
-            ? parsedPGN[0].moves.map((obj, id) => {
-                return obj.turn === "w" ? (
-                  <div
-                    key={id}
-                    className="col-span-4 grid grid-cols-4 grid-rows-1"
-                  >
-                    <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+        <div
+          className="w-full h-full overflow-y-auto bg-[#fffefc] relative font-mono"
+          ref={parsedPGNRef}
+        >
+          <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
+            {parsedPGN && parsedPGN.length
+              ? parsedPGN[0].moves.map((obj, id) => {
+                  return obj.turn === "w" ? (
+                    <div
+                      key={id}
+                      className="col-span-4 grid grid-cols-4 grid-rows-1"
+                    >
+                      <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.moveNumber}
+                        </div>
+                      </div>
                       <div
-                        className="h-full flex flex-col justify-center"
-                        ref={
-                          obj.moveNumber ===
-                          parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
-                            .moveNumber
-                            ? parsedPGNRef
-                            : null
+                        className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
+                        onClick={() =>
+                          arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
                         }
                       >
-                        {obj.moveNumber}
+                        <div className="h-full flex flex-col justify-center">
+                          {obj.notation.notation}
+                        </div>
                       </div>
                     </div>
+                  ) : (
                     <div
+                      key={id}
                       className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
                       onClick={() =>
                         arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
@@ -558,63 +623,51 @@ function PGNTable({
                         {obj.notation.notation}
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div
-                    key={id}
-                    className="col-span-3 w-full flex justify-center cursor-pointer hover:shadow-sm hover:shadow-[#323014] transition duration-100 rounded-lg text-2xl"
-                    onClick={() =>
-                      arbitraryTimeTravel(obj.moveNumber, obj.turn, setFen)
-                    }
-                  >
-                    <div className="h-full flex flex-col justify-center">
-                      {obj.notation.notation}
-                    </div>
-                  </div>
-                );
-              })
-            : null}
-          {parsedPGN[0].tags?.Result ? (
-            <div className="col-span-7 text-3xl w-full flex justify-center text-[#323014] mt-3">
-              <div>{parsedPGN[0].tags.Result}</div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <div className="bg-[#fffefc] w-full h-20 flex justify-around">
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveBackward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronLeft className="text-[#fffefc]" size={25} />
-            </div>
+                  );
+                })
+              : null}
+            {parsedPGN[0].tags?.Result ? (
+              <div className="col-span-7 text-3xl w-full flex justify-center text-[#323014] mt-3">
+                <div>{parsedPGN[0].tags.Result}</div>
+              </div>
+            ) : null}
           </div>
         </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <div
-            className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-            onClick={() => moveForward(setFen)}
-          >
-            <div className="flex flex-col justify-center h-full">
-              <ChevronRight className="text-[#fffefc]" size={25} />
-            </div>
-          </div>
-        </div>
-        <div className="h-full w-1/3 flex flex-col justify-center p-2">
-          <Popover>
+        <div className="bg-[#fffefc] w-full h-20 flex justify-around">
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
             <div
               className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
-              onClick={() =>
-                setPlayColor((x: Color) => (x === "w" ? "b" : "w"))
-              }
+              onClick={() => moveBackward(setFen)}
             >
-              <div className="flex flex-col justify-center">
-                <RefreshCw className="text-[#fffefc]" size={25} />
+              <div className="flex flex-col justify-center h-full">
+                <ChevronLeft className="text-[#fffefc]" size={25} />
               </div>
             </div>
-          </Popover>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <div
+              className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+              onClick={() => moveForward(setFen)}
+            >
+              <div className="flex flex-col justify-center h-full">
+                <ChevronRight className="text-[#fffefc]" size={25} />
+              </div>
+            </div>
+          </div>
+          <div className="h-full w-1/3 flex flex-col justify-center p-2">
+            <Popover>
+              <div
+                className="bg-[#323014] h-full rounded-lg cursor-pointer flex justify-center hover:bg-opacity-90 transition duration-100"
+                onClick={() =>
+                  setPlayColor((x: Color) => (x === "w" ? "b" : "w"))
+                }
+              >
+                <div className="flex flex-col justify-center">
+                  <RefreshCw className="text-[#fffefc]" size={25} />
+                </div>
+              </div>
+            </Popover>
+          </div>
         </div>
       </div>
     </div>
