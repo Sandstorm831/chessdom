@@ -70,11 +70,11 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-scroll border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-scroll border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
                       }
                     >
-                      <div className="overflow-scroll px-2 flex flex-col h-full justify-center">
+                      <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
                         {obj.RoomID.split("?user1")[0]}
                       </div>
                     </div>,
@@ -83,11 +83,11 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-scroll border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-scroll border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
                       }
                     >
-                      <div className="overflow-scroll px-2 flex flex-col h-full justify-center">
+                      <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
                         {obj.white.split("@")[0]}
                       </div>
                     </div>,
@@ -96,11 +96,11 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-scroll border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-scroll border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
                       }
                     >
-                      <div className="overflow-scroll px-2 flex flex-col h-full justify-center">
+                      <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
                         {obj.black.split("@")[0]}
                       </div>
                     </div>,
@@ -109,11 +109,11 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-scroll border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-scroll border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
                       }
                     >
-                      <div className="overflow-scroll px-2 flex flex-col h-full justify-center">
+                      <div className="overflow-hidden px-2 flex flex-col h-full justify-center">
                         {obj.result}
                       </div>
                     </div>,
@@ -122,11 +122,11 @@ function Page() {
                     <div
                       className={
                         idx % 2 === 1
-                          ? "px-2 overflow-scroll border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
-                          : "px-2 overflow-scroll border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
+                          ? "px-2 overflow-hidden border-[#323014] h-full bg-[#323014] text-[#fffefc] text-xl flex justify-center w-full font-mono"
+                          : "px-2 overflow-hidden border-[#323014] h-full bg-[#fffefc] text-[#323014] text-xl flex justify-center w-full font-mono"
                       }
                     >
-                      <div className="overflow-scroll px-2 flex flex-col h-full justify-center p-1">
+                      <div className="overflow-hidden px-2 flex flex-col h-full justify-center p-1">
                         <GiMountedKnight
                           className="h-full w-full cursor-pointer"
                           onClick={() => {

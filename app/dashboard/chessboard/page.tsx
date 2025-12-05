@@ -1410,7 +1410,7 @@ function PGNTable({
           <div>PGN Table</div>
         </div>
       </div>
-      <div className="w-full h-full overflow-scroll bg-[#fffefc] relative font-mono">
+      <div className="w-full h-full overflow-y-auto bg-[#fffefc] relative font-mono">
         <div className="grid grid-cols-7 auto-rows-[50px] grid-flow-row h-full text-[#323014]">
           {parsedPGN && parsedPGN.length
             ? parsedPGN[0].moves.map((obj, id) => {
