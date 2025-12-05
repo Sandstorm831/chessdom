@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <div className="w-full h-screen flex flex-col justify-center">
       <div className="w-full flex justify-center">
-        <div className="w-1/3 flex flex-col">
+        <div className="w-full lg:w-1/2 xl:w-1/3 flex flex-col mx-auto">
           <div className="flex justify-around">
             <Image
               src={"/knight_mirror_.png"}
