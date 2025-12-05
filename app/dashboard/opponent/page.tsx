@@ -1696,17 +1696,19 @@ function Page() {
             ) : null}
           </div>
         </div>
-        <div className="flex bg-[#b58863] font-bold text-lg md:text-xl text-[#f0d9b5] rounded-lg p-1 md:p-2">
-          <Image
-            src={"/knight_mirror.png"}
-            width={40}
-            height={40}
-            alt="default avatar"
-            className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
-          />
-          {session && session.user && session.user.email
-            ? session.user.email.split("@")[0]
-            : "The Knight"}
+        <div className="2xl:hidden my-3">
+          <div className="flex bg-[#b58863] font-bold text-lg md:text-xl text-[#f0d9b5] rounded-lg p-1 md:p-2">
+            <Image
+              src={"/knight_mirror.png"}
+              width={40}
+              height={40}
+              alt="default avatar"
+              className="border border-[#b58863] mr-2 rounded-lg md:w-[60px] md:h-[60px]"
+            />
+            {session && session.user && session.user.email
+              ? session.user.email.split("@")[0]
+              : "The Knight"}
+          </div>
         </div>
         <PGNTable
           parsedPGN={parsedPGN}
