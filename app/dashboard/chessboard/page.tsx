@@ -1318,7 +1318,7 @@ function Page() {
               src={"/images/stockfish.png"}
               width={45}
               height={45}
-              alt="stokfish"
+              alt="stockfish"
               className="border border-[#f0d9b5] rounded-lg mr-2 md:w-[60px] md:h-[60px]"
             />
             Stockfish
@@ -1408,7 +1408,7 @@ function PlayersInfo({ session }: { session: Session | null }) {
           src={"/images/stockfish.png"}
           width={67}
           height={67}
-          alt="stokfish"
+          alt="stockfish"
           className="border border-[#f0d9b5] rounded-lg mr-5"
         />
         Stockfish
@@ -1471,13 +1471,6 @@ function PGNTable({
                       <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
                         <div
                           className="h-full flex flex-col justify-center"
-                          // ref={
-                          //   obj.moveNumber ===
-                          //   parsedPGN[0].moves[parsedPGN[0].moves.length - 1]
-                          //     .moveNumber
-                          //     ? parsedPGNRef
-                          //     : null
-                          // }
                         >
                           {obj.moveNumber}
                         </div>
