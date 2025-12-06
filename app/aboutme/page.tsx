@@ -2,7 +2,6 @@ import { FaXTwitter, FaGithub, FaLinkedin } from "react-icons/fa6";
 import { IoIosMail } from "react-icons/io";
 import { HiCodeBracket } from "react-icons/hi2";
 import React, { ReactElement } from "react";
-import Link from "next/link";
 
 export default function Page() {
   return (
@@ -61,9 +60,9 @@ function Iconholder({
   href: string;
 }) {
   return (
-    <Link className="flex my-3" href={href}>
+    <a target="_blank" rel="noopener noreferrer" className="flex my-3" href={href}>
       <div className="flex flex-col justify-end">{children}</div>
       <div className="text-xl h-full flex flex-col justify-end">{title}</div>
-    </Link>
+    </a>
   );
 }
