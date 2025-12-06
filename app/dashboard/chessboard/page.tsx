@@ -1894,7 +1894,7 @@ function SettingComponent({
               max={2870}
               min={1350}
               step={80}
-              onValueChange={(value) => setStockfishElo(value[0])}
+              onValueChange={(value: SetStateAction<number>[]) => setStockfishElo(value[0])}
               color="#323014"
             />
           </DrawerDescription>
