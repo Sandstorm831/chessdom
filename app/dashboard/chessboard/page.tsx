@@ -1469,9 +1469,7 @@ function PGNTable({
                       className="col-span-4 grid grid-cols-4 grid-rows-1"
                     >
                       <div className="col-span-1 bg-[#fffefc] w-full flex justify-center text-2xl">
-                        <div
-                          className="h-full flex flex-col justify-center"
-                        >
+                        <div className="h-full flex flex-col justify-center">
                           {obj.moveNumber}
                         </div>
                       </div>
@@ -1855,119 +1853,121 @@ function SettingComponent({
       dismissible={false}
       direction="left"
     >
-      <DrawerContent className="w-full md:w-[500px] h-full rounded-lg text-[#323014] bg-[#fffefc] overflow-scroll">
-        <DrawerTitle className="flex justify-center text-5xl mb-16">
+      <DrawerContent className="w-full md:w-[500px] h-svh rounded-lg text-[#323014] bg-[#fffefc] overflow-y-auto">
+        <div className="overflow-y-auto">
+        <DrawerTitle className="flex justify-center text-2xl md:text-4xl mb-6 ">
           Settings
         </DrawerTitle>
-        <DrawerTitle className="flex justify-center text-3xl mb-2">
-          Play as : {playColor === "w" ? "White" : "Black"}
-        </DrawerTitle>
-        <div className="flex justify-center mt-2 mb-5">
-          <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
-            onClick={() => setPlayColor("w")}
-          >
-            <div className="flex flex-col justify-center h-full">White</div>
+          <DrawerTitle className="flex justify-center text-lg md:text-2xl mb-2">
+            Play as : {playColor === "w" ? "White" : "Black"}
+          </DrawerTitle>
+          <div className="flex justify-center mt-2 mb-5">
+            <div
+              className="bg-[#323014] text-md text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-2 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+              onClick={() => setPlayColor("w")}
+            >
+              <div className="flex flex-col justify-center h-full">White</div>
+            </div>
+            <div
+              className="bg-[#323014] text-md text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-2 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+              onClick={() => setPlayColor("b")}
+            >
+              <div className="flex flex-col justify-center h-full">Black</div>
+            </div>
+            <div
+              className="bg-[#323014] text-md text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-2 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
+              onClick={() => {
+                return Math.round(Math.random()) === 1
+                  ? setPlayColor("b")
+                  : setPlayColor("w");
+              }}
+            >
+              <div className="flex flex-col justify-center h-full">Random</div>
+            </div>
           </div>
-          <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
-            onClick={() => setPlayColor("b")}
-          >
-            <div className="flex flex-col justify-center h-full">Black</div>
+          <DrawerDescription className="flex justify-center font-bold text-lg md:text-2xl mb-3 text-[#323014] mt-12">
+            Stockfish Elo : {stockfishElo}
+          </DrawerDescription>
+          <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-3">
+            <Slider
+              defaultValue={[stockfishElo]}
+              max={2870}
+              min={1350}
+              step={80}
+              onValueChange={(value) => setStockfishElo(value[0])}
+              color="#323014"
+            />
+          </DrawerDescription>
+          <DrawerDescription className="flex justify-center font-bold mb-2 text-lg md:text-2xl text-[#323014] mt-8">
+            CPU cores limit
+          </DrawerDescription>
+          <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
+            <div
+              className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+              onClick={() => {
+                if (cores > 1) setCores((cores) => cores - 1);
+              }}
+            >
+              <Minus />
+            </div>
+            <div className="text-lg md:text-2xl flex flex-col justify-center">{cores}</div>
+            <div
+              className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+              onClick={() => {
+                if (cores < totalCores - 1) setCores((cores) => cores + 1);
+              }}
+            >
+              <Plus />
+            </div>
           </div>
-          <div
-            className="bg-[#323014] text-xl text-[#fffefc] hover:bg-[#323014] hover:bg-opacity-90 px-5 py-1 mx-2 rounded-md cursor-pointer flex justify-center transition duration-150"
-            onClick={() => {
-              return Math.round(Math.random()) === 1
-                ? setPlayColor("b")
-                : setPlayColor("w");
-            }}
-          >
-            <div className="flex flex-col justify-center h-full">Random</div>
+          <DrawerDescription className="flex justify-center font-bold mb-2 text-lg md:text-2xl text-[#323014] mt-4 md:mt-8">
+            Stockfish search depth
+          </DrawerDescription>
+          <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
+            <div
+              className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+              onClick={() => {
+                if (depth > 12) setDepth((depth) => depth - 1);
+              }}
+            >
+              <Minus />
+            </div>
+            <div className="text-lg md:text-2xl flex flex-col justify-center">{depth}</div>
+            <div
+              className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
+              onClick={() => {
+                if (depth < 20) setDepth((depth) => depth + 1);
+              }}
+            >
+              <Plus />
+            </div>
           </div>
-        </div>
-        <DrawerDescription className="flex justify-center font-bold text-3xl mb-3 text-[#323014] mt-12">
-          Stockfish Elo : {stockfishElo}
-        </DrawerDescription>
-        <DrawerDescription className="flex justify-center font-bold text-xl px-10 mb-5">
-          <Slider
-            defaultValue={[stockfishElo]}
-            max={2870}
-            min={1350}
-            step={80}
-            onValueChange={(value) => setStockfishElo(value[0])}
-            color="#323014"
-          />
-        </DrawerDescription>
-        <DrawerDescription className="flex justify-center font-bold mb-3 text-3xl text-[#323014] mt-12">
-          CPU cores limit
-        </DrawerDescription>
-        <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
-          <div
-            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
-            onClick={() => {
-              if (cores > 1) setCores((cores) => cores - 1);
-            }}
-          >
-            <Minus />
+          <div className="flex justify-center font-bold text-sm mt-6 text-[#323014] font-mono">
+            <div className="w-3/4">
+              NOTE : higher depth can lead to slow stockfish responses, we
+              recommend sticking to default
+            </div>
           </div>
-          <div className="text-3xl flex flex-col justify-center">{cores}</div>
-          <div
-            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
-            onClick={() => {
-              if (cores < totalCores - 1) setCores((cores) => cores + 1);
-            }}
-          >
-            <Plus />
+          <div className="flex flex-col justify-end py-12 w-full px-12 ">
+            <Button
+              className="w-full bg-[#323014] text-[#fffefc] text-lg md:text-xl"
+              variant={"default"}
+              onClick={() =>
+                startTheGame(
+                  setParsedPGN,
+                  setOpenSettings,
+                  stockfishElo,
+                  playColor,
+                  originalFEN,
+                  cores,
+                  depth
+                )
+              }
+              disabled={useAppSelector(getEngineState) !== "ready"}
+            >
+              Apply and Play
+            </Button>
           </div>
-        </div>
-        <DrawerDescription className="flex justify-center font-bold mb-3 text-3xl text-[#323014] mt-12">
-          Stockfish search depth
-        </DrawerDescription>
-        <div className="flex justify-around font-bold text-3xl mb-3 text-[#323014]">
-          <div
-            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
-            onClick={() => {
-              if (depth > 12) setDepth((depth) => depth - 1);
-            }}
-          >
-            <Minus />
-          </div>
-          <div className="text-3xl flex flex-col justify-center">{depth}</div>
-          <div
-            className="rounded-lg bg-[#323014] text-2xl text-[#fffefc] px-2 flex flex-col justify-center"
-            onClick={() => {
-              if (depth < 20) setDepth((depth) => depth + 1);
-            }}
-          >
-            <Plus />
-          </div>
-        </div>
-        <div className="flex justify-center font-bold text-sm mt-2 text-[#323014] font-mono">
-          <div className="w-3/4">
-            NOTE : higher depth can lead to slow stockfish responses, we
-            recommend sticking to default
-          </div>
-        </div>
-        <div className="flex flex-col justify-end py-12 w-full px-12 h-full">
-          <Button
-            className="w-full bg-[#323014] text-[#fffefc] text-xl"
-            variant={"default"}
-            onClick={() =>
-              startTheGame(
-                setParsedPGN,
-                setOpenSettings,
-                stockfishElo,
-                playColor,
-                originalFEN,
-                cores,
-                depth
-              )
-            }
-            disabled={useAppSelector(getEngineState) !== "ready"}
-          >
-            Apply and Play
-          </Button>
         </div>
       </DrawerContent>
     </Drawer>
